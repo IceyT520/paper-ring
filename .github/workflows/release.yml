@@ -25,6 +25,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: website/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Check that the tag matches package.json
+        run: |
+          node -e "const v=require('./package.json').version;const t=process.env.GITHUB_REF_NAME.replace(/^v/,'');if(v!==t){console.error('package.json '+v+' does not match tag '+process.env.GITHUB_REF_NAME);process.exit(1)}"
       - run: pnpm test
       - run: pnpm release
       # GitHub sanitises non-ASCII asset names to "default.<ext>", so publish

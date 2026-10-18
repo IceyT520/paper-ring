@@ -14,7 +14,7 @@
 - 如果再次出现"打包到 A、用户打开 B"的情况，先查 `paths.mjs`，不要另加文件名常量。
 - 原文为根目录的 `纸环的两面.pdf`；大纲为 `纸环的两面_作品大纲.md`；摘要为 `纸环的两面_内容摘要.md`；另有 `纸环的两面_交互原型.html`。
 - 源资料、原型和 PDF 保留。正文修改通过网站的校订层实现，不覆盖 PDF。
-- 本项目自 2026-10-18 起是 Git 仓库并已开源到 GitHub；每个版本提交后打语义化标签，推送标签由 Actions 生成 Release（附单文件 HTML 与 PDF），`main` 自动部署 Pages。发布流程见根目录 `README.md`，版本记录见 `CHANGELOG.md`。
+- 本项目自 2026-10-18 起是 Git 仓库并已开源：<https://github.com/IceyT520/paper-ring>，在线阅读 <https://iceyt520.github.io/paper-ring/>。每个版本提交后打语义化标签，推送标签由 Actions 生成 Release（附 ASCII 命名的单文件 HTML 与 PDF，因为 GitHub 会把非 ASCII 资产名改写成 `default.*`），`main` 自动部署 Pages。发布流程见根目录 `README.md`，版本记录见 `CHANGELOG.md`。
 - 当前没有本轮遗留的预览服务器。此前用于验证的 4173 端口服务已停止。
 
 ## 2. 用户想要的作品
