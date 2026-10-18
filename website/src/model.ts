@@ -2,7 +2,10 @@ export interface Parameters { alpha:number; beta:number; gamma:number; delta:num
 export type ModelMode = 'linear' | 'bounded';
 export interface Sample { t:number; A:number; R:number }
 export const INITIAL = { A:.65, R:.15 };
-export const DEFAULT_PARAMETERS:Parameters={alpha:3,beta:1,gamma:3,delta:1,D:3};
+// The sandbox opens at the model's own critical distance (αγ/βδ = 9), so the
+// first view is the coexistence line rather than a runaway curve. The growth
+// regime stays one preset away.
+export const DEFAULT_PARAMETERS:Parameters={alpha:3,beta:1,gamma:3,delta:1,D:9};
 export function validate(p:Parameters){
   if(Object.values(p).some(v=>!Number.isFinite(v)||v<=0)) throw new RangeError('All model parameters must be positive and finite.');
 }

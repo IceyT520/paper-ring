@@ -34,6 +34,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm build
+      # The shipped single file is rebuilt here so the browser checks test the
+      # artefact a reader actually opens, not the dev server.
+      - run: pnpm package
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: node scripts/qa-offline.mjs
+        env:
+          PAPER_BROWSER: chromium
+      - run: node scripts/qa-alignment.mjs --offline
+        env:
+          PAPER_BROWSER: chromium
       - run: pnpm check:content
       - uses: actions/upload-pages-artifact@v3
         with:

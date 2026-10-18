@@ -13,7 +13,8 @@ export function initDefense(){
  function paint(){
   frame=0;
   const amount=inside?0:held?1:proximity;
-  scene.style.setProperty('--fold-angle',`${64-amount*56}deg`);
+  // A slightly flatter fan keeps each printed fold legible before it closes.
+  scene.style.setProperty('--fold-angle',`${56-amount*50}deg`);
   scene.style.setProperty('--approach',amount.toFixed(3));
   scene.classList.toggle('feeling-close',amount>.65);
   const message=inside?'暖光照亮的，是没有说出口的需要。墙还在，你看见了它保护着什么。':amount>.65?'纸墙收拢，暖光只剩一道缝。想靠近的需要，仍然藏在里面。':'想靠近，也会先保护自己。';

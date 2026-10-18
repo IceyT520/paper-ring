@@ -4,7 +4,8 @@ import {DEFAULT_PARAMETERS as P,criticalDistance,regime,linearAt,rk4,simulate,bo
 test('critical threshold and both sides follow the actual equation',()=>{
  assert.equal(criticalDistance(P),9);
  assert.equal(regime({...P,D:9}),'critical');assert.equal(regime({...P,D:3}),'growth');assert.equal(regime({...P,D:12}),'decay');
- assert(linearAt(12,P).A>1,'Linear result must not be clamped');
+ assert.equal(regime(P),'critical','the sandbox opens at the critical distance');
+ assert(linearAt(12,{...P,D:3}).A>1,'Linear result must not be clamped');
  const decay=linearAt(200,{...P,D:12});assert(decay.A<1e-10&&decay.R<1e-10);
 });
 test('at the critical value every point on the equilibrium line remains fixed',()=>{
@@ -15,10 +16,17 @@ test('analytical linear solution agrees with independent RK4 integration',()=>{
  for(const D of [.6,3,9,12]){const p={...P,D};let A=.65,R=.15;for(let i=0;i<10000;i++)[A,R]=rk4(A,R,.0001,p,'linear');const exact=linearAt(1,p);assert(Math.abs(A-exact.A)<1e-9);assert(Math.abs(R-exact.R)<1e-9)}
 });
 test('bounded extension preserves bounds and reaches its independently computed equilibrium',()=>{
- for(const p of [P,{...P,D:.2},{...P,D:12},{alpha:8,beta:.2,gamma:8,delta:.2,D:.2},{alpha:.2,beta:6,gamma:.2,delta:6,D:12}]){
+ for(const p of [{...P,D:4.5},{...P,D:.2},{...P,D:12},{alpha:8,beta:.2,gamma:8,delta:.2,D:.2},{alpha:.2,beta:6,gamma:.2,delta:6,D:12}]){
   const {samples}=simulate(p,'bounded',80);assert(samples.every(s=>s.A>=0&&s.A<=1&&s.R>=0&&s.R<=1));
   const expected=boundedEquilibrium(p),last=samples.at(-1)!;assert(Math.abs(last.A-expected.A)<1e-5);assert(Math.abs(last.R-expected.R)<1e-5);
  }
+});
+test('exactly at the critical distance the bounded system only approaches zero slowly',()=>{
+ // Marginal case: the equilibrium is (0,0) but one eigenvalue vanishes, so the
+ // platform must not be faked by clamping.
+ assert.deepEqual(boundedEquilibrium({...P}),{A:0,R:0});
+ const {samples}=simulate({...P},'bounded',600),last=samples.at(-1)!;
+ assert(last.A<2e-3&&last.R<3e-3,`still ${last.A.toFixed(4)}/${last.R.toFixed(4)} after 600s`);
 });
 test('recomputations use the same initial state, and divergence is reported instead of flattened',()=>{
  assert.deepEqual(simulate(P,'linear'),simulate(P,'linear'));

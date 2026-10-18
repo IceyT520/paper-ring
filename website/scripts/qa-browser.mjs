@@ -49,12 +49,17 @@ try{
   const value=await page.locator('#loop-description').textContent();await page.waitForTimeout(1900);assert.equal(await page.locator('#loop-description').textContent(),value);
   await page.locator('#loop-reset').click();assert.equal(await page.locator('#loop-count').textContent(),'00');
  });
- await check('simulation shows unbounded growth, exact critical line and bounded extension',async()=>{
-  assert(Number(await page.locator('#time-chart').getAttribute('data-max'))>1);
-  await page.locator('[data-preset="critical"]').click();assert.equal(await page.locator('#critical-value').textContent(),'9.00');
+ await check('simulation opens at the critical distance, then grows or settles',async()=>{
+  assert.equal(await page.locator('#critical-value').textContent(),'9.00');
+  assert((await page.locator('#sim-status').textContent()).startsWith('临界'),'default view must be the critical regime');
   assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
+  const atRest=Number(await page.locator('#time-chart').getAttribute('data-max'));assert(atRest<=1.5,`critical view ${atRest}`);
+  await page.locator('[data-preset="growth"]').click();
+  assert.equal(await page.locator('#critical-value').textContent(),'9.00');
+  assert(Number(await page.locator('#time-chart').getAttribute('data-max'))>1,'the growth preset still leaves [0,1]');
+  await page.locator('[data-preset="critical"]').click();
   await page.locator('[data-model="bounded"]').click();assert(Number(await page.locator('#time-chart').getAttribute('data-max'))<=1);
-  await page.locator('#sim-reset').click();assert.equal(await page.locator('#value-D').textContent(),'3.00');
+  await page.locator('#sim-reset').click();assert.equal(await page.locator('#value-D').textContent(),'9.00');
  });
  await check('communication exercise and copyable original sentence',async()=>{
   await page.locator('#practice-reframe').click();assert(await page.locator('#practice-feedback').isVisible());

@@ -1,7 +1,7 @@
-import {chromium} from 'playwright';
+import {launchBrowser} from './browser.mjs';
 import {offlineUrl} from './paths.mjs';
 import assert from 'node:assert/strict';
-const browser=await chromium.launch({channel:'msedge',headless:true});
+const browser=await launchBrowser();
 try{
  const context=await browser.newContext({viewport:{width:1440,height:1000},offline:true,reducedMotion:'reduce'});
  const page=await context.newPage(),errors=[],network=[];

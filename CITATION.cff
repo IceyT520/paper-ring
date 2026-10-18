@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: 如果你引用这篇文章或这个作品，请使用下面的格式。
+title: 纸环的两面 — 一场关于亲密关系的交互展览
+type: software
+version: 1.2.0
+date-released: 2026-10-18
+license: MIT
+url: https://github.com/IceyT520/paper-ring
+repository-code: https://github.com/IceyT520/paper-ring
+abstract: >-
+  《纸环的两面——论回避型恋人和焦虑型恋人在异地恋中如何相处》的交互展览版本，
+  含完整原文、十二幕交互、关系动力学沙盘，以及可离线打开的单文件成品。
+authors:
+  - family-names: Cheung
+    given-names: Cannin
+    affiliation: 河北，中国
+notes: >-
+  文字版权归原作者 Cannin·Cheung；本仓库代码以 MIT 许可发布，
+  MIT 不覆盖正文与 PDF。

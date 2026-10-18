@@ -5,6 +5,10 @@
 
 **在线观看**：<https://iceyt520.github.io/paper-ring/>　｜　**仓库**：<https://github.com/IceyT520/paper-ring>　｜　**单文件**：[纸环的两面.html](纸环的两面.html)（离线可用）　｜　**原文**：[纸环的两面.pdf](纸环的两面.pdf)
 
+[![Deploy](https://github.com/IceyT520/paper-ring/actions/workflows/pages.yml/badge.svg)](https://github.com/IceyT520/paper-ring/actions/workflows/pages.yml)
+[![Release](https://github.com/IceyT520/paper-ring/actions/workflows/release.yml/badge.svg)](https://github.com/IceyT520/paper-ring/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/licence-MIT-black)](LICENSE)
+
 [![扉页：一条三维纸带，红蓝两线](docs/preview/cover.jpg)](纸环的两面.html)
 
 | 同一张纸，两个世界 | 内侧：折页合拢，遮住"想靠近" | 沙盘：临界距离是一条平衡线 | 扭转之后，光走到另一面 |
@@ -85,9 +89,9 @@ git push --follow-tags
 - **字体**：Noto Serif SC / Noto Sans SC（思源字族），SIL OFL 1.1，见 [website/public/fonts/OFL.txt](website/public/fonts/OFL.txt)。
 - **三维与动画**：Three.js、GSAP，许可证随依赖分发。
 
-## 已验证（v1.1.0）
+## 已验证（v1.2.0）
 
 - 71 个原文块在展览、全文、单文件成品三处逐字一致；37 条校订同时应用；引号成对。
 - 9 个单元测试：解析解与 RK4 互证（1e-9）、临界平衡线上每点不动、纸带与光点始终贴合表面、莫比乌斯接缝连续、触控可从任一面出发。
-- 无头 Edge：1440 / 768 / 390 / 360 无横向溢出、无 console 错误；无 JS、无 WebGL、减少动态效果均有可用降级。
-- 清理死代码后，28 张基准截图逐像素一致（桌面 14 处 + 手机 14 处）。
+- 浏览器验收：1440 / 768 / 390 / 360 无横向溢出、无 console 错误；无 JS、无 WebGL、减少动态效果均有可用降级。CI 每次部署都会对打包后的单文件跑 `qa-offline` 与 `qa-alignment --offline`。
+- 死代码清理后，28 张基准截图逐像素一致（桌面 14 处 + 手机 14 处）。

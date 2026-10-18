@@ -1,12 +1,15 @@
-import {chromium} from 'playwright';
+import {launchBrowser} from './browser.mjs';
+import {offlineUrl} from './paths.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-const browser=await chromium.launch({channel:'msedge',headless:true});
+const browser=await launchBrowser();
+const offline=process.argv.includes('--offline');
+const url=offline?offlineUrl:'http://127.0.0.1:4173/';
 const report=[];
 try{
  for(const [width,height] of [[1440,1000],[768,1024],[390,844],[360,800]]){
   const page=await browser.newPage({viewport:{width,height}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
+  await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
   await page.locator('#send-signal').click();await page.waitForTimeout(1900);
   async function checkDock(){
    const result=await page.evaluate(()=>{

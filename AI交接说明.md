@@ -125,7 +125,7 @@ D* = αγ / (βδ)
 
 - A 和 R 表示焦虑、回避变量，不能直接换算成爱意多少、关系好坏或恋爱评分。
 - 固定 R 和 α 时，D 增大使 αR/D 减小。原作者对此的文字方向错误已经校正，不能把分母解释成正向放大。
-- 默认初值 A=0.65、R=0.15；默认 α=γ=3、β=δ=1、D=3，临界值为 9。
+- 默认初值 A=0.65、R=0.15；默认 α=γ=3、β=δ=1、**D=9（等于临界值）**，所以沙盘第一眼是临界状态与虚线平衡线；放大区用预设按钮进入（D=3）。
 - 对非零非负初值，临界值以下有增长模态，以上长期衰减；临界处是一条平衡线 R*=γA*/δ，不是唯一平衡点。
 - 线性系统不保证变量永远处于 [0,1]，不得强行截断制造“稳定平台”。
 - 这组方程的特征值为实数，不产生周期振荡，不能凭空画“两极振荡”。
@@ -276,7 +276,17 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - 开源：根目录 README / LICENSE（代码 MIT，正文版权归作者）/ CHANGELOG；`.github/workflows/pages.yml` 部署 Pages，`release.yml` 在标签上生成带单文件与 PDF 的 Release。
 - CI 三个坑（已修，别再踩）：`github-pages` 环境默认只允许默认分支部署，**标签推送会被拒绝**，所以 Pages 只跟 `main`，Release 只跟 tag；GitHub 会把非 ASCII 资产名改写成 `default.html/pdf`，所以 Release 先复制成 `paper-ring-<tag>.html/pdf` 再上传（仓库里的文件名仍是中文）；`release.yml` 会先比对 `package.json` 版本与标签，不一致直接失败。
 - 当前 `main` 的 Pages 部署与 `v1.1.0` 的 Release 都已跑通：<https://iceyt520.github.io/paper-ring/>、<https://github.com/IceyT520/paper-ring/releases/tag/v1.1.0>。
-- 注意：`content/article.json` 里的 `note` 字段是归档记录，页面不再逐块渲染；对外说明集中在第 12 章的“编者注与模型说明”。
+- 注意：`content/article.json` 里的 `note` 字段是归档记录，页面不再逐块渲染；对外说明集中在第 12 章的“校订与模型说明”。
+
+### 11.2 v1.2.0（2026-10-18）：体验与传播
+
+- **沙盘默认改成临界**：`DEFAULT_PARAMETERS.D=9`，第一眼是平衡线与"临界"状态，不再一进来就是冲到 5×10³ 的发散曲线；放大区改为预设按钮 `growth`（D=3）。`model.test.ts` 与 `qa-browser.mjs` 已同步。
+- **社交卡片**：`og:` / `twitter:` meta 指向 Pages 上的 `og.jpg`（1200×630），另加 `CITATION.cff` 便于引用。
+- **第 11 章亮屏**：新增 `.screen-bloom` 冷光扩散（GSAP 一次性 1.05s 后回落到 0.24），回复气泡同时轻微放大；减少动态效果时 `display:none`。
+- **CI 加浏览器检查**：`pages.yml` 现在先 `pnpm package`，再跑 `qa-offline.mjs` 与 `qa-alignment.mjs --offline`（新增 `scripts/browser.mjs`，CI 用 `PAPER_BROWSER=chromium` 与 `playwright install chromium`）。
+- **第 12 章措辞**：去掉自曝勘误的句子，改为"校订与模型说明"并链到 `content/corrections.json`。
+- **第 4 章折页**：静止展开角 64°→56°、收拢到 6°，竖排字字距 .25em→.18em、字号上限 18→17，减少折页互相遮挡。
+- README 增加 Pages / Release 徽章。
 
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 

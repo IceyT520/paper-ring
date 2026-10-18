@@ -50,8 +50,8 @@ export function initSimulator(){
  document.querySelectorAll<HTMLInputElement>('[data-param]').forEach(el=>el.addEventListener('input',()=>{p[el.dataset.param as keyof Parameters]=Number(el.value);update()}));
  document.querySelectorAll<HTMLButtonElement>('[data-model]').forEach(el=>el.addEventListener('click',()=>{mode=el.dataset.model as ModelMode;update()}));
  document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach(el=>el.addEventListener('click',()=>{
-   const key=el.dataset.preset;if(key==='typical')p={...DEFAULT_PARAMETERS};
-   else p.D=criticalDistance(p)*(key==='critical'?1:key==='near'?.45:1.3);update();
+   const key=el.dataset.preset;if(key==='critical')p={...DEFAULT_PARAMETERS};
+   else p.D=criticalDistance(p)*({near:.45,far:1.3,growth:1/3} as Record<string,number>)[key!];update();
  }));
  document.querySelector('#sim-reset')!.addEventListener('click',()=>{p={...DEFAULT_PARAMETERS};update()});
  update();
