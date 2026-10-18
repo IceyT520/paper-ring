@@ -62,7 +62,7 @@
 - 用户明确不需要书签功能；不要擅自重新加入续读提示、阅读历史存储。
 - 用户希望实做并检查，不能只解释“我想表达什么”。有新反馈时先核对实际运行结果。
 - 沟通使用中文、直接说明改了什么；进度更新说清发现和下一步，不需要反复长篇解释技术。
-- 通常交付更新后的本地可打开成品。没有要求发布到外部平台，不要自己增加部署、账号或审批流程。
+- 通常交付更新后的本地可打开成品。**2026-10-18 用户明确要求开源到 GitHub、并且以后每一版都上传**；除此之外仍不要擅自增加其他外部平台、账号或审批流程。
 - 用户长期指示：已安装技能和已下载参考确实有用时，主动读取并使用，不能只靠关键词机械套用，也不要因此扩张任务。
 
 ## 5. 已完成工作：按模块交接
@@ -159,8 +159,8 @@ D* = αγ / (βδ)
 | `src/typography.ts` | 中文大字的视觉居中。 |
 | `src/model.ts` / `src/simulator.ts` | 数学计算与沙盘绘图。 |
 | `scripts/fetch-fonts.py` | 新增中文字符后补齐本地字体子集。 |
-| `scripts/package-offline.mjs` | 内嵌 CSS、JS、字体、三维代码，生成独立 HTML。注意前述文件名差异。 |
-| `README.md` | 技术说明和历史验证。部分入口文件名仍待与当前目录核对。 |
+| `scripts/package-offline.mjs` | 内嵌 CSS、JS、字体、三维代码，生成独立 HTML；路径取自 `scripts/paths.mjs`。 |
+| `README.md` | 技术说明和历史验证；入口文件名已与当前目录一致。 |
 | `test-results/` | 历次浏览器截图、模型/排版/性能报告。历史报告不是最新改动自动通过的证明。 |
 
 所有字体已本地保存，正文和界面使用思源/Noto 宋体、黑体，数字和标记用等宽字体。无需运行时请求外部字体。若新增汉字显示不一致，先检查是否缺少字体子集。
@@ -222,7 +222,7 @@ $paperNode = 'C:\Users\ROG\.cache\codex-runtimes\codex-primary-runtime\dependenc
 & $paperNode scripts/package-offline.mjs
 ```
 
-构建和打包有先后依赖，不要并行。打包前处理好当前成品文件名差异。新文字需要字体时运行：
+构建和打包有先后依赖，不要并行；发布前直接跑 `pnpm release`（渲染 → 打包 → 校验），不要手工分步。新文字需要字体时运行：
 
 ```powershell
 & 'C:\Users\ROG\.workbuddy\binaries\python\envs\default\Scripts\python.exe' scripts/fetch-fonts.py
@@ -240,7 +240,7 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 
 | 脚本 | 适用范围 |
 | --- | --- |
-| `check-content.mjs` | 71 块、双模式、37 校订、配对引号、10 页、7 致谢、4 文献。 |
+| `check-content.mjs` | 71 块、双模式、37 校订、配对引号、10 页、7 致谢、4 文献；并校验单文件成品（71×2、12 章、PDF 入口、无站点根路径资源）。 |
 | `tests/*.test.ts` | 模型与几何，现有 9 项单元测试。 |
 | `qa-opening.mjs --offline` | 开场时长、静态定格、停止绘制、跳过、锁滚动、模式切换、深链接和降级；最新加入共用按钮位置不横移的检查。 |
 | `qa-playback.mjs --offline` | 开场滚动锁、重播、恢复；莫比乌斯按钮、暂停继续和滚动不推进。支持 `--opening-only` / `--mobius-only`。 |
@@ -274,6 +274,8 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - 删除的死代码：旧版墙体/回声圆盘/节奏拖条、莫比乌斯滑条浮层、永不渲染的逐块编者注分支及其样式。审计方法：在真实页面上用 `document.querySelector` 逐条验证选择器是否可能匹配，并排除伪元素、`:hover`、`[aria-*]` 等状态选择器；删除后用同样 28 张截图做逐像素回归。
 - `check-content.mjs` 增加单文件成品校验；`pnpm release` 一次完成渲染、打包、校验。
 - 开源：根目录 README / LICENSE（代码 MIT，正文版权归作者）/ CHANGELOG；`.github/workflows/pages.yml` 部署 Pages，`release.yml` 在标签上生成带单文件与 PDF 的 Release。
+- CI 三个坑（已修，别再踩）：`github-pages` 环境默认只允许默认分支部署，**标签推送会被拒绝**，所以 Pages 只跟 `main`，Release 只跟 tag；GitHub 会把非 ASCII 资产名改写成 `default.html/pdf`，所以 Release 先复制成 `paper-ring-<tag>.html/pdf` 再上传（仓库里的文件名仍是中文）；`release.yml` 会先比对 `package.json` 版本与标签，不一致直接失败。
+- 当前 `main` 的 Pages 部署与 `v1.1.0` 的 Release 都已跑通：<https://iceyt520.github.io/paper-ring/>、<https://github.com/IceyT520/paper-ring/releases/tag/v1.1.0>。
 - 注意：`content/article.json` 里的 `note` 字段是归档记录，页面不再逐块渲染；对外说明集中在第 12 章的“编者注与模型说明”。
 
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
