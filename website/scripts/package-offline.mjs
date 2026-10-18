@@ -1,7 +1,7 @@
 import {build} from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
-import {root,offlineHtml,sourcePdf} from './paths.mjs';
+import {root,projectRoot,offlineHtml,sourcePdf} from './paths.mjs';
 const result=await build({configFile:false,root,logLevel:'warn',build:{write:false,target:'es2022',minify:'esbuild',lib:{entry:path.join(root,'src/main.ts'),name:'PaperExhibition',formats:['iife']},rollupOptions:{output:{inlineDynamicImports:true}}}});
 const output=Array.isArray(result)?result[0].output:result.output;
 const js=output.find(x=>x.type==='chunk').code.replace(/<\/script/gi,'<\\/script');
@@ -18,4 +18,10 @@ let html=fs.readFileSync(path.join(root,'index.html'),'utf8')
  .replaceAll('href="./paper.pdf"',`href="./${encodeURIComponent(path.basename(sourcePdf))}"`)
  .replace('<script type="module" src="/src/main.ts"></script>',()=>`<script>${js}</script>`);
 fs.writeFileSync(offlineHtml,html);
+// The soundtrack is not embedded: it travels beside the single file, if present.
+const track=path.join(root,'public/theme.mp3');
+const published=path.join(projectRoot,'theme.mp3');
+if(fs.existsSync(track)){fs.copyFileSync(track,published);console.log(`Soundtrack beside the page: ${published}`)}
+else if(fs.existsSync(published)){console.log('Soundtrack: reusing the existing theme.mp3 beside the page')}
+else{console.log('Soundtrack: no theme.mp3 — the exhibition stays silent and hides the control')}
 console.log(`Offline exhibition: ${offlineHtml} (${Math.round(Buffer.byteLength(html)/1024)} KiB)`);

@@ -4,6 +4,7 @@ import {initSimulator} from './simulator';
 import {initJourney,updateAtmosphere} from './touch';
 import {initOpticalTitles} from './typography';
 import {initOpening} from './opening';
+import {initAudio} from './audio';
 import type {PaperController} from './paper';
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,6 +14,8 @@ const storage={get(key:string){try{return localStorage.getItem(key)}catch{return
 const media=matchMedia('(prefers-reduced-motion: reduce)');
 let reduced=storage.get('paper-motion')===null?media.matches:storage.get('paper-motion')==='reduced';
 let readerMode=false,currentSource='p001',currentChapter='01',paper:PaperController|undefined;
+// Audio listens before the opening can fire its first cue.
+initAudio();
 const opening=initOpening(reduced,progress=>paper?.setOpening(progress));
 let context:gsap.Context|undefined,toastTimer:ReturnType<typeof setTimeout>;
 const chapterEls=all<HTMLElement>('#exhibition > .chapter');

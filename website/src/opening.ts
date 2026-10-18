@@ -23,7 +23,8 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void){
  function holdCover(){if(active&&(scrollY!==0||scrollX!==0))window.scrollTo({top:0,left:0,behavior:'instant'})}
  function blockNavigation(event:MouseEvent){
   const target=event.target instanceof Element?event.target.closest('a,button'):null;
-  if(target&&target!==skip&&target.id!=='motion-toggle'){event.preventDefault();event.stopImmediatePropagation()}
+  // The soundtrack control stays usable: the music may already be playing.
+  if(target&&target!==skip&&!['motion-toggle','sound-toggle'].includes(target.id)){event.preventDefault();event.stopImmediatePropagation()}
  }
  function finish(){
   const restoreFocus=document.activeElement===skip;
@@ -38,10 +39,14 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void){
   stage.removeEventListener('paper-ready',start);
   if(restoreFocus)replay.focus({preventScroll:true});
  }
- function start(){if(!active||playing)return;playing=true;root.dataset.opening='running';timeline?.play()}
+ function start(){
+  if(!active||playing)return;playing=true;root.dataset.opening='running';timeline?.play();
+  // The soundtrack is cued off the same beat as the timeline; replays re-cue it.
+  document.dispatchEvent(new CustomEvent('paper:opening-start',{detail:{at:performance.now()}}));
+ }
  function onKey(event:KeyboardEvent){
   if(event.key==='Escape'){event.preventDefault();finish();return}
-  if(event.key===' '&&(event.target===skip||(event.target as HTMLElement)?.id==='motion-toggle'))return;
+  if(event.key===' '&&(event.target===skip||['motion-toggle','sound-toggle'].includes((event.target as HTMLElement)?.id)))return;
   if([' ','ArrowDown','ArrowUp','ArrowLeft','ArrowRight','PageDown','PageUp','Home','End'].includes(event.key))event.preventDefault();
  }
  function onVisibility(){if(document.hidden)finish()}

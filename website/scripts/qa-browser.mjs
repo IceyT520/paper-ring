@@ -6,11 +6,33 @@ const reports=[];
 const url='http://127.0.0.1:4173/';
 fs.mkdirSync('test-results',{recursive:true});
 async function check(name,fn){await fn();reports.push(name);console.log('PASS',name)}
+function silentWav(seconds=.6,rate=8000){
+ const n=Math.floor(seconds*rate),buf=Buffer.alloc(44+n);
+ buf.write('RIFF',0);buf.writeUInt32LE(36+n,4);buf.write('WAVE',8);buf.write('fmt ',12);
+ buf.writeUInt32LE(16,16);buf.writeUInt16LE(1,20);buf.writeUInt16LE(1,22);buf.writeUInt32LE(rate,24);
+ buf.writeUInt32LE(rate,28);buf.writeUInt16LE(1,32);buf.writeUInt16LE(8,34);buf.write('data',36);buf.writeUInt32LE(n,40);
+ buf.fill(128,44);return buf;
+}
 try{
  const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',permissions:['clipboard-read','clipboard-write']});
  const page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
+ // No soundtrack ships with the repo: answer the request with silence so the
+ // control, the gesture unlock and the stored preference can be exercised.
+ await page.route('**/theme.mp3',route=>route.fulfill({status:200,contentType:'audio/wav',body:silentWav()}));
  await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
+ await check('soundtrack: control appears with a track, starts on gesture, remembers off',async()=>{
+  await page.locator('#sound-toggle').waitFor({state:'visible',timeout:5000});
+  assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'true');
+  await page.locator('#sound-toggle').click();
+  assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('paper-sound')),'off');
+  await page.reload({waitUntil:'networkidle'});
+  assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');
+  await page.locator('#sound-toggle').click();
+  await page.waitForTimeout(400);
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.audio),'playing');
+ });
  await check('static article: 12 chapters, 71 full-text blocks, local fonts and PDF',async()=>{
   assert.equal(await page.locator('#exhibition > .chapter').count(),12);
   assert.equal(await page.locator('#exhibition [data-original]').count(),71);

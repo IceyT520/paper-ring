@@ -288,6 +288,16 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - **第 4 章折页**：静止展开角 64°→56°、收拢到 6°，竖排字字距 .25em→.18em、字号上限 18→17，减少折页互相遮挡。
 - README 增加 Pages / Release 徽章。
 
+### 11.3 v1.3.0（2026-10-18）：背景音乐
+
+- 用户要求加背景音乐（指定《唯一》）。**音频文件没有进仓库**：商业录音的再分发需要授权，且本机没有该文件。实现的是播放器与同步逻辑，文件由用户自己放：
+  - 单文件版：`theme.mp3` 与 `纸环的两面.html` 同目录；
+  - 源码版：`website/public/theme.mp3`，`pnpm release` 会复制到成品旁边。
+- `src/audio.ts`：`paper:opening-start` 事件与开场同拍开始，2.4s 淡入到 0.32，`loop=true` 单曲循环；被自动播放策略拦截时，首次点击/按键接入（若开场仍在进行则 seek 到已过秒数）。
+- 右上角 ♪（`#sound-toggle`）：开/关、`localStorage` 记 `paper-sound`、关闭时 320ms 淡出再暂停。没有音轨时 `canplay` 不触发、按钮保持隐藏，`html[data-audio=unavailable]`，展览静音。
+- `qa-browser.mjs` 用 route 伪造一段静音 WAV 来测：控件出现、关闭后持久化、重新开启会播放。
+- 如果以后用户把音频提交进仓库，Pages 会直接分发它；README 已写明这属于录音再分发，需要用户自行确认授权。`package-offline.mjs` 在缺少 `public/theme.mp3` 时会复用成品旁已有的 `theme.mp3`。
+
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 
 ## 12. 给下一位 AI 的简短提醒

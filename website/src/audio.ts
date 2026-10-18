@@ -1,0 +1,79 @@
+/** Background music: starts with the opening, loops, and can be switched off.
+ *  The track is never bundled; drop your own file at `theme.mp3` beside the page
+ *  (see README). Without it the control stays hidden and the exhibition is silent. */
+const TRACK='theme.mp3';
+const VOLUME=.32;
+
+export function initAudio(){
+ const button=document.querySelector<HTMLButtonElement>('#sound-toggle');
+ if(!button)return;
+ const audio=new Audio(TRACK);
+ audio.loop=true;audio.preload='auto';audio.volume=0;
+ let enabled=read()!=='off',failed=false,loaded=false,openingStartedAt=0,gestureBound=false,fade=0;
+ const root=document.documentElement;
+
+ function read(){try{return localStorage.getItem('paper-sound')}catch{return null}}
+ function store(value:string){try{localStorage.setItem('paper-sound',value)}catch{/* private mode */}}
+ function state(next:'playing'|'paused'|'unavailable'){root.dataset.audio=next}
+ function sync(){
+  button!.hidden=failed||!loaded;
+  button!.setAttribute('aria-pressed',String(enabled));
+  button!.setAttribute('aria-label',enabled?'关闭背景音乐':'开启背景音乐');
+  button!.classList.toggle('sound-off',!enabled);
+ }
+ function ramp(target:number,ms:number){
+  cancelAnimationFrame(fade);
+  const from=audio.volume,start=performance.now();
+  const step=(now:number)=>{
+   const t=Math.min(1,(now-start)/ms);
+   audio.volume=Math.max(0,Math.min(1,from+(target-from)*t));
+   if(t<1)fade=requestAnimationFrame(step);
+  };
+  fade=requestAnimationFrame(step);
+ }
+ function play(seek?:number){
+  if(failed||!enabled)return;
+  if(seek!==undefined){try{audio.currentTime=seek}catch{/* not seekable yet */}}
+  const started=audio.play();
+  if(started&&typeof started.then==='function'){
+   started.then(()=>{state('playing');ramp(VOLUME,2400)})
+    .catch(()=>{state('paused');bindGesture()});
+  }else{state('playing');ramp(VOLUME,2400)}
+ }
+ /** Browsers refuse sound before a gesture: start on the first one, in sync. */
+ function bindGesture(){
+  if(gestureBound||failed)return;
+  gestureBound=true;
+  const once=()=>{
+   document.removeEventListener('pointerdown',once,true);
+   document.removeEventListener('keydown',once,true);
+   document.removeEventListener('touchstart',once,true);
+   gestureBound=false;
+   const elapsed=openingStartedAt?(performance.now()-openingStartedAt)/1000:0;
+   play(elapsed>1&&elapsed<14?elapsed:0);
+  };
+  document.addEventListener('pointerdown',once,true);
+  document.addEventListener('keydown',once,true);
+  document.addEventListener('touchstart',once,true);
+ }
+
+ audio.addEventListener('canplay',()=>{failed=false;loaded=true;sync()});
+ audio.addEventListener('error',()=>{failed=true;state('unavailable');sync()});
+ audio.addEventListener('play',()=>state('playing'));
+ audio.addEventListener('pause',()=>state('paused'));
+
+ document.addEventListener('paper:opening-start',event=>{
+  openingStartedAt=(event as CustomEvent<{at:number}>).detail?.at??performance.now();
+  play(0);
+ });
+ button.addEventListener('click',()=>{
+  if(failed)return;
+  enabled=!enabled;store(enabled?'on':'off');sync();
+  if(enabled){play()}
+  else{ramp(0,320);setTimeout(()=>{if(!enabled)audio.pause()},350)}
+ });
+
+ sync();
+ // Without an opening (reduced motion, deep link) music still waits for a gesture.
+ bindGesture();
+}

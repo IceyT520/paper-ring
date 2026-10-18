@@ -4,6 +4,20 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.3.0] — 2026-10-18
+
+### Added
+- Optional background music. A track dropped at `website/public/theme.mp3` (or
+  `theme.mp3` beside the single file) starts on the same beat as the opening,
+  loops, fades in to 32%, and can be switched off with the ♪ control in the
+  header; the choice is remembered in `localStorage`.
+- When the browser blocks sound before a gesture, playback starts on the first
+  click or key press and seeks into the opening if it is still running.
+- Without a track the control stays hidden and the exhibition remains silent.
+
+The recording is never bundled with the repository: drop in a file you have the
+right to publish, and `pnpm release` copies it beside the single file.
+
 ## [1.2.1] — 2026-10-18
 
 ### Removed

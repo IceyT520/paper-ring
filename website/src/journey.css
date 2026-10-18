@@ -446,3 +446,10 @@ body.reduced-motion .origin-scene *,body.page-hidden .origin-scene *{transition:
 
 /* 12 — the notes panel links to the correction log. */
 .editorial-collection p a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+
+/* Soundtrack: a note marks the track, a struck note means it is off. */
+#sound-toggle{position:relative;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:inherit}
+#sound-toggle .sound-icon{position:relative;font:16px/1 var(--serif);letter-spacing:0;transform:translateY(-1px)}
+#sound-toggle.sound-off .sound-icon{opacity:.42}
+#sound-toggle.sound-off .sound-icon:after{content:'';position:absolute;left:-3px;right:-3px;top:50%;height:1px;background:currentColor;transform:rotate(-38deg)}
+@media(max-width:760px){#sound-toggle{width:22px;height:22px}#sound-toggle .sound-icon{font-size:15px}}
