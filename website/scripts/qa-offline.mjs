@@ -1,0 +1,34 @@
+import {chromium} from 'playwright';
+import {offlineUrl} from './paths.mjs';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({channel:'msedge',headless:true});
+try{
+ const context=await browser.newContext({viewport:{width:1440,height:1000},offline:true,reducedMotion:'reduce'});
+ const page=await context.newPage(),errors=[],network=[];
+ await page.addInitScript(()=>localStorage.setItem('paper-bookmark',JSON.stringify({id:'p036',mode:false})));
+ page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.url().startsWith('http'))network.push(r.url())});
+ await page.goto(offlineUrl,{waitUntil:'load'});
+ await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(1800);
+ assert.deepEqual(errors,[]);assert.deepEqual(network,[]);
+ assert.equal(await page.locator('#exhibition [data-original]').count(),71);
+ assert.equal(await page.locator('#resume-toast').count(),0);
+ assert.equal(await page.evaluate(()=>localStorage.getItem('paper-bookmark')),null);
+ assert(await page.locator('#hero-stage canvas').isVisible());
+ await page.screenshot({path:'test-results/offline-hero.png'});
+ await page.locator('#wall-approach').click();assert.equal(await page.locator('#wall-approach').getAttribute('aria-pressed'),'true');
+ await page.locator('#wall-perspective').click();assert(await page.locator('.defense-object').evaluate(el=>new DOMMatrixReadOnly(getComputedStyle(el).transform).m11<0),'offline paper must physically turn to its reverse side');
+ await page.locator('#wall-perspective').click();
+ await page.locator('#send-signal').click();assert(await page.locator('.letter-flight').evaluate(el=>el.classList.contains('arrived')));
+ await page.locator('#call-need').click();await page.locator('#answer-need').click();assert.equal(await page.locator('.disc-word').textContent(),'我听见了');
+ await page.locator('[data-promise="0"]').click();assert.equal(await page.locator('.promise-stitch.sewn').count(),1);
+ await page.locator('#send-light').click();await page.waitForTimeout(250);assert.equal(await page.locator('#mobius-stage').getAttribute('data-light-journey'),'2');
+ await page.locator('#menu-toggle').click();await page.locator('#chapter-menu a[href="#chapter-08"]').click();
+ await page.locator('[data-preset="critical"]').click();assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
+ await page.locator('#p046 [data-locate]').click();assert(await page.locator('#reader-p046').isVisible());
+ const y=await page.locator('#reader-p046').evaluate(el=>el.getBoundingClientRect().top);assert(y>=60&&y<250);
+ const pdf=await page.locator('a[download]').first().getAttribute('href');assert(pdf.includes(encodeURIComponent('纸环的两面.pdf')));
+ assert.deepEqual(errors,[]);
+ assert.deepEqual(network,[]);
+ assert.equal(await page.evaluate(()=>localStorage.getItem('paper-bookmark')),null);
+ console.log('PASS offline file: no network requests; embedded fonts and WebGL; defensive folds and reverse view, paper letter, echo, promises and surface light; 71 blocks; navigation, simulation, source-location and original PDF link.');
+}finally{await browser.close()}

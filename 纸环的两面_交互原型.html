@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>纸环的两面 · 关系动力学模拟器（原型）</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --panel:#ffffff; --line:#e3e1dc; --line2:#d0cec7;
+    --tx:#2c2c2a; --tx2:#5f5e5a; --tx3:#888780;
+    --anx:#d85a30; --anx-d:#993c1d; --avd:#378add; --avd-d:#185fa5;
+    --ok:#3b6d11;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.6}
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 20px 56px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  h1{font-size:19px;font-weight:500;margin:0}
+  .sub{color:var(--tx2);font-size:13px;margin:0 0 20px}
+  .grid{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:14px;font-weight:500;margin:0 0 12px}
+  .row{margin-bottom:14px}
+  .row label{display:flex;justify-content:space-between;font-size:13px;color:var(--tx2);margin-bottom:4px}
+  .row label b{font-weight:500;color:var(--tx);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--tx2);height:18px}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  button{font:inherit;font-size:12px;padding:5px 10px;border-radius:8px;
+    border:1px solid var(--line2);background:#fff;color:var(--tx);cursor:pointer}
+  button:hover{background:#f1efe8}
+  button.on{background:#2c2c2a;border-color:#2c2c2a;color:#fff}
+  .readout{margin-top:6px;border-top:1px solid var(--line);padding-top:12px}
+  .kv{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+  .kv span:last-child{font-variant-numeric:tabular-nums}
+  .status{margin-top:10px;font-size:13px;padding:8px 10px;border-radius:8px;
+    border:1px solid var(--line);background:#faf9f6}
+  .status b{font-weight:500}
+  .charts{display:grid;grid-template-columns:1fr 400px;gap:16px}
+  @media(max-width:980px){.charts{grid-template-columns:1fr}}
+  canvas{width:100%;display:block}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--tx2);margin-top:8px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;
+    vertical-align:middle}
+  .note{font-size:12px;color:var(--tx3);margin-top:10px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12px;
+    background:#f1efe8;padding:1px 4px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true">
+      <ellipse cx="20" cy="20" rx="16" ry="9" fill="#faece7" stroke="#993c1d" stroke-width="1"/>
+      <path d="M4 20c6-7 14 7 20 0 4-4.6 8-6 12-4" fill="none" stroke="#378add" stroke-width="1.6"/>
+    </svg>
+    <h1>纸环的两面 · 关系动力学模拟器</h1>
+  </header>
+  <p class="sub">焦虑强度 A 与 回避强度 R 在物理距离 D 下的演化。拖动滑杆，看这段关系是「共存」「失控」还是「冷却」。</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>参数</h2>
+      <div class="presets">
+        <button data-p="typical" class="on">典型 焦虑×回避</button>
+        <button data-p="golden">黄金距离</button>
+        <button data-p="close">过于靠近</button>
+        <button data-p="far">距离过远</button>
+      </div>
+      <div class="row"><label>α 焦虑对回避的敏感 <b id="v-alpha">3.0</b></label>
+        <input type="range" id="alpha" min="0.2" max="8" step="0.1" value="3"></div>
+      <div class="row"><label>β 焦虑自我衰减 <b id="v-beta">1.0</b></label>
+        <input type="range" id="beta" min="0.2" max="6" step="0.1" value="1"></div>
+      <div class="row"><label>γ 回避对焦虑的敏感 <b id="v-gamma">3.0</b></label>
+        <input type="range" id="gamma" min="0.2" max="8" step="0.1" value="3"></div>
+      <div class="row"><label>δ 回避自我衰减 <b id="v-delta">1.0</b></label>
+        <input type="range" id="delta" min="0.2" max="6" step="0.1" value="1"></div>
+      <div class="row"><label>D 物理距离 <b id="v-D">3.0</b></label>
+        <input type="range" id="D" min="0.2" max="12" step="0.1" value="3"></div>
+      <div class="row"><label>模型口径</label>
+        <div class="presets" style="margin:0">
+          <button id="m-sat" class="on">饱和（约束 0–1）</button>
+          <button id="m-lin">原文线性</button>
+        </div>
+      </div>
+      <div class="readout">
+        <div class="kv"><span>黄金距离门槛 D*</span><span id="dc">9.00</span></div>
+        <div class="kv"><span>当前 D / D*</span><span id="ratio">0.33</span></div>
+        <div class="status" id="status">—</div>
+      </div>
+      <div class="note">D* = αγ / (βδ)　｜　饱和模型下 D &lt; D* 才存在非零共存平台。</div>
+    </div>
+
+    <div>
+      <div class="charts">
+        <div class="card">
+          <h2>时间演化 A(t) / R(t)</h2>
+          <canvas id="ts" height="240"></canvas>
+          <div class="legend">
+            <span><i class="dot" style="background:#d85a30"></i>焦虑强度 A</span>
+            <span><i class="dot" style="background:#378add"></i>回避强度 R</span>
+            <span><i class="dot" style="background:#888780"></i>平衡水平</span>
+          </div>
+        </div>
+        <div class="card">
+          <h2>相平面与向量场</h2>
+          <canvas id="pp" height="400"></canvas>
+          <div class="note">灰箭头为情绪流向；线为当前轨迹；空心圈为共存平衡点。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var P = { alpha:3, beta:1, gamma:3, delta:1, D:3, mode:"sat" };
+  var A = 0.65, R = 0.15, t = 0, TMAX = 48;
+  var series = [{t:0, A:A, R:R}], traj = [{A:A, R:R}];
+  var running = true;
+
+  function deriv(a, r, p){
+    if(p.mode === "sat"){
+      return [ p.alpha * (r / p.D) * (1 - a) - p.beta * a,
+               p.gamma * a * (1 - r) - p.delta * r ];
+    }
+    return [ p.alpha * r / p.D - p.beta * a,
+             p.gamma * a - p.delta * r ];
+  }
+
+  function rk4(a, r, dt, p){
+    var k1 = deriv(a, r, p);
+    var k2 = deriv(a + dt/2*k1[0], r + dt/2*k1[1], p);
+    var k3 = deriv(a + dt/2*k2[0], r + dt/2*k2[1], p);
+    var k4 = deriv(a + dt*k3[0], r + dt*k3[1], p);
+    return [ a + dt/6*(k1[0] + 2*k2[0] + 2*k3[0] + k4[0]),
+             r + dt/6*(k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) ];
+  }
+
+  function clamp01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+  function dc(p){ return p.alpha * p.gamma / (p.beta * p.delta); }
+
+  function equilib(p){
+    var Dc = dc(p);
+    if(p.mode === "sat"){
+      if(p.D >= Dc) return { A:0, R:0, coexist:false };
+      var a = (p.alpha * p.gamma - p.beta * p.delta * p.D) /
+              (p.gamma * (p.alpha + p.beta * p.D));
+      return { A:a, R: p.gamma * a / (p.delta + p.gamma * a), coexist:true };
+    }
+    if(Math.abs(p.D - Dc) < 1e-6) return { A:0, R:0, coexist:true, knife:true };
+    return { A:0, R:0, coexist:false };
+  }
+
+  function reset(keepParams){
+    t = 0; series = [{t:0, A:A, R:R}]; traj = [{A:A, R:R}];
+    if(!keepParams){ A = 0.65; R = 0.15; }
+  }
+
+  function advance(){
+    var dt = 0.03, n = 5;
+    for(var i=0;i<n;i++){
+      var nx = rk4(A, R, dt, P);
+      A = clamp01(nx[0]); R = clamp01(nx[1]);
+      t += dt;
+      if(t > TMAX){ series.shift(); traj.shift(); }
+      series.push({t:t, A:A, R:R});
+      traj.push({A:A, R:R});
+    }
+    if(traj.length > 2600) traj.splice(0, traj.length - 2600);
+  }
+
+  function fitCanvas(cv, h){
+    var dpr = window.devicePixelRatio || 1;
+    var w = cv.clientWidth || 600;
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return { ctx:ctx, w:w, h:h };
+  }
+
+  function drawTS(){
+    var cv = document.getElementById("ts");
+    var f = fitCanvas(cv, 240), ctx = f.ctx, w = f.w, h = f.h;
+    var L = 42, Rp = 14, T = 14, B = 26;
+    var pw = w - L - Rp, ph = h - T - B;
+    ctx.clearRect(0,0,w,h);
+
+    function X(tt){ return L + pw * (tt - (t - TMAX)) / TMAX; }
+    function Y(v){ return T + ph * (1 - v); }
+
+    ctx.strokeStyle = "#e3e1dc"; ctx.lineWidth = 1;
+    ctx.fillStyle = "#888780"; ctx.font = "11px system-ui"; ctx.textAlign = "right";
+    for(var v=0; v<=1.0001; v+=0.25){
+      var y = Y(v);
+      ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L+pw, y); ctx.stroke();
+      ctx.fillText(v.toFixed(2), L-6, y+4);
+    }
+    ctx.textAlign = "center";
+    ctx.fillText("时间 t →", L + pw/2, h - 6);
+
+    var eq = equilib(P);
+    if(eq.coexist && eq.A > 0.005){
+      ctx.save(); ctx.setLineDash([4,4]);
+      ctx.strokeStyle = "#993c1d"; ctx.beginPath();
+      ctx.moveTo(L, Y(eq.A)); ctx.lineTo(L+pw, Y(eq.A)); ctx.stroke();
+      ctx.strokeStyle = "#185fa5"; ctx.beginPath();
+      ctx.moveTo(L, Y(eq.R)); ctx.lineTo(L+pw, Y(eq.R)); ctx.stroke();
+      ctx.restore();
+    }
+
+    function line(key, color){
+      ctx.strokeStyle = color; ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      for(var i=0;i<series.length;i++){
+        var s = series[i], x = X(s.t), y = Y(s[key]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    line("A", "#d85a30");
+    line("R", "#378add");
+
+    var last = series[series.length-1];
+    if(last){
+      ctx.fillStyle = "#d85a30";
+      ctx.beginPath(); ctx.arc(X(last.t), Y(last.A), 3.2, 0, 6.283); ctx.fill();
+      ctx.fillStyle = "#378add";
+      ctx.beginPath(); ctx.arc(X(last.t), Y(last.R), 3.2, 0, 6.283); ctx.fill();
+    }
+  }
+
+  function drawPP(){
+    var cv = document.getElementById("pp");
+    var f = fitCanvas(cv, 400), ctx = f.ctx, w = f.w, h = f.h;
+    var L = 40, Rp = 16, T = 16, B = 34;
+    var pw = w - L - Rp, ph = h - T - B;
+    ctx.clearRect(0,0,w,h);
+    function X(a){ return L + pw * a; }
+    function Y(r){ return T + ph * (1 - r); }
+
+    ctx.strokeStyle = "#e3e1dc"; ctx.lineWidth = 1;
+    ctx.fillStyle = "#888780"; ctx.font = "11px system-ui";
+    for(var v=0; v<=1.0001; v+=0.25){
+      ctx.beginPath(); ctx.moveTo(X(v), T); ctx.lineTo(X(v), T+ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L+pw, Y(v)); ctx.stroke();
+    }
+    ctx.textAlign = "center"; ctx.fillText("焦虑强度 A →", L + pw/2, h - 8);
+    ctx.save(); ctx.translate(12, T + ph/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText("回避强度 R →", 0, 0); ctx.restore();
+
+    var gn = 11, i, j;
+    for(i=0;i<=gn;i++){
+      for(j=0;j<=gn;j++){
+        var a = i/gn, r = j/gn;
+        var d = deriv(a, r, P);
+        var m = Math.hypot(d[0], d[1]);
+        if(m < 1e-4) continue;
+        var ux = d[0]/m, uy = d[1]/m, len = 11;
+        var x0 = X(a), y0 = Y(r);
+        var x1 = x0 + ux*len, y1 = y0 - uy*len;
+        ctx.strokeStyle = "rgba(136,135,128," + (0.25 + Math.min(m,2)/2*0.5).toFixed(2) + ")";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x1 - ux*4 - uy*2.4, y1 + uy*4 - ux*2.4);
+        ctx.lineTo(x1 - ux*4 + uy*2.4, y1 + uy*4 + ux*2.4);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(136,135,128,0.45)"; ctx.fill();
+      }
+    }
+
+    ctx.strokeStyle = "rgba(44,44,42,0.55)"; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    for(var k=0;k<traj.length;k++){
+      var p = traj[k];
+      if(k===0) ctx.moveTo(X(p.A), Y(p.R)); else ctx.lineTo(X(p.A), Y(p.R));
+    }
+    ctx.stroke();
+
+    var eq = equilib(P);
+    ctx.beginPath(); ctx.arc(X(eq.A), Y(eq.R), 5, 0, 6.283);
+    ctx.strokeStyle = "#3b6d11"; ctx.lineWidth = 2; ctx.stroke();
+
+    var last = traj[traj.length-1];
+    ctx.fillStyle = "#2c2c2a";
+    ctx.beginPath(); ctx.arc(X(last.A), Y(last.R), 4, 0, 6.283); ctx.fill();
+  }
+
+  function refresh(){
+    var Dc = dc(P), eq = equilib(P);
+    document.getElementById("dc").textContent = Dc.toFixed(2);
+    document.getElementById("ratio").textContent = (P.D / Dc).toFixed(2);
+    var st = document.getElementById("status");
+    if(P.mode === "lin"){
+      if(Math.abs(P.D - Dc) < 1e-6){
+        st.innerHTML = "<b>临界</b>：原文方程在此处退化为一条平衡线（实际几乎不可精确命中）。";
+      } else if(P.D < Dc){
+        st.innerHTML = "<b>失控</b>：焦虑增长快于衰减，情绪会不断放大、冲破 0–1 区间。";
+      } else {
+        st.innerHTML = "<b>冷却</b>：衰减占优，双方情绪一起回落到 0，关系趋于淡漠。";
+      }
+    } else {
+      if(P.D >= Dc){
+        st.innerHTML = "<b>冷却</b>：距离已越过门槛，双方情绪都收敛到 0 —— 关系稀薄。";
+      } else {
+        var pct = Math.round(eq.A * 100);
+        st.innerHTML = "<b>共存</b>：稳定在 A≈" + eq.A.toFixed(2) +
+          "、R≈" + eq.R.toFixed(2) + "。距离越近，平台越高（当前强度 " + pct + "%）。";
+      }
+    }
+    drawTS(); drawPP();
+  }
+
+  var PRESETS = {
+    typical: {alpha:3, beta:1, gamma:3, delta:1, D:3},
+    golden:  {alpha:3, beta:1, gamma:3, delta:1, D:8.4},
+    close:   {alpha:3, beta:1, gamma:3, delta:1, D:0.6},
+    far:     {alpha:3, beta:1, gamma:3, delta:1, D:11.5}
+  };
+
+  function setPreset(name){
+    var s = PRESETS[name], k;
+    for(k in s) P[k] = s[k];
+    ["alpha","beta","gamma","delta","D"].forEach(function(id){
+      document.getElementById(id).value = P[id];
+      document.getElementById("v-" + id).textContent = P[id].toFixed(1);
+    });
+    reset(false); refresh();
+  }
+
+  ["alpha","beta","gamma","delta","D"].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener("input", function(){
+      P[id] = parseFloat(el.value);
+      document.getElementById("v-" + id).textContent = P[id].toFixed(1);
+      refresh();
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-p]"), function(b){
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(document.querySelectorAll("[data-p]"), function(x){
+        x.classList.remove("on");
+      });
+      b.classList.add("on");
+      setPreset(b.getAttribute("data-p"));
+    });
+  });
+
+  document.getElementById("m-sat").addEventListener("click", function(){
+    P.mode = "sat";
+    this.classList.add("on");
+    document.getElementById("m-lin").classList.remove("on");
+    reset(false); refresh();
+  });
+  document.getElementById("m-lin").addEventListener("click", function(){
+    P.mode = "lin";
+    this.classList.add("on");
+    document.getElementById("m-sat").classList.remove("on");
+    A = 0.4; R = 0.35; reset(true); refresh();
+  });
+
+  window.addEventListener("resize", function(){ drawTS(); drawPP(); });
+
+  (function loop(){
+    advance();
+    if(running){ drawTS(); drawPP(); }
+    requestAnimationFrame(loop);
+  })();
+
+  reset(false);
+  refresh();
+})();
+</script>
+</body>
+</html>

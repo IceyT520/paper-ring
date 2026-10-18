@@ -1,0 +1,6 @@
+# keep text files LF everywhere so the packaged HTML stays byte-stable
+* text=auto eol=lf
+*.pdf binary
+*.woff2 binary
+*.png binary
+*.jpg binary

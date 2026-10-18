@@ -1,0 +1,13 @@
+# dependencies and build output
+website/node_modules/
+website/dist/
+website/test-results/
+website/.sites-runtime/
+
+# local logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# agent workspace notes (not part of the work)
+.workbuddy/
