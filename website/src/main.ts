@@ -129,12 +129,8 @@ function setupMotion(){
    all<HTMLElement>('.flow-study>.narrative-svg').forEach(art=>gsap.from(art,{opacity:.15,y:22,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:art,start:'top 92%',once:true}}));
    gsap.to('.signal-lines i',{opacity:.12,scaleX:.7,ease:'none',scrollTrigger:{trigger:'#distance-1',start:'top center',end:'bottom center',scrub:1}});
    const replyScene=gsap.timeline({scrollTrigger:{trigger:'#chapter-11 .waiting-scene',start:'top 75%',toggleActions:'play none none reverse'}});
-   // The screen wakes once: a short bloom, then a calm glow behind the reply.
-   replyScene.fromTo('.screen-bloom',{opacity:0,scale:.8},{opacity:.78,scale:1,duration:1.05,ease:'power2.out'},0)
-    .to('.screen-bloom',{opacity:.16,duration:1.5,ease:'sine.out'},1.05)
-    .from('.screen-glow',{opacity:0,duration:2,ease:'sine.inOut'},0)
-    .from('.message-reply',{opacity:0,y:14,duration:1.1,ease:'power2.out'},1.05)
-    .from('.message-reply .incoming-message',{scale:.94,duration:.9,ease:'power2.out'},1.2);
+   replyScene.from('.screen-glow',{opacity:0,duration:2,ease:'sine.inOut'},0)
+    .from('.message-reply',{opacity:0,y:12,duration:1.2,ease:'power2.out'},.9);
    all<HTMLElement>('.dedication-copy .source-block').forEach(el=>gsap.from(el,{opacity:.2,y:15,duration:1,scrollTrigger:{trigger:el,start:'top 92%',toggleActions:'play none none reverse'}}));
  });
  ScrollTrigger.refresh();

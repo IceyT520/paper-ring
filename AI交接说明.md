@@ -282,7 +282,7 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 
 - **沙盘默认改成临界**：`DEFAULT_PARAMETERS.D=9`，第一眼是平衡线与"临界"状态，不再一进来就是冲到 5×10³ 的发散曲线；放大区改为预设按钮 `growth`（D=3）。`model.test.ts` 与 `qa-browser.mjs` 已同步。
 - **社交卡片**：`og:` / `twitter:` meta 指向 Pages 上的 `og.jpg`（1200×630），另加 `CITATION.cff` 便于引用。
-- **第 11 章亮屏**：新增 `.screen-bloom` 冷光扩散（GSAP 一次性 1.05s 后回落到 0.24），回复气泡同时轻微放大；减少动态效果时 `display:none`。
+- ~~第 11 章亮屏：新增 `.screen-bloom` 冷光扩散~~ **已在 v1.2.1 按用户要求整段删除**；第 11 章恢复 v1.1.0 的节奏，只保留原有的 `.screen-glow` 淡入，不再额外画光源。不要重新加回。
 - **CI 加浏览器检查**：`pages.yml` 现在先 `pnpm package`，再跑 `qa-offline.mjs` 与 `qa-alignment.mjs --offline`（新增 `scripts/browser.mjs`，CI 用 `PAPER_BROWSER=chromium` 与 `playwright install chromium`）。
 - **第 12 章措辞**：去掉自曝勘误的句子，改为"校订与模型说明"并链到 `content/corrections.json`。
 - **第 4 章折页**：静止展开角 64°→56°、收拢到 6°，竖排字字距 .25em→.18em、字号上限 18→17，减少折页互相遮挡。

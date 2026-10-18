@@ -4,6 +4,13 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.2.1] — 2026-10-18
+
+### Removed
+- Chapter 11's screen bloom (`.screen-bloom`) and the extra reply entrance it
+  brought. The phone scene is back to the calmer 1.1.0 timing, where only the
+  existing soft glow fades in behind the reply; no new light source is drawn.
+
 ## [1.2.0] — 2026-10-18
 
 Six experience and delivery changes; no article text was touched.
