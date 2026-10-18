@@ -1,9 +1,10 @@
-import {chromium} from 'playwright';
+﻿import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {devUrl,devUrlNoGate} from './paths.mjs';
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const reports=[];
-const url='http://127.0.0.1:4173/';
+const url=devUrl;
 fs.mkdirSync('test-results',{recursive:true});
 async function check(name,fn){await fn();reports.push(name);console.log('PASS',name)}
 function silentWav(seconds=.6,rate=8000){
@@ -20,7 +21,7 @@ try{
  // No soundtrack ships with the repo: answer the request with silence so the
  // control, the gesture unlock and the stored preference can be exercised.
  await page.route('**/theme.mp3',route=>route.fulfill({status:200,contentType:'audio/wav',body:silentWav()}));
- await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
+ await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
  await check('soundtrack: control appears with a track, starts on gesture, remembers off',async()=>{
   await page.locator('#sound-toggle').waitFor({state:'visible',timeout:5000});
   assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'true');
@@ -32,6 +33,21 @@ try{
   await page.locator('#sound-toggle').click();
   await page.waitForTimeout(400);
   assert.equal(await page.evaluate(()=>document.documentElement.dataset.audio),'playing');
+ });
+ await check('envelope gate: one click opens the letter, the opening and the track',async()=>{
+  const fresh=await browser.newContext({viewport:{width:1440,height:1000}});
+  const sealed=await fresh.newPage();
+  await sealed.route('**/theme.mp3',route=>route.fulfill({status:200,contentType:'audio/wav',body:silentWav()}));
+  await sealed.goto(url,{waitUntil:'load'});
+  await sealed.locator('#gate').waitFor({state:'visible'});
+  assert.equal(await sealed.evaluate(()=>document.documentElement.dataset.gate),'sealed');
+  await sealed.locator('#gate-open').click();
+  await sealed.waitForTimeout(1300);
+  assert(await sealed.locator('#gate').isHidden(),'the envelope must leave after the seal breaks');
+  assert.equal(await sealed.evaluate(()=>document.documentElement.dataset.opening),'running');
+  assert.equal(await sealed.evaluate(()=>document.documentElement.dataset.audio),'playing');
+  assert.equal(await sealed.evaluate(()=>scrollY),0);
+  await fresh.close();
  });
  await check('static article: 12 chapters, 71 full-text blocks, local fonts and PDF',async()=>{
   assert.equal(await page.locator('#exhibition > .chapter').count(),12);
@@ -105,7 +121,7 @@ try{
  await context.close();
  for(const [width,height] of [[360,800],[390,844],[768,1024],[1920,1080]]){
   const context=await browser.newContext({viewport:{width,height},isMobile:width<760,hasTouch:width<760,reducedMotion:'reduce'});
-  const page=await context.newPage();await page.goto(url,{waitUntil:'networkidle'});
+  const page=await context.newPage();await page.goto(devUrlNoGate,{waitUntil:'networkidle'});
   await check(`responsive ${width}px: no horizontal overflow, navigation accessible`,async()=>{
    const layout=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,inner:innerWidth}));
    assert(layout.scroll<=width+1,JSON.stringify(layout));
@@ -113,16 +129,16 @@ try{
    const box=await page.locator('#simulator').boundingBox();assert(box.width<=width);
    await page.locator('[data-preset="critical"]').click();assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
   });
-  if(width===390){await page.screenshot({path:'test-results/mobile-sandbox.png'});await page.goto(url,{waitUntil:'networkidle'});await page.screenshot({path:'test-results/mobile-final.png'})}
+  if(width===390){await page.screenshot({path:'test-results/mobile-sandbox.png'});await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.screenshot({path:'test-results/mobile-final.png'})}
   await context.close();
  }
  await check('JavaScript disabled: all 71 source blocks remain readable',async()=>{
-  const context=await browser.newContext({javaScriptEnabled:false});const page=await context.newPage();await page.goto(url);
+  const context=await browser.newContext({javaScriptEnabled:false});const page=await context.newPage();await page.goto(devUrlNoGate);
   assert.equal(await page.locator('#exhibition [data-original]').count(),71);assert(await page.locator('#p023').isVisible());assert(await page.locator('#p065').isVisible());await context.close();
  });
  await check('WebGL unavailable: static paper fallback and working interactions',async()=>{
   const context=await browser.newContext();await context.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(String(type).includes('webgl'))return null;return get.call(this,type,...args)}});
-  const page=await context.newPage();await page.goto(url,{waitUntil:'networkidle'});await page.waitForTimeout(1500);
+  const page=await context.newPage();await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.waitForTimeout(1500);
   assert(await page.locator('#hero-stage .ring-fallback').isVisible());await page.locator('#peel-button').click();assert((await page.locator('#peel-text').textContent()).includes('我很害怕'));await context.close();
  });
  fs.writeFileSync('test-results/browser-report.json',JSON.stringify({passed:reports.length,checks:reports},null,2));

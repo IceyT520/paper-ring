@@ -5,6 +5,7 @@ import {initJourney,updateAtmosphere} from './touch';
 import {initOpticalTitles} from './typography';
 import {initOpening} from './opening';
 import {initAudio} from './audio';
+import {initGate} from './gate';
 import type {PaperController} from './paper';
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,7 +17,12 @@ let reduced=storage.get('paper-motion')===null?media.matches:storage.get('paper-
 let readerMode=false,currentSource='p001',currentChapter='01',paper:PaperController|undefined;
 // Audio listens before the opening can fire its first cue.
 initAudio();
-const opening=initOpening(reduced,progress=>paper?.setOpening(progress));
+// Deep links, back/forward and ?nogate skip the envelope gate.
+const gateEnabled=!location.hash&&!location.search.includes('nogate')&&(performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming|undefined)?.type!=='back_forward';
+const opening=initOpening(reduced,progress=>paper?.setOpening(progress),{defer:gateEnabled});
+const gate=gateEnabled?initGate(reduced):undefined;
+if(gate?.active)gate.onOpen(()=>opening.begin());
+else if(gateEnabled)opening.begin();
 let context:gsap.Context|undefined,toastTimer:ReturnType<typeof setTimeout>;
 const chapterEls=all<HTMLElement>('#exhibition > .chapter');
 const menu=$<HTMLDialogElement>('#chapter-menu');

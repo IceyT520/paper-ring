@@ -1,3 +1,4 @@
+﻿import {devUrlNoGate} from './paths.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -5,7 +6,7 @@ const browser=await chromium.launch({channel:'msedge',headless:true}),report=[];
 try{
  for(const width of [1440,768,390,360]){
   const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
-  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(250);
+  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(250);
   // Use actual DOM character advances, independent of the production canvas ink metrics.
   // Trailing punctuation should hang beside the centered words, not displace them.
   const lines=await page.evaluate(()=>{

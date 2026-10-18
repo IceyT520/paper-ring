@@ -1,12 +1,12 @@
-import {chromium} from 'playwright';
+﻿import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-import {offlineUrl} from './paths.mjs';
+import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 
 // Regressions: scrolling exits an unfinished opening; replay cannot restart;
 // scrolling or tapping the paper changes a selected morph stage; stage buttons scroll the page.
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const offline=process.argv.includes('--offline');
-const url=offline?offlineUrl:'http://127.0.0.1:4173/';
+const url=offline?offlineUrlNoGate:devUrlNoGate;
 const failures=[];
 async function check(name,fn){try{await fn();console.log('PASS',name)}catch(e){failures.push(name);console.error('FAIL',name,e.message)}}
 try{

@@ -1,13 +1,14 @@
 import {gsap} from 'gsap';
 
-/** Each playback owns its scroll lock and restores the existing cover on completion. */
-export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void){
+/** Each playback owns its scroll lock and restores the existing cover on completion.
+ *  `defer` leaves the first playback to the caller (the envelope gate). */
+export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void,options:{defer?:boolean}={}){
  const root=document.documentElement,hero=document.querySelector<HTMLElement>('.hero')!;
  const stage=hero.querySelector<HTMLElement>('#hero-stage')!;
  const skip=document.querySelector<HTMLButtonElement>('#skip-opening')!;
  const replay=document.querySelector<HTMLButtonElement>('#replay-opening')!;
  const footer=hero.querySelector<HTMLElement>('.hero-bottom')!;
- let active=false,playing=false,context:gsap.Context|undefined,timeline:gsap.core.Timeline|undefined,deadline:ReturnType<typeof setTimeout>|undefined;
+ let active=false,playing=false,hasRun=false,context:gsap.Context|undefined,timeline:gsap.core.Timeline|undefined,deadline:ReturnType<typeof setTimeout>|undefined;
  let footerExit:gsap.core.Tween|undefined;
  const paper={value:1},locked=new Map<HTMLElement,boolean>();
  const readingTargets='.skip-link,.site-header .brand,#menu-toggle,#reader-toggle,.chapter-rail,.begin-link,#abstract,#exhibition>.chapter:not(.cover),#source-reader';
@@ -42,7 +43,8 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void){
  function start(){
   if(!active||playing)return;playing=true;root.dataset.opening='running';timeline?.play();
   // The soundtrack is cued off the same beat as the timeline; replays re-cue it.
-  document.dispatchEvent(new CustomEvent('paper:opening-start',{detail:{at:performance.now()}}));
+  const replay=hasRun;hasRun=true;
+  document.dispatchEvent(new CustomEvent('paper:opening-start',{detail:{at:performance.now(),replay}}));
  }
  function onKey(event:KeyboardEvent){
   if(event.key==='Escape'){event.preventDefault();finish();return}
@@ -95,8 +97,10 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void){
  replay.hidden=false;setReduced(reduced);
  skip.addEventListener('click',finish);
  replay.addEventListener('click',()=>begin(performance.now(),true));
+ const beginNow=()=>begin(performance.now());
+ if(options.defer)return{finish,start,setReduced,progress:()=>paper.value,begin:beginNow};
  const started=Number(root.dataset.openingStarted)||performance.now();
  if(!reduced&&root.dataset.opening==='pending'&&scrollY<=80&&performance.now()-started<=1500)begin(started);
  else finish();
- return{finish,start,setReduced,progress:()=>paper.value};
+ return{finish,start,setReduced,progress:()=>paper.value,begin:beginNow};
 }

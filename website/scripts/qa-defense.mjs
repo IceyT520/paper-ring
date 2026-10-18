@@ -1,3 +1,4 @@
+import {devUrlNoGate} from './paths.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -9,10 +10,12 @@ try{
  for(const [width,height] of [[1440,1000],[768,1024],[390,844],[360,800]]){
   const context=await browser.newContext({viewport:{width,height},hasTouch:width<760});
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
+  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
   await page.locator('#p012').scrollIntoViewIfNeeded();
   await page.locator('#wall-perspective').scrollIntoViewIfNeeded();await page.waitForTimeout(1300);
-  const orientation=()=>page.evaluate(()=>getComputedStyle(document.querySelector('.defense-object')||document.querySelector('.wall-art')).transform);
+  // Compare the settled matrix to 3 decimals: a mid-transition frame can differ
+  // in the fourth decimal without meaning the viewpoint was overwritten.
+  const orientation=()=>page.evaluate(()=>{const m=new DOMMatrixReadOnly(getComputedStyle(document.querySelector('.defense-object')||document.querySelector('.wall-art')).transform);return[m.m11,m.m12,m.m13,m.m21,m.m22,m.m23,m.m31,m.m32,m.m33].map(v=>v.toFixed(3)).join(',')});
   const outsideLight=await page.locator('.defense-inner-aura').evaluate(el=>Number(getComputedStyle(el).opacity));
   const outside=await orientation();await page.locator('#wall-perspective').click();await page.waitForTimeout(1600);
   const inside=await orientation();assert.notEqual(inside,outside,'Looking behind the wall must change the physical viewpoint, not just its text/opacity');

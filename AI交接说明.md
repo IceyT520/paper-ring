@@ -298,6 +298,14 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - `qa-browser.mjs` 用 route 伪造一段静音 WAV 来测：控件出现、关闭后持久化、重新开启会播放。
 - 如果以后用户把音频提交进仓库，Pages 会直接分发它；README 已写明这属于录音再分发，需要用户自行确认授权。`package-offline.mjs` 在缺少 `public/theme.mp3` 时会复用成品旁已有的 `theme.mp3`。
 
+### 11.4 v1.4.0（2026-10-18）：开场信封
+
+- 新增 `src/gate.ts` + `#gate` 标记：封着的信、蜡封、拆开时折页翻开、信纸抽出。**拆信这一下同时启动音乐并放行开场**，解决了“自动播放必须等用户手势”的问题。
+- `initOpening` 增加 `{defer}`：有信封时不在加载时自动开演，由 `gate.onOpen` 调 `opening.begin()`；`paper:opening-start` 带上 `replay` 标记，音频只在重播或暂停时才回到 0。
+- 跳过条件：带 `#` 的深链、`history` 的 `back_forward`、`?nogate=1`。信封在标记里是 `hidden`，无 JS 时不会挡阅读。
+- 所有 `qa-*` 改用 `?nogate=1`（`paths.mjs` 的 `devUrlNoGate` / `offlineUrlNoGate`）；`qa-browser` 另开一个 context 真点一次信封，验证信封消失、`data-opening=running`、`data-audio=playing`（共 19 项）。
+- 音频仍未进仓库。用户机器上 `D:\CloudMusic\VipSongsDownload\G.E.M.邓紫棋 - 唯一.ncm` 是网易云的加密容器，浏览器不能直接播放；**不要写 ncm 解密**，请用户自行导出/另存 mp3 后放到 `website/public/theme.mp3`。
+
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 
 ## 12. 给下一位 AI 的简短提醒

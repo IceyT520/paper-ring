@@ -453,3 +453,36 @@ body.reduced-motion .origin-scene *,body.page-hidden .origin-scene *{transition:
 #sound-toggle.sound-off .sound-icon{opacity:.42}
 #sound-toggle.sound-off .sound-icon:after{content:'';position:absolute;left:-3px;right:-3px;top:50%;height:1px;background:currentColor;transform:rotate(-38deg)}
 @media(max-width:760px){#sound-toggle{width:22px;height:22px}#sound-toggle .sound-icon{font-size:15px}}
+
+/* The envelope gate: a sealed letter before the exhibition. */
+html[data-gate]{overflow:hidden;overscroll-behavior:none}
+.gate{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:54px;padding:24px;background:radial-gradient(ellipse at 50% 44%,#1b2531 0%,#0d1218 58%,#080b0f 100%);color:var(--paper);opacity:0;transition:opacity .6s ease}
+.gate[hidden]{display:none}
+.gate.is-ready{opacity:1}
+.gate.is-leaving{opacity:0;pointer-events:none}
+.gate-scene{position:relative;width:min(430px,78vw);aspect-ratio:3/2;perspective:1400px;margin-bottom:36px}
+.gate-scene:after{content:'';position:absolute;left:8%;right:8%;bottom:-11%;height:16%;background:radial-gradient(ellipse,#000a,transparent 70%);filter:blur(6px)}
+.gate-envelope{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;background:none;padding:0;cursor:pointer;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1);color:inherit}
+.gate-envelope:hover{transform:translateY(-5px)}
+.gate-envelope:focus-visible{outline:2px solid var(--anx);outline-offset:14px}
+.gate-back{position:absolute;inset:0;border-radius:3px;background:linear-gradient(158deg,#f6eeda,#ded0b6 62%,#cfc0a2);box-shadow:0 26px 60px #0009,0 2px 0 #fff7,inset 0 0 0 1px #fff6}
+.gate-letter{position:absolute;left:7%;right:7%;top:9%;bottom:15%;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px 18px;background:linear-gradient(#fdf8ee,#f2e9d7);color:#544737;box-shadow:0 10px 24px #0003,inset 0 0 0 1px #fff8;opacity:0;transform:translateY(18%);transition:transform .95s cubic-bezier(.2,.8,.2,1),opacity .5s ease .1s}
+.gate-letter-mark{width:34px;color:#b08a6a}
+.gate-letter-mark svg{width:100%;height:auto}
+.gate-letter-title{font:20px/1.4 var(--serif);letter-spacing:.26em;color:#4a3d30}
+.gate-letter-sub{font:9px/1.9 var(--mono);letter-spacing:.12em;color:#8d7c66;text-align:center;text-transform:uppercase}
+.gate-pocket{position:absolute;inset:0;z-index:3;background:linear-gradient(168deg,#efe4cd,#d3c4a8);clip-path:polygon(0 100%,0 27%,50% 62%,100% 27%,100% 100%);box-shadow:inset 0 1px 0 #fff9,inset 0 -30px 40px #a3907020}
+.gate-flap{position:absolute;left:0;right:0;top:0;height:53%;z-index:4;display:grid;place-items:center;background:linear-gradient(#e8dbc2,#c9b998);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform 1s cubic-bezier(.45,.05,.2,1);backface-visibility:hidden;filter:drop-shadow(0 6px 12px #0004)}
+.gate-seal{position:absolute;top:38%;left:50%;display:grid;place-items:center;width:62px;height:62px;border-radius:50%;color:#f7e9db;background:radial-gradient(circle at 34% 28%,#dc9078,#a84a3b 62%,#8a382c);box-shadow:inset 0 0 0 1px #ffffff2e,inset 0 -3px 6px #0003,0 5px 12px #0007;transform:translate(-50%,-50%);transition:transform .5s ease,opacity .5s ease}
+.gate-seal svg{width:30px;height:auto;opacity:.9}
+.gate-caption{position:absolute;left:0;right:0;bottom:-46px;text-align:center;font:19px/1 var(--serif);letter-spacing:.3em;color:#e9e1d1;opacity:.94;transition:opacity .4s}
+.gate-hint{font:10px/1 var(--mono);letter-spacing:.34em;color:#8b98a2;margin:0;transition:opacity .4s}
+.gate.is-open .gate-flap{transform:rotateX(-172deg)}
+.gate.is-open .gate-letter{opacity:1;transform:translateY(-26%);z-index:5}
+.gate.is-open .gate-seal{transform:translate(-50%,-50%) scale(.55);opacity:0}
+.gate.is-open .gate-caption{opacity:0}
+.gate.is-open .gate-hint{opacity:0}
+.gate.is-open .gate-envelope{transform:none;cursor:default}
+@media(max-width:760px){.gate{gap:44px}.gate-scene{width:min(360px,86vw);margin-bottom:30px}.gate-letter-title{font-size:17px}.gate-caption{font-size:16px;bottom:-38px}.gate-hint{font-size:9px;letter-spacing:.26em}.gate-seal{width:52px;height:52px}}
+@media(prefers-reduced-motion:reduce){.gate,.gate-envelope,.gate-flap,.gate-letter,.gate-seal,.gate-caption{transition:none!important}}
+body.reduced-motion .gate,body.reduced-motion .gate-envelope,body.reduced-motion .gate-flap,body.reduced-motion .gate-letter,body.reduced-motion .gate-seal{transition:none!important}

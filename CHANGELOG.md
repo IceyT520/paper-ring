@@ -4,6 +4,26 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.4.0] — 2026-10-18
+
+### Added
+- An envelope gate before the exhibition: a sealed letter with a wax seal opens
+  on one click — flap turns, paper rises — and that same gesture starts the
+  soundtrack and releases the opening animation.
+- `?nogate=1`, `#`-deep links and back/forward navigation skip the gate; the
+  gate is `hidden` in the markup, so it never blocks reading without
+  JavaScript.
+- `qa-browser` now opens the gate for real (letter leaves, opening runs, track
+  plays) and every other browser check uses `?nogate=1` to drive the
+  exhibition directly.
+
+### Changed
+- The envelope is the only required gesture, so the soundtrack can start at
+  full volume on the same beat as the opening instead of waiting for an
+  unrelated click.
+- `qa-defense` compares the settled transform to three decimals instead of
+  failing on a mid-transition frame.
+
 ## [1.3.0] — 2026-10-18
 
 ### Added

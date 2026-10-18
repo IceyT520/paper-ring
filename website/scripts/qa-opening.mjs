@@ -1,13 +1,13 @@
-import {chromium} from 'playwright';
+﻿import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {offlineUrl} from './paths.mjs';
+import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 
 // Catches an opening that never settles, leaves the cover displaced/hidden,
 // restarts without a request, fails to unlock reading, or ignores reduced motion.
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const offline=process.argv.includes('--offline');
-const url=offline?offlineUrl:'http://127.0.0.1:4173/',report=[];
+const url=offline?offlineUrlNoGate:devUrlNoGate,report=[];
 fs.mkdirSync('test-results',{recursive:true});
 async function settled(page){
  assert(await page.locator('#skip-opening').isHidden());

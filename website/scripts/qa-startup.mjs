@@ -1,10 +1,10 @@
-import {chromium} from 'playwright';
+﻿import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-import {offlineUrl} from './paths.mjs';
+import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const offline=process.argv.includes('--offline');
-const url=offline?offlineUrl:'http://127.0.0.1:4173/';
+const url=offline?offlineUrlNoGate:devUrlNoGate;
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}});
  // Delay only the optional renderer: its old placeholder must never flash first.

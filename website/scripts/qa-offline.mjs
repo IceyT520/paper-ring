@@ -1,5 +1,5 @@
 import {launchBrowser} from './browser.mjs';
-import {offlineUrl} from './paths.mjs';
+import {offlineUrlNoGate} from './paths.mjs';
 import assert from 'node:assert/strict';
 const browser=await launchBrowser();
 try{
@@ -7,7 +7,7 @@ try{
  const page=await context.newPage(),errors=[],network=[];
  await page.addInitScript(()=>localStorage.setItem('paper-bookmark',JSON.stringify({id:'p036',mode:false})));
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.url().startsWith('http'))network.push(r.url())});
- await page.goto(offlineUrl,{waitUntil:'load'});
+ await page.goto(offlineUrlNoGate,{waitUntil:'load'});
  await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(1800);
  assert.deepEqual(errors,[]);assert.deepEqual(network,[]);
  assert.equal(await page.locator('#exhibition [data-original]').count(),71);

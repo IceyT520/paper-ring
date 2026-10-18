@@ -1,10 +1,10 @@
-import {launchBrowser} from './browser.mjs';
-import {offlineUrl} from './paths.mjs';
+﻿import {launchBrowser} from './browser.mjs';
+import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const browser=await launchBrowser();
 const offline=process.argv.includes('--offline');
-const url=offline?offlineUrl:'http://127.0.0.1:4173/';
+const url=offline?offlineUrlNoGate:devUrlNoGate;
 const report=[];
 try{
  for(const [width,height] of [[1440,1000],[768,1024],[390,844],[360,800]]){

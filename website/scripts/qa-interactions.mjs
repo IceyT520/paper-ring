@@ -1,3 +1,4 @@
+﻿import {devUrlNoGate} from './paths.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,7 +11,7 @@ try{
   const context=await browser.newContext({viewport:{width,height},hasTouch:width<760}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{window.__glDraws=0;for(const ctor of [window.WebGLRenderingContext,window.WebGL2RenderingContext]){if(!ctor)continue;for(const key of ['drawElements','drawArrays']){const original=ctor.prototype[key];ctor.prototype[key]=function(...args){window.__glDraws++;return original.apply(this,args)}}}});
-  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);if(await page.locator('#skip-opening').isVisible())await page.locator('#skip-opening').click();
+  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);if(await page.locator('#skip-opening').isVisible())await page.locator('#skip-opening').click();
   await check(`${width}: no narrative sliders, complete text and corrected headings`,async()=>{
    assert.equal(await page.locator('#need-volume,#signal-delay,#rhythm-range,#twist-range').count(),0);
    assert.equal(await page.locator('#exhibition [data-original]').count(),71);

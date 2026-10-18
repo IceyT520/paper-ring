@@ -62,9 +62,15 @@ export function initAudio(){
  audio.addEventListener('play',()=>state('playing'));
  audio.addEventListener('pause',()=>state('paused'));
 
+ // Breaking the seal is the gesture that lets the track start.
+ document.addEventListener('paper:gate-open',()=>{openingStartedAt=performance.now();play(0)});
+
  document.addEventListener('paper:opening-start',event=>{
-  openingStartedAt=(event as CustomEvent<{at:number}>).detail?.at??performance.now();
-  play(0);
+  const detail=(event as CustomEvent<{at:number;replay?:boolean}>).detail;
+  openingStartedAt=detail?.at??performance.now();
+  // The gate may already have started the track a moment ago; only a replay or
+  // a stopped player should seek back to zero.
+  if(detail?.replay||audio.paused)play(0);
  });
  button.addEventListener('click',()=>{
   if(failed)return;

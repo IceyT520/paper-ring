@@ -1,9 +1,9 @@
-import {chromium} from 'playwright';
+﻿import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {offlineUrl} from './paths.mjs';
+import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 const browser=await chromium.launch({channel:'msedge',headless:true});
-const url=process.argv.includes('--offline')?offlineUrl:'http://127.0.0.1:4173/';
+const url=process.argv.includes('--offline')?offlineUrlNoGate:devUrlNoGate;
 const report=[];
 try{
  for(const width of [1440,768,390,360]){
