@@ -27,9 +27,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm release
+      # GitHub sanitises non-ASCII asset names to "default.<ext>", so publish
+      # ASCII copies under the version; the Chinese names stay in the repo.
+      - name: Stage release assets
+        working-directory: .
+        run: |
+          mkdir -p release-assets
+          cp 纸环的两面.html "release-assets/paper-ring-${GITHUB_REF_NAME}.html"
+          cp 纸环的两面.pdf "release-assets/paper-ring-${GITHUB_REF_NAME}.pdf"
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: |
-            纸环的两面.html
-            纸环的两面.pdf
+          fail_on_unmatched_files: true
+          files: release-assets/*

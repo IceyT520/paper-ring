@@ -3,6 +3,7 @@ website/node_modules/
 website/dist/
 website/test-results/
 website/.sites-runtime/
+release-assets/
 
 # local logs and OS files
 *.log
