@@ -4,6 +4,9 @@ website/dist/
 website/test-results/
 website/.sites-runtime/
 release-assets/
+# audio dropped at the repo root: the canonical track lives in website/public,
+# and the root copy is produced by `pnpm release` beside the single file
+/*.mp3
 
 # local logs and OS files
 *.log

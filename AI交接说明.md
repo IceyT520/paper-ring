@@ -306,6 +306,14 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - 所有 `qa-*` 改用 `?nogate=1`（`paths.mjs` 的 `devUrlNoGate` / `offlineUrlNoGate`）；`qa-browser` 另开一个 context 真点一次信封，验证信封消失、`data-opening=running`、`data-audio=playing`（共 19 项）。
 - 音频仍未进仓库。用户机器上 `D:\CloudMusic\VipSongsDownload\G.E.M.邓紫棋 - 唯一.ncm` 是网易云的加密容器，浏览器不能直接播放；**不要写 ncm 解密**，请用户自行导出/另存 mp3 后放到 `website/public/theme.mp3`。
 
+### 11.5 v1.5.0（2026-10-19）：音轨入库
+
+- 用户自行导出并放到项目根目录的 `G.E.M.邓紫棋 - 唯一.mp3`（10.2 MB，253.7s，48kHz，peak 1.0，RMS 0.198）已复制为 `website/public/theme.mp3` 并提交；Pages 会一起分发。
+- 根目录的 `theme.mp3` 是 `pnpm release` 的构建副本，已加进 `.gitignore`，不要提交重复文件。
+- `src/audio.ts` 改用 `preload='metadata'`：拆信前只取文件头，不再一进页面就拉 10 MB；按钮可见性改由 `loadedmetadata` 触发。`<audio id="theme-audio" hidden>` 现在挂在 DOM 上，便于验收读取 `currentTime/duration/loop/volume`。
+- 音量 0.32 → 0.30（对这首母带约 −24 dBFS）；实测拆信后 3.7s 音量到 0.30、`currentTime` 正常推进、`loop=true`。
+- 版权：录音版权不归本项目，README 的授权一节已写明不在 MIT 范围内；若权利人要求，删除 `website/public/theme.mp3` 并 `pnpm release` 即可回到静音版。
+
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 
 ## 12. 给下一位 AI 的简短提醒

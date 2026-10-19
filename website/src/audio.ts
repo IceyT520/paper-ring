@@ -2,13 +2,15 @@
  *  The track is never bundled; drop your own file at `theme.mp3` beside the page
  *  (see README). Without it the control stays hidden and the exhibition is silent. */
 const TRACK='theme.mp3';
-const VOLUME=.32;
+const VOLUME=.3;
 
 export function initAudio(){
  const button=document.querySelector<HTMLButtonElement>('#sound-toggle');
  if(!button)return;
  const audio=new Audio(TRACK);
- audio.loop=true;audio.preload='auto';audio.volume=0;
+ audio.id='theme-audio';audio.hidden=true;document.body.append(audio);
+ // Only the header is fetched up front; the file downloads when the seal breaks.
+ audio.loop=true;audio.preload='metadata';audio.volume=0;
  let enabled=read()!=='off',failed=false,loaded=false,openingStartedAt=0,gestureBound=false,fade=0;
  const root=document.documentElement;
 
@@ -57,7 +59,7 @@ export function initAudio(){
   document.addEventListener('touchstart',once,true);
  }
 
- audio.addEventListener('canplay',()=>{failed=false;loaded=true;sync()});
+ audio.addEventListener('loadedmetadata',()=>{failed=false;loaded=true;sync()});
  audio.addEventListener('error',()=>{failed=true;state('unavailable');sync()});
  audio.addEventListener('play',()=>state('playing'));
  audio.addEventListener('pause',()=>state('paused'));

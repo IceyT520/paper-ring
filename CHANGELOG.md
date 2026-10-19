@@ -4,6 +4,23 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.5.0] — 2026-10-19
+
+### Added
+- The soundtrack is now part of the site: G.E.M. 邓紫棋《唯一》 lives at
+  `website/public/theme.mp3` (10.2 MB, 4:13) and ships with the Pages build.
+  It starts when the envelope is opened, fades in over 2.4 s to 30% and loops.
+
+### Changed
+- The track preloads metadata only, so nothing large is fetched before the
+  visitor breaks the seal; playback is the download.
+- The `<audio>` element is part of the document (`#theme-audio`, hidden), which
+  makes its state inspectable in QA.
+- Volume tuned for the master (peak 1.0, RMS 0.198): 30% ≈ −24 dBFS.
+
+The recording belongs to its rights holders and is not covered by the MIT
+licence; it is included with the exhibition at the author's request.
+
 ## [1.4.0] — 2026-10-18
 
 ### Added
