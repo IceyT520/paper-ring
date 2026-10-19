@@ -35,11 +35,21 @@ jobs:
       - name: Stage release assets
         working-directory: .
         run: |
-          mkdir -p release-assets
+          mkdir -p release-assets/share
           cp 纸环的两面.html "release-assets/paper-ring-${GITHUB_REF_NAME}.html"
           cp 纸环的两面.pdf "release-assets/paper-ring-${GITHUB_REF_NAME}.pdf"
+          # A shareable folder: the single file, the article and the soundtrack
+          # side by side, so offline copies keep their music.
+          cp 纸环的两面.html release-assets/share/
+          cp 纸环的两面.pdf release-assets/share/
+          cp theme.mp3 release-assets/share/
+          printf '把这三份放在同一个文件夹里，双击「纸环的两面.html」——拆开信封后音乐就会响。\n' > "release-assets/share/使用说明.txt"
+          (cd release-assets/share && zip -q -r "../paper-ring-${GITHUB_REF_NAME}-share.zip" .)
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: release-assets/*
+          files: |
+            release-assets/paper-ring-*.html
+            release-assets/paper-ring-*.pdf
+            release-assets/paper-ring-*-share.zip

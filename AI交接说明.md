@@ -314,6 +314,12 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - 音量 0.32 → 0.30（对这首母带约 −24 dBFS）；实测拆信后 3.7s 音量到 0.30、`currentTime` 正常推进、`loop=true`。
 - 版权：录音版权不归本项目，README 的授权一节已写明不在 MIT 范围内；若权利人要求，删除 `website/public/theme.mp3` 并 `pnpm release` 即可回到静音版。
 
+### 11.6 v1.5.1（2026-10-19）：分享用的打包
+
+- 用户反馈“分享给别人听不了”。原因：单个 HTML 从不内嵌音频，只发 HTML 就没有 `theme.mp3`；发 Pages 链接则正常（已在线上用全新 context 实测：拆信后 `currentTime` 递增、音量 0.30、`duration` 254s）。
+- `release.yml` 现在额外生成 `paper-ring-<tag>-share.zip`（HTML + PDF + `theme.mp3` + 使用说明），和 HTML/PDF 一起挂在 Release 上；`files` 改成显式 glob，避免把 `share/` 目录当成资产。
+- README 增加“怎么分享给别人”一节：发链接最稳；发文件用 share.zip。不要再把“只发 HTML 也有声”当成默认预期。
+
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 
 ## 12. 给下一位 AI 的简短提醒

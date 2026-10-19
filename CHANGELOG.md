@@ -4,6 +4,13 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.5.1] — 2026-10-19
+
+### Added
+- Every release now also publishes `paper-ring-<tag>-share.zip`: the single
+  file, the article PDF and `theme.mp3` in one folder, so an offline copy sent
+  to someone else keeps its music. (A lone HTML file never had the soundtrack.)
+
 ## [1.5.0] — 2026-10-19
 
 ### Added
