@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.6.0] — 2026-10-19
+
+### Changed
+- The single file now carries the soundtrack: `pnpm release` base64-embeds
+  `theme.mp3` as `window.__paperTrack`, and `audio.ts` turns it into a blob URL
+  at runtime. One HTML is enough to share — no sibling mp3, no folder.
+  The site keeps streaming the external file, so its first paint stays light.
+- The share bundle is now just the HTML and the PDF; the mp3 left it.
+- The root `theme.mp3` build copy is gone (and removed if an old one exists).
+
 ## [1.5.1] — 2026-10-19
 
 ### Added

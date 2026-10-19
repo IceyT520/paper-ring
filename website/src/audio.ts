@@ -1,13 +1,29 @@
 /** Background music: starts with the opening, loops, and can be switched off.
- *  The track is never bundled; drop your own file at `theme.mp3` beside the page
- *  (see README). Without it the control stays hidden and the exhibition is silent. */
+ *  The site streams `theme.mp3`; the packaged single file carries the track as
+ *  base64 in `window.__paperTrack`, turned into a blob so it needs no sibling
+ *  file. Without either, the control stays hidden and the exhibition is silent. */
 const TRACK='theme.mp3';
 const VOLUME=.3;
+
+declare global {
+ interface Window { __paperTrack?: string }
+}
+
+/** A blob URL keeps large data URIs away from Safari's size limits. */
+function trackSource(){
+ const inline=window.__paperTrack;
+ if(!inline)return TRACK;
+ try{
+  const binary=atob(inline),bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return URL.createObjectURL(new Blob([bytes],{type:'audio/mpeg'}));
+ }catch{return TRACK}
+}
 
 export function initAudio(){
  const button=document.querySelector<HTMLButtonElement>('#sound-toggle');
  if(!button)return;
- const audio=new Audio(TRACK);
+ const audio=new Audio(trackSource());
  audio.id='theme-audio';audio.hidden=true;document.body.append(audio);
  // Only the header is fetched up front; the file downloads when the seal breaks.
  audio.loop=true;audio.preload='metadata';audio.volume=0;

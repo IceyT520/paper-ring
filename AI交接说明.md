@@ -320,6 +320,14 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - `release.yml` 现在额外生成 `paper-ring-<tag>-share.zip`（HTML + PDF + `theme.mp3` + 使用说明），和 HTML/PDF 一起挂在 Release 上；`files` 改成显式 glob，避免把 `share/` 目录当成资产。
 - README 增加“怎么分享给别人”一节：发链接最稳；发文件用 share.zip。不要再把“只发 HTML 也有声”当成默认预期。
 
+### 11.7 v1.6.0（2026-10-19）：音频内嵌进单文件
+
+- 用户要求“只发一个 HTML 也有声”。`package-offline.mjs` 现在把 `public/theme.mp3` 以 base64 写进 `<script>window.__paperTrack="…"</script>`，插在主 bundle 之前；`audio.ts` 用 `atob` + `new Blob([bytes],{type:'audio/mpeg'})` + `URL.createObjectURL` 播放，绕开 Safari 对超长 data URI 的限制。
+- 单文件从 1.56 MB 变成约 16 MB；线上（`dist/`）仍然外部流式加载 `theme.mp3`，首屏不变。
+- 不再往根目录复制 `theme.mp3`；若存在旧副本会被打包脚本删除。`release.yml` 的 share.zip 里也不再放 mp3（HTML 已自带），说明文字改为“双击即可”。
+- 验证方式：把新 HTML 单独放进空文件夹（无 mp3）用 file:// 打开，拆信后 `#theme-audio.src` 是 `blob:`、`duration=253.7s`、`loop=true`、音量 0.30、`currentTime` 正常推进。
+- 代价：仓库每次发版都会多存一份约 13.6 MB 的 base64 文本；如果以后嫌仓库变大，可改成“仓库只存轻量版，内嵌版只作为 Release 资产”。
+
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 
 ## 12. 给下一位 AI 的简短提醒
