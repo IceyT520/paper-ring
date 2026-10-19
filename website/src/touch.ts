@@ -49,11 +49,12 @@ function initLetter(){
  function springBack(dx:number,dy:number){
   if(quiet()||Math.abs(dx)<2&&Math.abs(dy)<2){note.style.transform='';return}
   const anim=note.animate([
-   {transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`},
-   {transform:`translate(${dx*.55-9}px,${dy*.5-7}px) rotate(${-6+dx*.04}deg)`,offset:.38},
-   {transform:'translate(5px,-4px) rotate(-9.5deg)',offset:.74},
+   {transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`,offset:0},
+   {transform:`translate(${dx*.68-14}px,${dy*.6-10}px) rotate(${-3+dx*.05}deg)`,offset:.34},
+   {transform:'translate(-8px,-6px) rotate(-10.6deg)',offset:.66},
+   {transform:'translate(3px,-2px) rotate(-8.4deg)',offset:.86},
    {transform:'none'}
-  ],{duration:640,easing:'cubic-bezier(.2,.85,.25,1)'});
+  ],{duration:720,easing:'cubic-bezier(.25,.9,.3,1)'});
   anim.onfinish=()=>{note.style.transform=''};
  }
  function suppressNextClick(){
@@ -66,13 +67,21 @@ function initLetter(){
   const {x:endX,y:endY}=landing();status.textContent='想念已出发。此刻，还不知道对方什么时候看见。';
   const end=endTransform();
   if(quiet()){note.style.transform=end;arrive();return}
-  animation=note.animate([{transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`},{transform:`translate(${dx-16}px,${dy-7}px) rotate(${-4+dx*.05}deg)`,offset:.14},{transform:`translate(${endX*.45}px,${endY-70}px) rotate(-21deg) scale(.84)`,offset:.56},{transform:end}],{duration:1850,easing:'cubic-bezier(.3,.7,.3,1)',fill:'forwards'});animation.onfinish=arrive;
+  const back=Math.min(34,Math.max(14,dx*.45));
+  animation=note.animate([
+   {transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`,offset:0},
+   // The recoil before the throw: the hand lets go and the paper settles back first.
+   {transform:`translate(${dx-back}px,${dy-back*.5}px) rotate(${-12+dx*.05}deg)`,offset:.12},
+   {transform:`translate(${dx*.72}px,${dy*.6-26}px) rotate(-15deg) scale(1.03)`,offset:.3},
+   {transform:`translate(${endX*.45}px,${endY-70}px) rotate(-21deg) scale(.84)`,offset:.62},
+   {transform:end}
+  ],{duration:1950,easing:'cubic-bezier(.34,.72,.3,1)',fill:'forwards'});animation.onfinish=arrive;
  }
  note.addEventListener('pointerdown',e=>{if(sent)return;drag={x:e.clientX,y:e.clientY,dx:0,dy:0};note.setPointerCapture(e.pointerId);scene.classList.add('held')});
  note.addEventListener('pointermove',e=>{if(!drag)return;drag.dx=Math.max(-35,Math.min(scene.clientWidth*.7,e.clientX-drag.x));drag.dy=Math.max(-100,Math.min(70,e.clientY-drag.y));note.style.transform=`translate(${drag.dx}px,${drag.dy}px) rotate(${-8+drag.dx*.07}deg)`});
  note.addEventListener('pointerup',()=>{
   if(!drag)return;const {dx,dy}=drag;drag=undefined;scene.classList.remove('held');
-  if(dx>24){suppressNextClick();send(dx,dy);return}
+  if(dx>64){suppressNextClick();send(dx,dy);return}
   // A short pull springs back instead of being read as a click.
   if(Math.abs(dx)>3||Math.abs(dy)>3)suppressNextClick();
   springBack(dx,dy);

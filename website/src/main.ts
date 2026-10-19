@@ -227,7 +227,7 @@ all<HTMLButtonElement>('[data-copy]').forEach(b=>b.addEventListener('click',asyn
 }));
 $('#replay-twist').addEventListener('click',()=>{
  if(reduced){paintTwist(1);toast('静态模式展示重新连接后的纸环。');return}
- stopTwist();paintTwist(0);animateTwist(1,14);
+ stopTwist();paintTwist(0);animateTwist(1,9);
  $('#replay-twist').innerHTML='重播这次连接 <span aria-hidden="true">↗</span>';
 });
 all<HTMLButtonElement>('[data-twist-step]').forEach((button,index)=>button.addEventListener('click',()=>{

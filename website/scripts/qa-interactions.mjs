@@ -1,4 +1,4 @@
-import {devUrlNoGate} from './paths.mjs';
+﻿import {devUrlNoGate} from './paths.mjs';
 import {settleOpening} from './browser.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
@@ -22,11 +22,11 @@ try{
   await check(`${width}: throw, retrieve and keyboard-send the paper letter`,async()=>{
    await near(page,'.study-delay');const rect=await page.locator('#send-signal').boundingBox();
    await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height/2);await page.mouse.down();await page.mouse.move(rect.x+rect.width/2+70,rect.y+rect.height/2-20,{steps:8});await page.mouse.up();
-   await page.waitForTimeout(1850);assert(await page.locator('.letter-flight').evaluate(e=>e.classList.contains('arrived')));
+   await page.waitForTimeout(2300);assert(await page.locator('.letter-flight').evaluate(e=>e.classList.contains('arrived')));
    assert((await page.locator('#signal-status').textContent()).includes('回应仍是一个未知'));
    await page.screenshot({path:`test-results/v4-letter-sent-${width}.png`});
    await page.locator('#signal-reset').click();assert(!await page.locator('.letter-flight').evaluate(e=>e.classList.contains('sent')));
-   await page.locator('#send-signal').focus();await page.keyboard.press('Enter');await page.waitForTimeout(1850);
+   await page.locator('#send-signal').focus();await page.keyboard.press('Enter');await page.waitForTimeout(2300);
    assert(await page.locator('.letter-flight').evaluate(e=>e.classList.contains('arrived')));
   });
   await check(`${width}: calls accumulate; a response gathers the same fragments`,async()=>{

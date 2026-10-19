@@ -4,6 +4,15 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.7.1] — 2026-10-19
+
+### Changed
+- The Möbius replay is now 9 seconds instead of 14 (the opening is 7.8 s, so it
+  runs about a second longer than the opening and no longer outstays it).
+- The paper letter answers the hand: a pull under 64 px springs back with a
+  visible overshoot (past its resting spot, then settles), and a real throw
+  recoils about 20 px first, then flies.
+
 ## [1.7.0] — 2026-10-19
 
 Six interaction details, all in the exhibition's own language.
