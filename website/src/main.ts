@@ -46,6 +46,7 @@ all<HTMLAnchorElement>('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>
 function setReader(next:boolean,id=currentSource,move=true){
  opening.finish();
  readerMode=next;$('#exhibition').hidden=next;$('#source-reader').hidden=!next;document.body.classList.toggle('reader-mode',next);
+ if(next)setMobiusLock(false);
  $('#reader-toggle').innerHTML=next?'回到展览 <span aria-hidden="true">↗</span>':'阅读全文 <span aria-hidden="true">↗</span>';
  $('#reader-toggle').setAttribute('aria-pressed',String(next));
  const target=document.getElementById(`${next?'reader-':''}${id}`);
@@ -82,6 +83,7 @@ function updateProgress(){
    header.classList.remove('on-paper');
    updateAtmosphere(Number(currentChapter),Math.max(0,Math.min(1,(at-active.top)/(active.bottom-active.top))));
  }
+ updateMobiusLock();
 }
 let scrollTick=false;
 addEventListener('scroll',()=>{if(!scrollTick){scrollTick=true;requestAnimationFrame(()=>{updateProgress();scrollTick=false})}},{passive:true});
@@ -101,10 +103,49 @@ function paintTwist(value:number){
  if(document.documentElement.classList.contains('no-webgl'))value=1;
  paper?.setTwist(value);
  if(paintedTwist!==value){paintedTwist=value;$('.twist-progress i').style.transform=`scaleX(${value})`;$('.mobius-aura').style.opacity=String(.4+value*.6)}
+ if(value>=.999)setMobiusLock(false);
  const index=value<.2?0:value<.8?1:2;
  if(index===twistIndex)return;twistIndex=index;
  $('#twist-caption').textContent=twistCopy[index][0];$('#twist-description').textContent=twistCopy[index][1];
  all<HTMLButtonElement>('[data-twist-step]').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
+}
+/** The Möbius act gates the page: until the two sides reconnect, scrolling
+ *  down is refused (scrolling back up still works, so nobody is trapped). */
+let mobiusLocked=false,mobiusTouchY=0;
+function pulseMobius(){
+ const button=document.getElementById('replay-twist');if(!button)return;
+ button.classList.remove('nudge');void (button as HTMLElement).offsetWidth;button.classList.add('nudge');
+ setTimeout(()=>button.classList.remove('nudge'),2000);
+}
+function blockMobiusWheel(event:WheelEvent){if(event.deltaY<=0)return;event.preventDefault();pulseMobius()}
+function blockMobiusKeys(event:KeyboardEvent){
+ const typing=(event.target as HTMLElement)?.tagName==='BUTTON';
+ if(['ArrowDown','PageDown','End'].includes(event.key)||(event.key===' '&&!typing)){event.preventDefault();pulseMobius()}
+}
+function blockMobiusTouchStart(event:TouchEvent){mobiusTouchY=event.touches[0]?.clientY??0}
+function blockMobiusTouch(event:TouchEvent){const y=event.touches[0]?.clientY??0;if(y<mobiusTouchY-2){event.preventDefault();pulseMobius()}}
+function setMobiusLock(on:boolean){
+ if(on===mobiusLocked)return;mobiusLocked=on;
+ if(on){
+  document.documentElement.dataset.mobiusLock='1';
+  addEventListener('wheel',blockMobiusWheel,{passive:false});
+  addEventListener('touchstart',blockMobiusTouchStart,{passive:true});
+  addEventListener('touchmove',blockMobiusTouch,{passive:false});
+  addEventListener('keydown',blockMobiusKeys,true);
+ }else{
+  delete document.documentElement.dataset.mobiusLock;
+  removeEventListener('wheel',blockMobiusWheel);
+  removeEventListener('touchstart',blockMobiusTouchStart);
+  removeEventListener('touchmove',blockMobiusTouch);
+  removeEventListener('keydown',blockMobiusKeys,true);
+ }
+}
+function updateMobiusLock(){
+ if(reduced||paintedTwist>=1){setMobiusLock(false);return}
+ const section=document.getElementById('mobius-section');
+ if(!section){setMobiusLock(false);return}
+ const box=section.getBoundingClientRect();
+ setMobiusLock(box.top<=innerHeight*.24&&box.bottom>innerHeight*.58);
 }
 function stopTwist(){
  twistTween?.kill();twistTween=undefined;
@@ -125,6 +166,7 @@ function setupMotion(){
  $('#motion-toggle').setAttribute('aria-label',reduced?'开启动态效果':'减少动态效果');
  $('.motion-label').textContent=reduced?'静态':'动态';paper?.setReduced(reduced);
  paintTwist(paintedTwist<0?(reduced?1:0):paintedTwist);
+ updateMobiusLock();
  if(reduced){ScrollTrigger.refresh();paper?.refresh();return}
  context=gsap.context(()=>{
    all<HTMLElement>('.chapter-heading h2,.large-quote').filter(el=>!el.closest('#chapter-10')).forEach(el=>{

@@ -46,17 +46,38 @@ function initLetter(){
  }
  function restore(){animation?.cancel();animation=undefined;sent=false;drag=undefined;note.style.transform='';scene.classList.remove('sent','arrived','held');reset.hidden=true;note.setAttribute('aria-label','投出这封信，也可以向右拖动松手');status.textContent='按一下，也能把想念送出去。'}
  function arrive(){scene.classList.add('arrived');status.textContent='信已抵达。想念留在了彼处，回应仍是一个未知。';note.setAttribute('aria-label','信已抵达，可以取回后再发送')}
+ function springBack(dx:number,dy:number){
+  if(quiet()||Math.abs(dx)<2&&Math.abs(dy)<2){note.style.transform='';return}
+  const anim=note.animate([
+   {transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`},
+   {transform:`translate(${dx*.55-9}px,${dy*.5-7}px) rotate(${-6+dx*.04}deg)`,offset:.38},
+   {transform:'translate(5px,-4px) rotate(-9.5deg)',offset:.74},
+   {transform:'none'}
+  ],{duration:640,easing:'cubic-bezier(.2,.85,.25,1)'});
+  anim.onfinish=()=>{note.style.transform=''};
+ }
+ function suppressNextClick(){
+  suppressClick=true;
+  // A drag may end outside the letter, so its click never reaches the handler.
+  setTimeout(()=>{suppressClick=false},450);
+ }
  function send(dx=0,dy=0){
   if(sent)return;sent=true;scene.classList.remove('held');scene.classList.add('sent');reset.hidden=false;
   const {x:endX,y:endY}=landing();status.textContent='想念已出发。此刻，还不知道对方什么时候看见。';
   const end=endTransform();
   if(quiet()){note.style.transform=end;arrive();return}
-  animation=note.animate([{transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`},{transform:`translate(${endX*.45}px,${endY-70}px) rotate(-21deg) scale(.84)`,offset:.52},{transform:end}],{duration:1750,easing:'cubic-bezier(.22,.68,.3,1)',fill:'forwards'});animation.onfinish=arrive;
+  animation=note.animate([{transform:`translate(${dx}px,${dy}px) rotate(${-8+dx*.07}deg)`},{transform:`translate(${dx-16}px,${dy-7}px) rotate(${-4+dx*.05}deg)`,offset:.14},{transform:`translate(${endX*.45}px,${endY-70}px) rotate(-21deg) scale(.84)`,offset:.56},{transform:end}],{duration:1850,easing:'cubic-bezier(.3,.7,.3,1)',fill:'forwards'});animation.onfinish=arrive;
  }
  note.addEventListener('pointerdown',e=>{if(sent)return;drag={x:e.clientX,y:e.clientY,dx:0,dy:0};note.setPointerCapture(e.pointerId);scene.classList.add('held')});
  note.addEventListener('pointermove',e=>{if(!drag)return;drag.dx=Math.max(-35,Math.min(scene.clientWidth*.7,e.clientX-drag.x));drag.dy=Math.max(-100,Math.min(70,e.clientY-drag.y));note.style.transform=`translate(${drag.dx}px,${drag.dy}px) rotate(${-8+drag.dx*.07}deg)`});
- note.addEventListener('pointerup',()=>{if(!drag)return;const {dx,dy}=drag;drag=undefined;scene.classList.remove('held');if(dx>24){suppressClick=true;send(dx,dy)}else note.style.transform=''});
- note.addEventListener('pointercancel',()=>{drag=undefined;scene.classList.remove('held');note.style.transform=''});
+ note.addEventListener('pointerup',()=>{
+  if(!drag)return;const {dx,dy}=drag;drag=undefined;scene.classList.remove('held');
+  if(dx>24){suppressNextClick();send(dx,dy);return}
+  // A short pull springs back instead of being read as a click.
+  if(Math.abs(dx)>3||Math.abs(dy)>3)suppressNextClick();
+  springBack(dx,dy);
+ });
+ note.addEventListener('pointercancel',()=>{drag=undefined;scene.classList.remove('held');springBack(0,0)});
  note.addEventListener('click',()=>{if(suppressClick){suppressClick=false;return}send()});reset.addEventListener('click',restore);
  new ResizeObserver(layoutRoute).observe(scene);layoutRoute();
  new IntersectionObserver(entries=>{if(!entries[0].isIntersecting&&animation?.playState==='running')animation.finish()}).observe(scene);

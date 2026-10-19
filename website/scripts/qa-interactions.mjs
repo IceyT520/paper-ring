@@ -1,4 +1,5 @@
-﻿import {devUrlNoGate} from './paths.mjs';
+import {devUrlNoGate} from './paths.mjs';
+import {settleOpening} from './browser.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -11,7 +12,7 @@ try{
   const context=await browser.newContext({viewport:{width,height},hasTouch:width<760}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{window.__glDraws=0;for(const ctor of [window.WebGLRenderingContext,window.WebGL2RenderingContext]){if(!ctor)continue;for(const key of ['drawElements','drawArrays']){const original=ctor.prototype[key];ctor.prototype[key]=function(...args){window.__glDraws++;return original.apply(this,args)}}}});
-  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);if(await page.locator('#skip-opening').isVisible())await page.locator('#skip-opening').click();
+  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);await settleOpening(page);
   await check(`${width}: no narrative sliders, complete text and corrected headings`,async()=>{
    assert.equal(await page.locator('#need-volume,#signal-delay,#rhythm-range,#twist-range').count(),0);
    assert.equal(await page.locator('#exhibition [data-original]').count(),71);
@@ -48,11 +49,13 @@ try{
   });
   await check(`${width}: touch actual paper, orbit, pause and reduced-motion light journey`,async()=>{
    await near(page,'#mobius-section');await page.locator('[data-twist-step="2"]').click();await page.waitForFunction(()=>document.querySelector('#mobius-stage').dataset.paperProgress==='1');
+   await page.waitForTimeout(1900); // let the morph settle before tapping the surface
    const stage=page.locator('#mobius-stage');assert.equal(await stage.getAttribute('data-paper-progress'),'1');
    await stage.focus();await page.keyboard.press('ArrowRight');assert(JSON.parse(await stage.getAttribute('data-view')).x>.1);await page.locator('#reset-paper-view').click();assert.deepEqual(JSON.parse(await stage.getAttribute('data-view')),{x:0,y:0});
    await page.evaluate(()=>document.querySelector('#mobius-stage').addEventListener('paper-touch',()=>document.querySelector('#mobius-stage').dataset.touched='yes'));
+   await stage.scrollIntoViewIfNeeded();
    const r=await stage.boundingBox();let touched=false;
-   for(const y of [.25,.35,.45,.55,.65]){for(const x of [.4,.5,.6,.7]){
+   for(const y of [.2,.3,.4,.5,.6]){for(const x of [.4,.5,.6,.7,.8,.9]){
     const px=r.x+r.width*x,py=r.y+r.height*y;if(px<0||px>width||py<90||py>height-100)continue;
     if(width<760)await page.touchscreen.tap(px,py);else await page.mouse.click(px,py);
     touched=await stage.getAttribute('data-touched')==='yes';if(touched)break;

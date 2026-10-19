@@ -11,8 +11,24 @@ export function initGate(reduced:boolean){
  root.dataset.gate='sealed';gate.hidden=false;
  requestAnimationFrame(()=>gate.classList.add('is-ready'));
 
+ // A little parallax while sealed: the paper tilts toward the pointer.
+ const scene=document.querySelector<HTMLElement>('.gate-scene');
+ if(scene&&!reduced){
+  scene.addEventListener('pointermove',event=>{
+   if(done)return;
+   const box=scene.getBoundingClientRect();
+   const x=(event.clientX-box.left)/box.width-.5,y=(event.clientY-box.top)/box.height-.5;
+   gate.style.setProperty('--tilt-x',`${(x*10).toFixed(2)}deg`);
+   gate.style.setProperty('--tilt-y',`${(-y*7).toFixed(2)}deg`);
+  });
+  scene.addEventListener('pointerleave',()=>{
+   gate.style.setProperty('--tilt-x','0deg');gate.style.setProperty('--tilt-y','0deg');
+  });
+ }
+
  function reveal(){
   if(done)return;done=true;
+  gate.style.setProperty('--tilt-x','0deg');gate.style.setProperty('--tilt-y','0deg');
   // Dispatch inside the gesture so the browser allows the soundtrack to start.
   document.dispatchEvent(new CustomEvent('paper:gate-open'));
   gate.classList.add('is-open');

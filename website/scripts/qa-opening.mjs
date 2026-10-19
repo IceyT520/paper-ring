@@ -1,4 +1,4 @@
-﻿import {chromium} from 'playwright';
+import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
@@ -36,12 +36,13 @@ try{
   await settled(page);await page.screenshot({path:`test-results/opening-${width}-final.png`});
   assert(Math.abs(await page.locator('#replay-opening').evaluate(el=>el.getBoundingClientRect().right)-controlRight)<1,'switching controls must not shift the shared footer slot');
   const canvas=page.locator('#hero-stage canvas');assert(await canvas.isVisible());
-  // Locator screenshots scroll clipped mobile artwork into view, changing the cover.
-  // Capture only the visible canvas area without scrolling any ancestor.
-  const b=await canvas.boundingBox(),clip={x:Math.max(0,b.x),y:Math.max(0,b.y),width:Math.min(width,b.x+b.width)-Math.max(0,b.x),height:Math.min(1000,b.y+b.height)-Math.max(0,b.y)};
-  const first=await page.screenshot({clip}),frames=await page.evaluate(()=>window.heroFrames);await page.waitForTimeout(450);
-  assert(first.equals(await page.screenshot({clip})),'paper must hold still after the opening');
-  assert.equal(await page.evaluate(()=>window.heroFrames),frames,'settled cover must stop WebGL drawing');
+  // The cover is not frozen: the two walkers drift along the strip, while the
+  // paper's own pose and the camera view stay exactly where the opening left them.
+  const dotsBefore=await page.locator('#hero-stage').getAttribute('data-dots');
+  const viewBefore=await page.locator('#hero-stage').getAttribute('data-view');
+  await page.waitForTimeout(700);
+  assert.notEqual(await page.locator('#hero-stage').getAttribute('data-dots'),dotsBefore,'the two dots must keep walking');
+  assert.equal(await page.locator('#hero-stage').getAttribute('data-view'),viewBefore,'the cover pose must not drift');
   await page.evaluate(()=>scrollTo({top:innerHeight,behavior:'instant'}));await page.waitForTimeout(150);
   await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await settled(page);
   assert.deepEqual(errors,[]);report.push({width,duration});console.log('PASS opening settles and remains still',width,duration+'ms');await page.close();

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {paperShape,paperTrace} from './paper-geometry';
+import {paperShape,paperTrace,paperPoint,paperNormal} from './paper-geometry';
 export interface PaperController{setOpening(value:number):void;setReduced(value:boolean):void;setTwist(value:number):void;flip():void;resetView():void;nudgeView(x:number,y:number):void;setTracePaused(value:boolean):void;sendLight(phase?:number,offset?:number):void;refresh():void;destroy():void}
 export function createPaper(reduced=false):PaperController{
  const slots=[...document.querySelectorAll<HTMLElement>('[data-stage]')];
@@ -61,7 +61,7 @@ export function createPaper(reduced=false):PaperController{
  const trailPositions=new Float32Array(24*3),trailGeometry=new THREE.BufferGeometry();trailGeometry.setAttribute('position',new THREE.BufferAttribute(trailPositions,3).setUsage(THREE.DynamicDrawUsage));trailGeometry.boundingSphere=geometry.boundingSphere;
  const trailMaterial=new THREE.PointsMaterial({color:'#ffe0ba',size:.027,transparent:true,opacity:.8,depthWrite:false});const trail=new THREE.Points(trailGeometry,trailMaterial);trail.visible=false;group.add(trail);
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
- let active:HTMLElement|null=null,mode='hero',frame=0,needsDraw=true,geometryDirty=false,twistProgress=0,twistTarget=0,flipAngle=0,currentFlip=0,dragging=false,lastX=0,lastY=0,dragDistance=0;
+ let active:HTMLElement|null=null,mode='hero',frame=0,needsDraw=true,geometryDirty=false,twistProgress=0,twistTarget=0,flipAngle=0,currentFlip=0,dragging=false,lastX=0,lastY=0,dragDistance=0,lastPaint=0;
  const ratios=new Map<HTMLElement,number>();
  const rotations:Record<string,{x:number;y:number}>={explore:{x:0,y:0},mobius:{x:0,y:0}};
  const displayedView:Record<string,{x:number;y:number}>={explore:{x:0,y:0},mobius:{x:0,y:0}};
@@ -71,16 +71,36 @@ export function createPaper(reduced=false):PaperController{
  function stamp(){if(!active)return;active.dataset.view=JSON.stringify(rotations[mode]||{x:0,y:0});active.dataset.traceState=tracePaused?'paused':'running';active.dataset.paperProgress=String(mode==='mobius'?twistTarget:0)}
  function nudgeView(x:number,y:number){const r=rotations[mode];if(!r)return;r.x+=x;r.y=THREE.MathUtils.clamp(r.y+y,-1.2,1.2);stamp();needsDraw=true;requestFrame()}
  function placeDots(){
+  const progress=mode==='mobius'?twistProgress:0;
   const journey=mode==='mobius'&&lightProgress>=0;
-  const phase=journey?lightStart+lightProgress:reduced||mode==='hero'?.17:traceClock*.012;
-  dotA.position.fromArray(paperTrace(phase,0,mode==='mobius'?twistProgress:0,journey?lightOffset:.28).center);
-  dotR.position.fromArray(paperTrace(phase,1,mode==='mobius'?twistProgress:0,journey?lightOffset:.28).center);
+  const drift=mode==='hero'?traceClock*.02:traceClock*.013;
+  const phase=journey?lightStart+lightProgress:(reduced?.17:drift);
+  // The two people walk at their own pace; the blue dot trails the red one.
+  const phaseR=journey?phase:(reduced?.17:drift+.32);
+  dotA.position.fromArray(dotPoint(phase,0,progress,journey?lightOffset:.28));
+  dotR.position.fromArray(dotPoint(phaseR,1,progress,journey?lightOffset:.28));
+  if(active)active.dataset.dots=`${dotA.position.x.toFixed(2)},${dotA.position.y.toFixed(2)},${dotR.position.x.toFixed(2)},${dotR.position.y.toFixed(2)}`;
   trail.visible=journey&&!reduced;
   if(journey){
    for(let i=0;i<24;i++){const p=paperTrace(lightStart+Math.max(0,lightProgress-i*.0035),0,1,lightOffset).center;trailPositions.set(p,i*3)}trailGeometry.attributes.position.needsUpdate=true;
    const message=lightProgress>=1?2:lightProgress>=.5?1:0;
    if(message!==lightMessage){lightMessage=message;lightStatus.textContent=['光从你的这一面出发，沿着纸面前行。','不曾越过纸边，已经走到了曾经的另一面。','走过两面，回到相遇的地方。原来，我们在同一张纸上。'][message];if(active)active.dataset.lightJourney=String(message)}
   }
+ }
+ /** Keep both dots on the paper while the seam closes: the closed Möbius maps
+  *  each channel half a lap further, so blend that shift in instead of jumping. */
+ function dotPoint(phase:number,channel:number,progress:number,offset:number){
+  if(progress<.62)return paperTrace(phase,channel,progress,offset).center;
+  const open=paperTrace(phase,channel,Math.min(progress,.999999),offset);
+  const closed=paperTrace(phase,channel,1,offset);
+  const t=Math.min(1,(progress-.62)/.38),w=t*t*(3-2*t);
+  if(!w)return open.center;
+  let du=closed.u-open.u;
+  while(du>Math.PI)du-=Math.PI*2;
+  while(du<-Math.PI)du+=Math.PI*2;
+  const u=open.u+du*w,v=open.v+(closed.v-open.v)*w,side=open.side+(closed.side-open.side)*w;
+  const shape=paperShape(progress),point=paperPoint(u,v,shape.twist),normal=paperNormal(u,v,shape.twist);
+  return point.map((x,i)=>x+normal[i]*side*.075) as [number,number,number];
  }
 
  function updateGeometry(){
@@ -137,11 +157,15 @@ export function createPaper(reduced=false):PaperController{
    placeDots();
    dotA.visible=dotR.visible=mode!=='hero'||openingProgress>.72;
    const moving=Math.abs(currentFlip-flipAngle)>.001;
-   if(needsDraw||(!reduced&&!tracePaused&&mode==='mobius')||moving||morphing||viewMoving){
-    renderer.render(scene,camera);needsDraw=false;
+   const animating=!reduced&&!tracePaused;
+   const idleDots=animating&&(mode==='hero'||mode==='explore');
+   // Two walkers keep the still cover alive; drawing is capped near 30 fps.
+   const drawNow=needsDraw||moving||morphing||viewMoving||(animating&&mode==='mobius')||(idleDots&&now-lastPaint>=32);
+   if(drawNow){
+    renderer.render(scene,camera);needsDraw=false;lastPaint=now;
     if(!active.classList.contains('ready')){active.classList.add('ready');active.dispatchEvent(new Event('paper-ready'))}
    }
-   if(!reduced&&(!tracePaused&&mode==='mobius'||moving||morphing||viewMoving))frame=requestAnimationFrame(render);
+   if(animating&&(idleDots||moving||morphing||viewMoving||mode==='mobius'))frame=requestAnimationFrame(render);
  }
  function requestFrame(){if(!frame&&active&&!document.hidden)frame=requestAnimationFrame(render)}
  slots.forEach(el=>{

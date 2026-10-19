@@ -328,6 +328,16 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - 验证方式：把新 HTML 单独放进空文件夹（无 mp3）用 file:// 打开，拆信后 `#theme-audio.src` 是 `blob:`、`duration=253.7s`、`loop=true`、音量 0.30、`currentTime` 正常推进。
 - 代价：仓库每次发版都会多存一份约 13.6 MB 的 base64 文本；如果以后嫌仓库变大，可改成“仓库只存轻量版，内嵌版只作为 Release 资产”。
 
+### 11.8 v1.7.0（2026-10-19）：六处动效打磨
+
+- **信封**：纸纹、`TO YOU` 地址行、蜡封暗纹、指针视差（`--tilt-x/--tilt-y`，只在未拆且非 reduced 时）、折页更慢更弹、信纸细线；拆开后折页 0.5s 后淡出，避免 3D 深度把折页压在信纸上方（之前那道“多出来的白条”就是它）。
+- **信纸回弹**：短拉松手用 4 段 keyframes 回弹（过冲 5px 再归位），并在拖动位移 >3px 时抑制随后的 click；抑制用 450ms 定时清除——拖动可能结束在信纸外，click 不会回到该元素（390px 下曾因此把下一次 Enter 吞掉）。
+- **光点行走**：hero/explore 两个模式改成持续渲染、约 30fps（`lastPaint` 节流）；A 相位 `traceClock*.02/.013`，R 相位再 +0.32，红前蓝后。`#hero-stage/#explore-stage` 有 `data-dots` 便于验收。`qa-opening` 不再比较截图静止，改为断言 `data-dots` 变化、`data-view` 不变。
+- **防御光影**：`--approach` 驱动主光的位移/缩放/亮度；`.inside-view` 用 1.2s 过渡把主光挪到另一侧、内层暖光放大 0.94、光束收窄——翻面时灯是真的跟着转。
+- **07.6 淡出**：根因是 `style.css` 里 `.shield-sheet` 的 `visibility:hidden` 没写延迟，所以遮片当帧消失；在 `journey.css` 覆盖为 `visibility 0s .9s`，并给 `.loop-diagram`、`.loop-description`、`.inline-controls` 加淡入。
+- **莫比乌斯**：`dotPoint()` 在 twist .62→1 之间把两点的 (u,v) 在参数空间插值，闭合成莫比乌斯时不再瞬移；`#mobius-section` 进入视口且 `paintedTwist<1` 时加 `html[data-mobius-lock]`，只拦向下滚/向下滑/PageDown 等，向上仍可退出；`paintTwist(1)` 解锁。
+- 测试配合：`browser.mjs` 增加 `settleOpening()`（等 skip 出现再点）；`qa-interactions` 点击纸面前先 `scrollIntoViewIfNeeded()`（步骤按钮会把页面滚到下方，导致 stage 跑到视口外）。
+
 当前没有未完成的用户设计修改，也没有待办的技术债。继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。
 
 ## 12. 给下一位 AI 的简短提醒

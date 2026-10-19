@@ -1,4 +1,4 @@
-﻿import {launchBrowser} from './browser.mjs';
+﻿import {launchBrowser,settleOpening} from './browser.mjs';
 import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,7 +10,8 @@ try{
  for(const [width,height] of [[1440,1000],[768,1024],[390,844],[360,800]]){
   const page=await browser.newPage({viewport:{width,height}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
-  await page.locator('#send-signal').click();await page.waitForTimeout(1900);
+  await settleOpening(page);
+  await page.locator('#send-signal').click();await page.waitForTimeout(2100);
   async function checkDock(){
    const result=await page.evaluate(()=>{
     const a=document.querySelector('#send-signal'),b=document.querySelector('.letter-destination'),ar=a.getBoundingClientRect(),br=b.getBoundingClientRect();

@@ -1,4 +1,5 @@
 ﻿import {devUrlNoGate} from './paths.mjs';
+import {settleOpening} from './browser.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -9,7 +10,7 @@ try{
  for(const [width,height] of [[1440,1000],[390,844],[360,800],[768,1024]]){
   const context=await browser.newContext({viewport:{width,height}}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);if(await page.locator('#skip-opening').isVisible())await page.locator('#skip-opening').click();
+  await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);await settleOpening(page);
   await check(`${width}px: continuous backgrounds, complete text, six new illustrations`,async()=>{
    const styles=await page.locator('#exhibition>.chapter,#exhibition .abstract-section,#exhibition .hero').evaluateAll(els=>els.map(e=>[getComputedStyle(e).backgroundColor,getComputedStyle(e).backgroundImage]));
    assert(styles.every(([color,image])=>color==='rgba(0, 0, 0, 0)'&&image==='none'));

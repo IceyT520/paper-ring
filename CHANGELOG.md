@@ -4,6 +4,34 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.7.0] — 2026-10-19
+
+Six interaction details, all in the exhibition's own language.
+
+### Changed
+- Envelope: paper grain, an address line, wax mottling, a pointer parallax, a
+  springier flap and a hairline on the letter; the opened flap now steps aside
+  instead of pressing on the letter.
+- The paper letter: a short pull springs back with an overshoot instead of
+  being read as a click; sending gets a tiny anticipation first.
+- The hero ring and the "next" ring keep their two walkers moving (red leads,
+  blue trails), drawn at about 30 fps and paused with reduced motion.
+- Chapter 4's light now slides and narrows as the folds close, and turns with
+  the object when the visitor walks to the inner side.
+- 07.6: the shield really fades (visibility is delayed now); the loop and its
+  caption fade in instead of appearing on one frame.
+- The Möbius dots glide to their closed-surface positions via a parameter-space
+  blend, so nothing snaps when the seam closes.
+
+### Added
+- The Möbius act gates the page: while the section is on screen and the two
+  sides are not yet reconnected, scrolling down is refused (up still works),
+  the ♪-style hint appears and the play button pulses.
+
+### Fixed
+- QA: the opening is settled explicitly, the Möbius stage is scrolled into view
+  before tapping, and a drag's click suppression no longer goes stale.
+
 ## [1.6.0] — 2026-10-19
 
 ### Changed

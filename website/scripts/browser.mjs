@@ -11,3 +11,11 @@ export async function launchBrowser(){
   return chromium.launch({headless:true});
  }
 }
+
+/** The opening locks scrolling and clicks on its first frames; tests that drive
+ *  the exhibition directly skip it, waiting for the control if it is still coming. */
+export async function settleOpening(page){
+ const skip=page.locator('#skip-opening');
+ try{await skip.waitFor({state:'visible',timeout:3000});await skip.click()}catch{/* no opening this run */}
+ await page.waitForTimeout(150);
+}

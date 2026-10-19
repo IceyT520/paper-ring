@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import {editedText} from './editorial.mjs';
 import {atmosphere,heroThreads,flowStudy,anxiousInstrument,fingerprint,subtitleOrbits,rhythm,mobiusScene,mobiusFallback,defenseSculpture} from './journey-art.mjs';
 import path from 'node:path';
@@ -19,7 +19,7 @@ const gateMarkup=`<div id="gate" class="gate" role="dialog" aria-modal="true" ar
  <div class="gate-scene"><button class="gate-envelope" id="gate-open" aria-label="拆开信封，进入展览" aria-describedby="gate-hint">
   <span class="gate-back" aria-hidden="true"></span>
   <span class="gate-letter" aria-hidden="true"><span class="gate-letter-mark">${mark}</span><span class="gate-letter-title">纸环的两面</span><span class="gate-letter-sub">论回避型恋人和焦虑型恋人<br>在异地恋中如何相处</span></span>
-  <span class="gate-pocket" aria-hidden="true"></span>
+  <span class="gate-pocket" aria-hidden="true"><i>TO YOU</i></span>
   <span class="gate-flap" aria-hidden="true"><span class="gate-seal">${mark}</span></span>
   <span class="gate-caption" id="gate-title">纸环的两面</span>
  </button></div>
