@@ -6,7 +6,7 @@ import {offlineUrlNoGate} from './paths.mjs';
 const browser=await launchBrowser(),report=[];
 try{
  for(const width of [1440,390]){
-  const page=await browser.newPage({viewport:{width,height:1000}});
+  const page=await browser.newPage({viewport:{width,height:1200}});
   await page.goto(offlineUrlNoGate+'#chapter-06',{waitUntil:'networkidle'});
   await page.locator('#mirror-installation').evaluate(el=>scrollTo({top:el.getBoundingClientRect().top+scrollY-180,behavior:'instant'}));
   await page.waitForTimeout(2000);
@@ -14,7 +14,7 @@ try{
    const frames=[],longTasks=[];
    const observer=new PerformanceObserver(list=>longTasks.push(...list.getEntries().map(e=>e.duration)));
    observer.observe({type:'longtask'});
-   const scene=document.querySelector('#mirror-installation'),button=document.querySelector('#mirror-knot');
+   const scene=document.querySelector('#mirror-installation'),button=document.querySelector('#connection-space');
    button.click();
    await new Promise(resolve=>{
     let start=0,last=0;
@@ -32,10 +32,10 @@ try{
    const idleObserver=new MutationObserver(list=>idleMutations+=list.length);
    idleObserver.observe(scene,{subtree:true,attributes:true});
    await new Promise(resolve=>setTimeout(resolve,500));idleObserver.disconnect();
-   return {frameCount:frames.length,medianFrameMs:frames[Math.floor(frames.length*.5)],p95FrameMs:frames[Math.floor(frames.length*.95)],longTasks,idleMutations,state:scene.dataset.state};
+   return {frameCount:frames.length,medianFrameMs:frames[Math.floor(frames.length*.5)],p95FrameMs:frames[Math.floor(frames.length*.95)],longTasks,idleMutations,state:scene.dataset.space};
   });
   assert.equal(result.idleMutations,0,'the settled scene must stop writing geometry and styles');
-  assert.equal(result.state,'open');
+  assert.equal(result.state,'apart');
   const bounds=await page.locator('#mirror-installation').boundingBox();
   await page.screenshot({path:`test-results/mirror-final-${width}.png`,clip:bounds});
   report.push({width,...result});await page.close();

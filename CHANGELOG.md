@@ -4,6 +4,25 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.9.0] — 2026-10-20
+
+### Changed
+- Replaced Chapter 06's tension metaphor with two separate paper spaces and
+  an illuminated route through their openings. Safe connection is expressed
+  through actions: blue can take space without breaking the route or drawing
+  red after them; red can call and receive a reply without forcing reunion.
+- Requests travel from red to blue and replies return along the same physical
+  path. The receiving space warms with light; taking space and responding
+  remain independent choices. The mobile composition follows a diagonal.
+- Replaced the former drag affordance with direct touchable lights, keyboard
+  actions and replay. Animation remains finite and sleeps offscreen.
+
+### Added
+- Geometry tests across both layouts and 21 separation states verify that
+  the bridge meets the openings and never cuts through either room.
+- Browser checks for autonomy, replies while apart, native touch scrolling,
+  interrupted actions and motion preferences. Four new self-hosted glyphs.
+
 ## [1.8.0] — 2026-10-20
 
 ### Changed

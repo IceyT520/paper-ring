@@ -1,147 +1,140 @@
-/** A single folded sheet: opposing protective gestures conceal a shared need.
- *  Only this controller owns its geometry. Rendering sleeps when settled,
- *  offscreen, in the reader, or in a background tab. */
+import {connectionLayout,connectionPath,connectionPoint,roomFacets,type Room} from './connection-geometry';
+
+/** Safety is shown through two observable actions: room to be oneself and a
+ *  reachable partner. Taking space never removes the bridge or moves red. */
 export function initMirror(){
  const scene=document.querySelector<HTMLElement>('#mirror-installation')!;
- const knot=scene.querySelector<HTMLButtonElement>('#mirror-knot')!;
- const status=scene.querySelector<HTMLElement>('#mirror-status')!;
- const hint=scene.querySelector<HTMLElement>('#mirror-hint')!;
- const reset=scene.querySelector<HTMLButtonElement>('#mirror-reset')!;
- const voices=[...scene.querySelectorAll<HTMLButtonElement>('[data-mirror-side]')];
- const ribbons=[...scene.querySelectorAll<SVGPathElement>('.tension-ribbon')];
- const creases=[...scene.querySelectorAll<SVGPathElement>('.tension-crease')];
- const threads=[...scene.querySelectorAll<SVGPathElement>('.tension-thread')];
- const signals=[...scene.querySelectorAll<SVGPathElement>('.tension-signal')];
+ const $=<T extends Element=HTMLElement>(s:string)=>scene.querySelector<T>(s)!;
+ const svg=$<SVGSVGElement>('.connection-art'),stage=$('.connection-stage');
+ const spaceButton=$<HTMLButtonElement>('#connection-space'),callButton=$<HTMLButtonElement>('#connection-call');
+ const replay=$<HTMLButtonElement>('#connection-replay'),status=$('#connection-status');
+ const blueMessage=$('#connection-blue-message'),redMessage=$('#connection-red-message');
+ const paths=[...scene.querySelectorAll<SVGPathElement>('.connection-road-shadow,.connection-road,#connection-path')];
+ const path=$<SVGPathElement>('#connection-path');
+ const traveler=$<SVGCircleElement>('.connection-traveler'),halo=$<SVGCircleElement>('.connection-traveler-halo');
  const quiet=()=>document.body.classList.contains('reduced-motion');
- let open=0,pull=0,targetOpen=0,targetPull=0,velocityOpen=0,velocityPull=0;
- let frame=0,lastTime=0,visible=false,entered=false,dragging=false,pointer=-1,startX=0,startY=0;
- let dragged=false,suppressClick=false,measureWidth=1000;
- let beforeDragOpen=false,beforeDragPull=0;
- const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
- const f=(n:number)=>n.toFixed(2);
-
- // Two curved boundaries describe every fold. Matching boundaries prevent
- // cracks between facets; both sides remain parts of the same sheet.
- function curve(level:number,side:number){
-  const edge=320+side*(29+level*151);
-  const neck=320+side*((3+level*17)*(1-open)+(77+level*48)*open);
-  const center=500+pull*100*(1-open*.55);
-  const flare=Math.sin(level*Math.PI)*19;
-  const x=98+level*level*47;
-  const arch=side*(18+flare)*(1-open);
-  return {x,edge,neck,center,arch};
- }
- function segment(level:number,side:number,back=false){
-  const {x,edge,neck,center,arch}=curve(level,side);
-  if(back)return `L${f(1000-x)},${f(edge)} C${f(780+pull*16)},${f(edge+arch)} ${f(center+98)},${f(neck)} ${f(center)},${f(neck)} C${f(center-98)},${f(neck)} ${f(220+pull*16)},${f(edge+arch)} ${f(x)},${f(edge)}`;
-  return `M${f(x)},${f(edge)} C${f(220+pull*16)},${f(edge+arch)} ${f(center-98)},${f(neck)} ${f(center)},${f(neck)} C${f(center+98)},${f(neck)} ${f(780+pull*16)},${f(edge+arch)} ${f(1000-x)},${f(edge)}`;
- }
- function paint(){
-  for(let i=0;i<ribbons.length;i++){
-   const side=i<12?-1:1,index=i%12;
-   ribbons[i].setAttribute('d',segment(index/12,side)+segment((index+1)/12,side,true)+'Z');
-   creases[i].setAttribute('d',segment(index/12,side));
-  }
-  threads.forEach((path,i)=>{
-   const d=segment(.04,i===0?-1:1);path.setAttribute('d',d);signals[i].setAttribute('d',d);
+ const sides=['blue','red'] as const;
+ const rooms=sides.map(side=>({
+  floor:$<SVGGElement>(`.connection-floor-${side}`),
+  ellipses:[...scene.querySelectorAll<SVGEllipseElement>(`.connection-floor-${side} ellipse`)],
+  walls:[...scene.querySelectorAll<SVGPathElement>(`.connection-walls-${side} .room-wall`)],
+  rims:[...scene.querySelectorAll<SVGPathElement>(`.connection-walls-${side} .room-rim`)],
+  label:$<SVGTextElement>(`.boundary-${side}`),
+  button:side==='blue'?spaceButton:callButton,message:side==='blue'?blueMessage:redMessage
+ }));
+ let space=0,targetSpace=0,fromSpace=0,narrow=matchMedia('(max-width:760px)').matches;
+ let layout=connectionLayout(space,narrow),visible=false,entered=false,frame=0,started=0;
+ let action:'intro'|'space'|'call'|'rest'='rest',phase='',responseCount=0;
+ const clamp=(v:number)=>Math.max(0,Math.min(1,v));
+ const smooth=(v:number)=>{const t=clamp(v);return t*t*(3-2*t)};
+ const f=(v:number)=>v.toFixed(3);
+ const point=(el:HTMLElement,x:number,y:number)=>{
+  el.style.left=`${f(x/layout.width*100)}%`;el.style.top=`${f(y/layout.height*100)}%`;
+ };
+ function drawRoom(room:Room,index:number,angle:number){
+  const el=rooms[index];el.floor.setAttribute('transform',`translate(${f(room.x)} ${f(room.y)})`);
+  // One lighting field spans the paper wall. Restarting a gradient for every
+  // facet would turn the curved sheet into a striped metal shutter.
+  const material=$<SVGLinearGradientElement>(`#room-paper-${sides[index]}`);
+  material.setAttribute('gradientUnits','userSpaceOnUse');
+  material.setAttribute('x1',f(room.x-room.radius));material.setAttribute('x2',f(room.x+room.radius));
+  material.setAttribute('y1',f(room.y-room.radius*.46-room.height));material.setAttribute('y2',f(room.y+room.radius*.46));
+  el.ellipses.forEach((ellipse,i)=>{
+   const scale=[1.08,1,.86,.7][i];ellipse.setAttribute('rx',f(room.radius*scale));ellipse.setAttribute('ry',f(room.radius*.46*scale));
   });
-  // Variables are local to the installation, never inherited by the article.
-  scene.style.setProperty('--mirror-open',f(open));
-  scene.style.setProperty('--mirror-pull',f(pull));
-  scene.style.setProperty('--mirror-tension',f(1-open+Math.abs(pull)*.5));
-  knot.style.transform=`translate(calc(-50% + ${f(pull*(1-open*.55)*10)}cqw),-50%)`;
+  roomFacets(room,angle).forEach((facet,i)=>{
+   el.walls[i].setAttribute('d',facet.body);el.walls[i].setAttribute('opacity',f(facet.light));el.rims[i].setAttribute('d',facet.rim);
+  });
+  el.label.setAttribute('x',f(room.x));el.label.setAttribute('y',f(room.y+room.radius*.46+28));
+  point(el.button,room.x,room.y);point(el.message,room.x,room.y-room.radius*.46-room.height-25);
  }
- function settle(){
-  cancelAnimationFrame(frame);frame=0;lastTime=0;
-  open=targetOpen;pull=targetPull;velocityOpen=velocityPull=0;
-  scene.dataset.animating='false';paint();
+ function geometry(){
+  layout=connectionLayout(space,narrow);svg.setAttribute('viewBox',`0 0 ${layout.width} ${layout.height}`);
+  drawRoom(layout.left,0,layout.angle);drawRoom(layout.right,1,layout.angle+Math.PI);
+  const d=connectionPath(layout);paths.forEach(p=>p.setAttribute('d',d));
+  const gradient=$<SVGLinearGradientElement>('#connection-gold');
+  gradient.setAttribute('x1',String(layout.left.x));gradient.setAttribute('x2',String(layout.right.x));
+ }
+ function light(t:number,show:boolean){
+  const p=connectionPoint(layout,clamp(t));
+  for(const node of [traveler,halo]){
+   node.setAttribute('cx',f(p.x));node.setAttribute('cy',f(p.y));node.style.opacity=show?'1':'0';
+  }
+ }
+ function say(next:string){
+  if(phase===next)return;phase=next;scene.dataset.phase=next;
+  if(action==='call'){
+   redMessage.textContent='你在吗';
+   blueMessage.textContent=next==='sent'?'':targetSpace?'我在，晚一点再聊':'我在';
+   status.textContent=next==='sent'?'需要被说出来，也有一条路能够抵达':targetSpace?'即使正在独处，也能给出清楚的回应':'你发出的呼唤，得到了回应';
+  }
+  if(action==='space'){
+   blueMessage.textContent=targetSpace?'我想安静一会儿':'我准备好靠近了';
+   redMessage.textContent=next==='moving'?'':targetSpace?'好，我在这里':'我在';
+   status.textContent=targetSpace?'留出自己的空间，联结仍然完整':'靠近，是带着自己来到你身边';
+  }
+ }
+ function finish(){
+  cancelAnimationFrame(frame);frame=0;
+  if(space!==targetSpace){space=targetSpace;geometry()}
+  path.style.strokeDashoffset='0';light(0,false);
+  if(action==='call'){say('replied');scene.dataset.response=String(++responseCount)}
+  else if(action==='space')say('answered');
+  else if(action==='intro')status.textContent='靠近时保有自己，独处时也知道你在';
+  scene.dataset.animating='false';scene.dataset.phase='rest';action='rest';
  }
  function tick(now:number){
   frame=0;
-  if(!visible||document.hidden||quiet()){settle();return}
-  const dt=Math.min((now-(lastTime||now-16.67))/1000,1/30);lastTime=now;
-  // Overdamped opening, lightly elastic lateral tension; independent of FPS.
-  velocityOpen+=((targetOpen-open)*64-velocityOpen*16)*dt;
-  velocityPull+=((targetPull-pull)*104-velocityPull*19)*dt;
-  open=clamp(open+velocityOpen*dt,0,1);pull=clamp(pull+velocityPull*dt,-1.15,1.15);
-  paint();
-  if(Math.abs(open-targetOpen)+Math.abs(pull-targetPull)+Math.abs(velocityOpen)+Math.abs(velocityPull)<.003){settle();return}
+  if(!visible||document.hidden||quiet()||document.body.classList.contains('reader-mode')){finish();return}
+  if(!started)started=now;
+  const elapsed=now-started,duration=action==='call'?3000:action==='space'?2300:2200,p=clamp(elapsed/duration);
+  if(space!==targetSpace){
+   space=fromSpace+(targetSpace-fromSpace)*smooth(elapsed/1600);
+   if(elapsed>=1600)space=targetSpace;
+   geometry();
+  }
+  if(action==='call'){
+   say(p<.42?'sent':p<.85?'answering':'received');
+   light(p<.42?1-smooth(p/.42):smooth((p-.42)/.43),p<.97);
+  }else if(action==='space'){
+   say(p<.48?'moving':'answered');
+   light(1-smooth(p),true);
+  }else if(action==='intro'){
+   path.style.strokeDashoffset=f(1-smooth(p));
+   light(smooth(p),true);
+  }
+  if(p>=1){finish();return}
   frame=requestAnimationFrame(tick);
  }
- function animate(){
-  if(quiet()||!visible||document.hidden){settle();return}
-  scene.dataset.animating='true';
-  if(!frame){lastTime=0;frame=requestAnimationFrame(tick)}
+ function begin(next:typeof action){
+  // A new action replaces the previous one without losing an in-flight choice.
+  cancelAnimationFrame(frame);frame=0;fromSpace=space;started=0;phase='';action=next;entered=true;
+  scene.dataset.animating='true';path.style.strokeDashoffset=next==='intro'?'1':'0';
+  scene.dataset.space=targetSpace?'apart':'together';spaceButton.setAttribute('aria-pressed',String(!!targetSpace));
+  $('#connection-space-action').textContent=targetSpace?'准备好，再靠近 ↘':'留一点空间 ↖';
+  spaceButton.setAttribute('aria-label',targetSpace?'准备好，再靠近一点':'留一点自己的空间，观察联结是否仍在');
+  if(next==='intro'){blueMessage.textContent='';redMessage.textContent='';status.textContent='各自拥有空间，彼此仍然可达'}
+  else say(next==='call'?'sent':'moving');
+  if(quiet()||!visible||document.hidden){finish();return}
+  frame=requestAnimationFrame(tick);
  }
- function choose(nextOpen:boolean,bias=0,holding=false){
-  targetOpen=nextOpen?1:0;targetPull=bias;
-  scene.dataset.state=holding?'pulling':nextOpen?'open':'taut';
-  scene.dataset.side=bias<-.1?'left':bias>.1?'right':'both';
-  knot.setAttribute('aria-pressed',String(nextOpen));
-  knot.setAttribute('aria-label',nextOpen?'重新感受两边的拉扯':'松开拉扯，看见共同的需要');
-  voices.forEach(b=>b.setAttribute('aria-pressed',String(!nextOpen&&Number(b.dataset.mirrorSide)===Math.sign(bias))));
-  status.textContent=nextOpen?'方向不同，想要的都是安全的联结':bias<-.1?'「给我一点空间」—— 我想靠近，也想保有自己':bias>.1?'「别离开我」—— 我想确认，你依然在这里':'一个怕失去自己，一个怕失去你';
-  hint.textContent=nextOpen?'看见需要，是理解彼此的开始':'拖动中央的结，松手看见内里 · 也可以轻触';
-  animate();
- }
- knot.addEventListener('pointerdown',event=>{
-  if(event.button!==0)return;
-  entered=true;dragging=true;dragged=false;suppressClick=false;pointer=event.pointerId;
-  beforeDragOpen=targetOpen>.5;beforeDragPull=targetPull;
-  startX=event.clientX;startY=event.clientY;measureWidth=scene.getBoundingClientRect().width;
-  knot.setPointerCapture(pointer);
+ spaceButton.addEventListener('click',()=>{targetSpace=targetSpace?0:1;begin('space')});
+ callButton.addEventListener('click',()=>begin('call'));
+ replay.addEventListener('click',()=>{targetSpace=0;begin('intro')});
+ [spaceButton,callButton,replay].forEach(button=>button.disabled=false);
+ geometry();light(0,false);scene.dataset.animating='false';
+ const resizeObserver=new ResizeObserver(()=>{
+  const next=matchMedia('(max-width:760px)').matches;
+  if(next===narrow)return;narrow=next;geometry();
  });
- knot.addEventListener('pointermove',event=>{
-  if(!dragging||event.pointerId!==pointer)return;
-  const dx=event.clientX-startX,dy=event.clientY-startY;
-  // Let a vertical touch gesture keep its normal page scrolling.
-  if(!dragged&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>9){cancelDrag();return}
-  if(!dragged&&Math.abs(dx)<5)return;
-  if(!dragged){
-   dragged=true;scene.dataset.state='pulling';targetOpen=0;
-   knot.setAttribute('aria-pressed','false');knot.setAttribute('aria-label','松开拉扯，看见共同的需要');
-   voices.forEach(button=>button.setAttribute('aria-pressed','false'));
-   status.textContent='越是用力拉扯，越难看见彼此的需要';
-   hint.textContent='松开手，看看拉扯背后藏着什么';
-  }
-  targetPull=clamp(dx/(measureWidth*.2),-1,1);
-  scene.dataset.side=targetPull<-.1?'left':targetPull>.1?'right':'both';animate();
- });
- function releaseCapture(){if(knot.hasPointerCapture(pointer))knot.releasePointerCapture(pointer)}
- function cancelDrag(){
-  if(!dragging)return;
-  dragging=false;suppressClick=true;releaseCapture();choose(beforeDragOpen,beforeDragPull);
- }
- function release(event:PointerEvent){
-  if(!dragging||event.pointerId!==pointer)return;
-  dragging=false;releaseCapture();
-  if(dragged){suppressClick=true;choose(true)}
- }
- knot.addEventListener('pointerup',release);
- knot.addEventListener('pointercancel',cancelDrag);
- knot.addEventListener('lostpointercapture',()=>{if(dragging)cancelDrag()});
- knot.addEventListener('click',event=>{
-  if(suppressClick&&event.detail!==0){suppressClick=false;return}
-  suppressClick=false;entered=true;choose(targetOpen<.5);
- });
- knot.addEventListener('keydown',event=>{
-  if(event.key==='ArrowLeft'||event.key==='ArrowRight'){
-   event.preventDefault();entered=true;choose(false,event.key==='ArrowLeft'?-.9:.9);
-  }else if(event.key==='Escape'){event.preventDefault();cancelDrag();choose(false)}
- });
- voices.forEach(button=>button.addEventListener('click',()=>{entered=true;choose(false,Number(button.dataset.mirrorSide)*.9)}));
- reset.addEventListener('click',()=>{entered=true;cancelDrag();choose(false)});
+ resizeObserver.observe(stage);
  new IntersectionObserver(entries=>{
   visible=entries[0].isIntersecting;
-  scene.dataset.visible=String(visible&&!document.hidden);
-  if(!visible){if(dragging)cancelDrag();settle();return}
-  // A single fold-in entrance gives the static sheet depth without an idle loop.
-  if(!entered&&!quiet()){entered=true;open=.35;pull=-.2;animate()}
- },{threshold:.08}).observe(scene);
- document.addEventListener('visibilitychange',()=>{
-  scene.dataset.visible=String(visible&&!document.hidden);
-  if(document.hidden){if(dragging)cancelDrag();settle()}
- });
- new MutationObserver(()=>{if(quiet()||document.body.classList.contains('reader-mode')){if(dragging)cancelDrag();settle()}}).observe(document.body,{attributes:true,attributeFilter:['class']});
- choose(false);
+  if(!visible){if(action!=='rest')finish();return}
+  if(!entered){entered=true;if(!quiet())begin('intro')}
+ },{threshold:.18}).observe(stage);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&action!=='rest')finish()});
+ new MutationObserver(()=>{
+  if(action!=='rest'&&(quiet()||document.body.classList.contains('reader-mode')))finish();
+ }).observe(document.body,{attributes:true,attributeFilter:['class']});
 }
