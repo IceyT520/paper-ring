@@ -6,6 +6,7 @@ import {initOpticalTitles} from './typography';
 import {initOpening} from './opening';
 import {initAudio} from './audio';
 import {initGate} from './gate';
+import {initMirror} from './mirror';
 import type {PaperController} from './paper';
 gsap.registerPlugin(ScrollTrigger);
 
@@ -193,13 +194,7 @@ $('#flip-ring').addEventListener('click',()=>{if(paper)paper.flip();else toast('
 
 const peelLines=['为什么不回消息？','我很害怕，我需要你。','求你拉住我，别推我走。'];let peelIndex=0;
 $('#peel-button').addEventListener('click',()=>{peelIndex=(peelIndex+1)%3;$('#peel-text').textContent=peelLines[peelIndex];$('#peel-number').textContent=`0${peelIndex+1} / 03`;$('#peel-button').innerHTML=(peelIndex===2?'再听一次':'听见更深一层')+' <span aria-hidden="true">↗</span>';if(!reduced)gsap.fromTo('#peel-text',{opacity:0,y:10},{opacity:1,y:0,duration:.65})});
-const mirror=$<HTMLInputElement>('#mirror-range');
-mirror.addEventListener('input',()=>{$('#mirror-installation').style.setProperty('--mirror',mirror.value);$('#mirror-installation').classList.toggle('aligned',Math.abs(Number(mirror.value)-50)<15)});
-let mirrorDragging=false;
-$('.mirror-fold').addEventListener('pointerdown',e=>{mirrorDragging=true;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)});
-$('.mirror-fold').addEventListener('pointermove',e=>{if(!mirrorDragging)return;const rect=$('#mirror-installation').getBoundingClientRect();mirror.value=String(Math.max(0,Math.min(100,((e.clientX-rect.left)/rect.width-.35)/.3*100)));mirror.dispatchEvent(new Event('input'))});
-$('.mirror-fold').addEventListener('pointerup',()=>mirrorDragging=false);
-$('.mirror-fold').addEventListener('pointercancel',()=>mirrorDragging=false);
+initMirror();
 $('#paper-coin').addEventListener('click',()=>$('#paper-coin').classList.toggle('flipped'));
 $('#filter-toggle').addEventListener('click',()=>{const on=$('.filter-demo').classList.toggle('unfiltered');$('#filter-toggle').setAttribute('aria-pressed',String(on));$('#filter-toggle').innerHTML=(on?'重新看见恐惧的解释':'揭开恐惧的滤镜')+' <span aria-hidden="true">↗</span>'});
 let pursuit=0;

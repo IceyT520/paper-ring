@@ -525,3 +525,81 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 .gate-seal{background:radial-gradient(circle at 68% 74%,#5c1d1430,transparent 42%),radial-gradient(circle at 34% 28%,#e09a80,#a84a3b 60%,#83342a)}
 .gate.is-open .gate-flap{opacity:0;transition:transform 1.15s cubic-bezier(.36,.06,.2,1),opacity .35s ease .5s}
 @media(prefers-reduced-motion:reduce){.gate.is-open .gate-flap{transition:none}}
+
+/* 06 — one sheet held under two opposing tensions.
+   Facets and their edges share geometry; light reveals the space they protect. */
+.tension-installation{
+ display:block;container-type:inline-size;isolation:isolate;
+ height:650px;min-height:0;margin-inline:-3%;overflow:hidden;
+ border-color:#d7d4cc21;background:transparent;
+ --mirror-open:0;--mirror-pull:0;
+}
+.mirror-overline{position:absolute;inset:25px 4.4% auto;display:flex;justify-content:space-between;font:9px var(--mono);letter-spacing:.2em;color:#9b9fa8;z-index:3;pointer-events:none}
+.mirror-overline span:before{content:'—';margin-right:12px;color:var(--gold)}
+.mirror-wash{position:absolute;inset:0;pointer-events:none;z-index:-1;opacity:calc(.75 - var(--mirror-open)*.35)}
+.mirror-wash-blue{background:radial-gradient(ellipse at 12% 45%,#497da431,transparent 55%)}
+.mirror-wash-red{background:radial-gradient(ellipse at 88% 45%,#bc5d6d27,transparent 55%)}
+.tension-surface{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.tension-facets{opacity:calc(.85 - var(--mirror-open)*.12)}
+.tension-crease{fill:none;stroke:#ebe6d3;stroke-width:.55;stroke-opacity:.25}
+.tension-thread{fill:none;stroke:url(#tension-thread);stroke-width:1.4;stroke-opacity:.85}
+.tension-signal{fill:none;stroke:#f4d7aa;stroke-width:2;stroke-linecap:round;stroke-dasharray:5 95;opacity:0}
+.tension-installation[data-state="open"] .tension-signal-blue{animation:mirror-arrive-blue 1.9s ease-out both}
+.tension-installation[data-state="open"] .tension-signal-red{animation:mirror-arrive-red 1.9s ease-out both}
+.tension-installation[data-visible="false"] .tension-signal,.reader-mode .tension-signal{animation-play-state:paused}
+@keyframes mirror-arrive-blue{0%{stroke-dashoffset:100;opacity:0}25%{opacity:.9}80%{opacity:.8}100%{stroke-dashoffset:53;opacity:0}}
+@keyframes mirror-arrive-red{0%{stroke-dashoffset:0;opacity:0}25%{opacity:.9}80%{opacity:.8}100%{stroke-dashoffset:-47;opacity:0}}
+.mirror-voice{position:absolute;top:93px;padding:0;border:0;background:none;text-align:left;z-index:3;max-width:35%;cursor:pointer;color:#8fc6ed;transform-origin:center 65%;transition:color .4s}
+.mirror-voice-blue{left:4.4%;transform:translate(calc(var(--mirror-tension,1)*-.8cqw + var(--mirror-pull)*.6cqw),calc(var(--mirror-open)*-10px)) rotate(calc(var(--mirror-tension,1)*-.6deg))}
+.mirror-voice-red{right:4.4%;text-align:right;color:#eea39a;transform:translate(calc(var(--mirror-tension,1)*.8cqw + var(--mirror-pull)*.6cqw),calc(var(--mirror-open)*-10px)) rotate(calc(var(--mirror-tension,1)*.6deg))}
+.mirror-identity{display:block;font:10px/1.4 var(--mono);letter-spacing:.16em}
+.mirror-identity i{font-style:normal}
+.mirror-voice strong{display:block;font:clamp(32px,4.6vw,65px)/1.5 var(--serif);font-weight:400;letter-spacing:.06em;margin:24px 0 16px;text-shadow:0 3px 24px #111820;white-space:nowrap}
+.mirror-fear{display:block;font:11px/1.5 var(--sans);letter-spacing:.15em}
+.mirror-fear b{display:inline-block;font-weight:400;padding:0 8px;opacity:.6;transition:transform .3s}
+.mirror-voice:hover .mirror-fear b{transform:translateY(-3px)}
+.mirror-voice:focus-visible{outline:1px solid currentColor;outline-offset:10px;border-radius:2px}
+.mirror-inner-light{position:absolute;pointer-events:none;left:25%;top:30%;width:50%;height:45%;background:radial-gradient(ellipse,#efd0a220 0,#d2ad7610 35%,transparent 70%);opacity:var(--mirror-open);transform:scale(calc(.75 + var(--mirror-open)*.25));z-index:1}
+.mirror-knot{position:absolute;left:50%;top:53.333%;width:210px;height:140px;transform:translate(-50%,-50%);z-index:4;padding:0;border:0;background:none;touch-action:pan-y;cursor:grab;color:#e8d7b9;user-select:none;-webkit-user-select:none}
+.mirror-knot:active{cursor:grabbing}
+.mirror-knot:focus-visible{outline:1px solid #d1b68d99;outline-offset:4px;border-radius:50%}
+.mirror-grip{display:grid;place-content:center;position:absolute;left:50%;top:50%;width:52px;height:52px;border:1px solid #c6c3b77a;border-radius:50%;background:radial-gradient(circle at 30% 20%,#56504b,#202833 65%);box-shadow:0 4px 15px #0006,0 0 32px #c6b39b1a;transform:translate(-50%,-50%) scale(calc(1 + var(--mirror-open)*.5));opacity:calc(1 - var(--mirror-open)*3);transition:box-shadow .3s}
+.mirror-grip svg{width:38px;height:38px;fill:none;stroke:#efdec0;stroke-width:1}
+.mirror-knot:hover .mirror-grip{box-shadow:0 4px 20px #0006,0 0 0 7px #c6b39b10,0 0 38px #c6b39b30}
+.mirror-shared{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:13px;position:absolute;inset:0;opacity:clamp(0,calc((var(--mirror-open) - .5)*2),1);transform:scale(calc(.92 + var(--mirror-open)*.08));white-space:nowrap;pointer-events:none}
+.mirror-shared small{font:9px var(--sans);letter-spacing:.3em;color:#bba78e}
+.mirror-shared strong{font:29px/1.3 var(--serif);font-weight:400;letter-spacing:.12em;text-indent:.12em;color:#f0ddbc;text-shadow:0 0 30px #f2cd8d35}
+.mirror-shared em{font:11px var(--sans);font-style:normal;letter-spacing:.1em;color:#bbb4ac}
+.mirror-foot{position:absolute;bottom:24px;left:4%;right:4%;text-align:center;z-index:4}
+.mirror-foot p{margin:0}
+#mirror-status{font:14px/1.8 var(--serif);letter-spacing:.08em;color:#dbd4c7}
+#mirror-hint{font:10px/1.8 var(--sans);letter-spacing:.06em;color:#9aa6b1;margin-top:8px}
+#mirror-reset{border:0;background:none;color:#bda98c;font:9px/1.5 var(--sans);letter-spacing:.1em;padding:10px 15px 0;cursor:pointer}
+#mirror-reset span{margin-left:8px;font-size:13px}
+.tension-installation[data-side="left"] .mirror-voice-red,.tension-installation[data-side="right"] .mirror-voice-blue{color:#a99e9b}
+.tension-installation[data-state="pulling"] .mirror-grip{box-shadow:0 0 0 7px #c6b39b14,0 0 32px #c6b39b26}
+@media(max-width:1100px){
+ .tension-installation{height:600px;margin-inline:0}
+ .mirror-voice{top:90px}.mirror-voice strong{font-size:clamp(31px,4.6vw,48px)}
+ .mirror-shared strong{font-size:25px}
+}
+@media(max-width:760px){
+ .tension-installation{height:530px;margin-inline:-8px}
+ .mirror-overline{top:21px;left:6%;right:6%;font-size:8px}
+ .mirror-voice{top:76px;max-width:44%}
+ .mirror-voice-blue{left:5%}.mirror-voice-red{right:5%}
+ .mirror-identity{font-size:8px;letter-spacing:.04em}.mirror-identity i{font-size:6px}
+ .mirror-voice strong{font-size:clamp(27px,6.5vw,39px);line-height:1.6;letter-spacing:.025em;margin:20px 0 12px}
+ .mirror-fear{font-size:9px;letter-spacing:.03em}.mirror-fear b{padding:0 3px}
+ .mirror-knot{width:168px;height:122px}.mirror-grip{width:46px;height:46px}
+ .mirror-shared{gap:10px}.mirror-shared strong{font-size:22px;letter-spacing:.08em}
+ .mirror-shared small{font-size:8px;letter-spacing:.18em}.mirror-shared em{font-size:10px}
+ .mirror-inner-light{left:15%;width:70%}
+ .mirror-foot{bottom:21px;left:5%;right:5%}
+ #mirror-status{font-size:11px;letter-spacing:.02em;min-height:40px;display:grid;place-content:center}
+ #mirror-hint{font-size:9px;letter-spacing:0;margin-top:2px}
+ .tension-crease{stroke-width:.85}.tension-thread{stroke-width:2}
+}
+.reduced-motion .tension-installation *{transition:none!important}
+.reduced-motion .tension-signal{animation:none!important}
+@media(prefers-reduced-motion:reduce){.tension-installation *{transition:none!important}.tension-signal{animation:none!important}}

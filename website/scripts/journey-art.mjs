@@ -87,7 +87,40 @@ export function flowStudy(type){
 }
 export const heroThreads=svg(`${Array.from({length:9},(_,i)=>path(`M${120+i*7} 440C${-40+i*5} 230 ${350+i*6} 310 ${420+i*7} 110S${750+i*8} -50 900 ${90+i*6}`,'blue-line contour')).join('')}${Array.from({length:9},(_,i)=>path(`M0 ${340+i*6}C230 ${500+i*5} 470 ${-70+i*7} 620 ${110+i*5}S770 380 900 ${260+i*5}`,'red-line contour')).join('')}`,'hero-threads');
 export const anxiousInstrument=`<aside class="anxious-instrument" data-art><span class="eyebrow">THE ECHO CHAMBER / 需要的回声</span><div class="echo-chamber"><div class="echo-orbits" aria-hidden="true"><i></i><i></i><i></i></div><div id="echo-ripples" aria-hidden="true"></div><div id="echo-words" aria-hidden="true"></div><button id="call-need" class="echo-core" aria-label="轻叩纸面，发出一次呼唤"><span class="echo-core-light"></span><span class="disc-word">你在吗</span><small>轻叩，让需要被听见</small></button><button id="answer-need" class="echo-answer" aria-pressed="false"><i aria-hidden="true"></i><span>我在</span><small>把这一句，交还给你</small></button></div><div class="instrument-key"><span class="anx-label">每一次轻叩，都留下一圈回声</span><span>05 / ECHO</span></div><p id="need-response" class="art-status" role="status">试着叩几下，再触碰蓝色的“我在”。</p></aside>`;
-export const fingerprint=svg(`${Array.from({length:19},(_,i)=>{const r=22+i*8;return `<ellipse cx="450" cy="220" rx="${r*1.55}" ry="${r}" class="fingerprint-line" transform="rotate(${i*.9} 450 220)"/>`}).join('')}`,'fingerprint');
+const tensionFacets=Array.from({length:24},(_,i)=>{
+ const side=i<12?-1:1,n=i%12;
+ const line=k=>`M98 ${320+side*(29+k*151/12)} C220 ${320+side*(47+k*151/12)} 402 ${320+side*(3+k*17/12)} 500 ${320+side*(3+k*17/12)} C598 ${320+side*(3+k*17/12)} 780 ${320+side*(47+k*151/12)} 902 ${320+side*(29+k*151/12)}`;
+ return `<path class="tension-ribbon" fill="url(#tension-${n%2?'shade':'paper'})" opacity="${.58+(n%3)*.14}" d="${line(n)} L902 ${320+side*(29+(n+1)*151/12)} Q500 320 98 ${320+side*(29+(n+1)*151/12)}Z"/><path class="tension-crease" d="${line(n)}"/>`;
+}).join('');
+export const mirrorInstallation=`
+<div class="mirror-installation tension-installation" id="mirror-installation" data-state="taut" data-side="both" role="group" aria-label="两种保护，同一种需要" aria-describedby="mirror-hint">
+ <div class="mirror-wash mirror-wash-blue" aria-hidden="true"></div><div class="mirror-wash mirror-wash-red" aria-hidden="true"></div>
+ <div class="mirror-overline"><span>两种保护</span><span>同一种需要</span></div>
+ <svg class="tension-surface" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+  <defs>
+   <linearGradient id="tension-paper"><stop stop-color="#315f83"/><stop offset=".25" stop-color="#80b7da"/><stop offset=".48" stop-color="#c3bbab"/><stop offset=".55" stop-color="#b7aaa2"/><stop offset=".78" stop-color="#dd938c"/><stop offset="1" stop-color="#793e4b"/></linearGradient>
+   <linearGradient id="tension-shade"><stop stop-color="#142a3d"/><stop offset=".26" stop-color="#456780"/><stop offset=".5" stop-color="#978e80"/><stop offset=".74" stop-color="#875859"/><stop offset="1" stop-color="#38212d"/></linearGradient>
+   <linearGradient id="tension-thread"><stop stop-color="#72b7ef" stop-opacity=".2"/><stop offset=".25" stop-color="#91ceff"/><stop offset=".5" stop-color="#f2d4a5"/><stop offset=".75" stop-color="#ffb4a9"/><stop offset="1" stop-color="#ee8a80" stop-opacity=".2"/></linearGradient>
+  </defs>
+  <g class="tension-facets">${tensionFacets}</g>
+  <path class="tension-thread"/><path class="tension-thread"/>
+  <path class="tension-signal tension-signal-blue" pathLength="100"/><path class="tension-signal tension-signal-red" pathLength="100"/>
+ </svg>
+ <button class="mirror-voice mirror-voice-blue" data-mirror-side="-1" aria-pressed="false" aria-label="感受回避方：需要空间">
+  <span class="mirror-identity">回避 <i>/ AVOIDANT</i></span>
+  <strong>不能<br>失去自己</strong><span class="mirror-fear">害怕被吞没 <b aria-hidden="true">↙</b></span>
+ </button>
+ <button class="mirror-voice mirror-voice-red" data-mirror-side="1" aria-pressed="false" aria-label="感受焦虑方：需要回应">
+  <span class="mirror-identity">焦虑 <i>/ ANXIOUS</i></span>
+  <strong>不能<br>没有你</strong><span class="mirror-fear"><b aria-hidden="true">↗</b> 害怕被抛弃</span>
+ </button>
+ <div class="mirror-inner-light" aria-hidden="true"></div>
+ <button id="mirror-knot" class="mirror-knot" aria-pressed="false" aria-label="松开拉扯，看见共同的需要" aria-describedby="mirror-hint">
+  <span class="mirror-grip" aria-hidden="true"><svg viewBox="0 0 44 44"><path d="M17 16 11 22 17 28 M27 16 33 22 27 28 M11 22H33"/><path d="M22 8V12 M22 32V36"/></svg></span>
+  <span class="mirror-shared"><small>藏在拉扯的两端</small><strong>安全的联结</strong><em>亲近，也保有自己</em></span>
+ </button>
+ <div class="mirror-foot"><p id="mirror-status" aria-live="polite">一个怕失去自己，一个怕失去你</p><p id="mirror-hint">拖动中央的结，松手看见内里 · 也可以轻触</p><button id="mirror-reset">再感受一次 <span aria-hidden="true">↺</span></button></div>
+</div>`;
 export const subtitleOrbits=svg(`${path('M210 220C210 70 530 60 610 220S320 420 210 220','red-line orbit-stroke')}${path('M690 220C690 60 370 70 290 220S580 420 690 220','blue-line orbit-stroke')}${node(290,220,'red-node')}${node(610,220,'blue-node')}`,'subtitle-orbits');
 const promiseX=[100,300,500,700];
 const loomY=(x,side)=>side===0?88+25*Math.sin((x-80)/640*Math.PI*2):212-22*Math.sin((x-80)/640*Math.PI*2);

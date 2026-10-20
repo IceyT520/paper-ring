@@ -4,6 +4,24 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.8.0] — 2026-10-20
+
+### Changed
+- Chapter 06 keeps the opposing blue/red words and replaces its divider and
+  slider with a folded sheet under tension. Pull its central knot to deform
+  both halves; release or tap to open a warm space for the shared need.
+- Either voice can be selected directly: needing space and needing a response
+  produce different pulls and captions. Two brief light traces converge as
+  the paper opens; the original article and flip-side coin remain intact.
+- Geometry updates only during transitions or input, with time-based damping,
+  and stops when settled, offscreen, or in a background tab. Reduced motion,
+  keyboard actions and vertical touch scrolling are supported.
+
+### Added
+- `qa-mirror.mjs`: four-width layout, tap/drag/keyboard, actual touch gestures,
+  preserved selection, rapid input, offscreen settling and reduced-motion checks.
+- Seven missing interface glyphs in the self-hosted fonts.
+
 ## [1.7.1] — 2026-10-19
 
 ### Changed

@@ -41,6 +41,9 @@ jobs:
       - run: node scripts/qa-offline.mjs
         env:
           PAPER_BROWSER: chromium
+      - run: node scripts/qa-mirror.mjs --offline
+        env:
+          PAPER_BROWSER: chromium
       - run: node scripts/qa-alignment.mjs --offline
         env:
           PAPER_BROWSER: chromium
