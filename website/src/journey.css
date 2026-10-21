@@ -526,71 +526,49 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 .gate.is-open .gate-flap{opacity:0;transition:transform 1.15s cubic-bezier(.36,.06,.2,1),opacity .35s ease .5s}
 @media(prefers-reduced-motion:reduce){.gate.is-open .gate-flap{transition:none}}
 
-/* 06 — a pop-up courtyard: mine, yours, and a third place that remains. */
-.courtyard-installation{display:block;position:relative;isolation:isolate;min-height:0;height:auto;margin-inline:-4%;padding:30px 0 26px;overflow:hidden;border-color:#d7d4cc21;background:radial-gradient(ellipse at 18% 45%,#43779c16,transparent 50%),radial-gradient(ellipse at 83% 50%,#b25e7114,transparent 50%);--court-built:0}
-.court-heading{display:flex;justify-content:space-between;padding:0 6%;font:10px/1.7 var(--sans);letter-spacing:.18em;color:#9aa7b1}
-.court-heading span:first-child{color:#d0bda2}
-.court-stage{position:relative;aspect-ratio:1100/530;margin-top:12px;isolation:isolate}
-.court-art{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.court-art path{stroke-linejoin:round}
-.court-static-labels{display:none}
-.courtyard-installation:not([data-ready]) .court-room-control{visibility:hidden}
-.court-paper-edge.blue{fill:#92aab3}.court-paper-edge.red{fill:#bb9290}
-.court-cut-edge{fill:#e8e2ce;opacity:.7}
-.court-inset-line{fill:none;stroke:#d3d5c4;stroke-width:.65;opacity:.26}
-.court-plan{fill:#d0b59006;stroke:#d4c0a0;stroke-width:1;stroke-dasharray:3 9;opacity:.25}
-.court-door{stroke:#cbd3c5;stroke-opacity:.35;stroke-width:1}
-.court-arch{stroke:#e5d6ba;stroke-width:.8}
-.court-chair-front.blue{fill:#668596}.court-chair-front.red{fill:#997376}
-.court-person-shadow{fill:#03090c;opacity:.35}
-.court-person.blue{color:#aad6f1}.court-person.red{color:#f2b3a4}
-.court-person-halo{fill:currentColor;opacity:.13}
-.court-person-paper{fill:currentColor;stroke:#fff7e0;stroke-width:.55}
-.court-person-head{fill:#fff0d4}
-.court-touch{pointer-events:all;cursor:pointer;touch-action:pan-y}
-.court-room-control{position:absolute;z-index:3;transform:translateX(-50%);width:190px;padding:0 8px 12px;text-align:center;cursor:pointer;border:0;background:none;color:#a5cadd;touch-action:pan-y}
-.court-room-control.red{color:#dfb0a4}
-.court-control-index,.court-common-label>span{display:block;font:8px/1.6 var(--mono);letter-spacing:.16em;opacity:.65}
-.court-room-control strong,.court-common-label strong{display:block;font:27px/1.6 var(--serif);font-weight:400;letter-spacing:.08em;margin:5px 0}
-.court-room-control .court-action{display:inline-block;font:10px/1.8 var(--sans);letter-spacing:.05em;border-bottom:1px solid #a4b8bc30;padding-bottom:4px;color:#b7bfc1;transition:color .25s,border-color .25s}
-.court-action i{font-style:normal;margin-left:4px}
-.court-room-control:hover .court-action,.court-room-control:focus-visible .court-action{color:#f1dfbf;border-color:#d6bb8c}
-.court-room-control:focus-visible{outline:1px solid #d9bc8966;outline-offset:6px;border-radius:3px}
-.court-common-label{position:absolute;z-index:2;text-align:center;transform:translate(-50%,-50%);white-space:nowrap;color:#dec49d;pointer-events:none}
-.court-common-label strong{font-size:28px}
-.court-common-label small{font:10px/1.8 var(--sans);letter-spacing:.07em;opacity:.7}
-.court-fold-note{position:absolute;transform:translate(-50%,-50%);color:#bead93;font:10px/1.8 var(--sans);letter-spacing:.07em;text-align:center;opacity:calc(1 - var(--court-built));pointer-events:none}
-.court-fold-note i{display:block;width:1px;height:22px;margin:10px auto 0;background:linear-gradient(#c8ad8555,transparent)}
-.courtyard-installation[data-blue="courtyard"] .court-fold-note,.courtyard-installation[data-red="courtyard"] .court-fold-note{visibility:hidden}
-.court-reservation{position:absolute;z-index:2;transform:translate(-50%,0);font:9px/1.6 var(--sans);letter-spacing:.04em;white-space:nowrap;color:#9ebdcb;pointer-events:none;opacity:0}
-.court-reservation.red{color:#cba397}
-.court-reservation:before{content:'';display:block;width:1px;height:17px;background:linear-gradient(transparent,currentColor);opacity:.3;margin:-24px auto 6px}
-.court-caption{text-align:center;padding:5px 24px 0;position:relative;z-index:2}
-.court-caption-label{font:10px/1.6 var(--sans);letter-spacing:.3em;color:#d3b890}
-#court-status{font:23px/1.8 var(--serif);letter-spacing:.04em;color:#e7dccb;margin:12px 0 10px;min-height:42px}
-#court-hint{font:11px/1.8 var(--sans);letter-spacing:.03em;color:#9ca9b3;margin:0;min-height:20px}
-#court-reset{border:0;background:none;color:#bba88b;font:10px/1.5 var(--sans);letter-spacing:.1em;padding:18px 16px 12px;cursor:pointer}
-#court-reset span{margin-left:8px;font-size:13px}
-.court-source{display:block;font:8px/1.5 var(--sans);letter-spacing:.14em;color:#78838e}
+/* 06 — two enduring statements, one gesture, three coexisting spaces. */
+.lens-installation{display:block;position:relative;isolation:isolate;min-height:0;height:auto;margin-inline:-3%;padding:42px 0 28px;overflow:hidden;border-color:#d7d4cc21;background:radial-gradient(ellipse at 20% 42%,#43779c13,transparent 52%),radial-gradient(ellipse at 80% 42%,#b25e7112,transparent 52%)}
+.connection-voices{display:grid;grid-template-columns:1fr 1fr;gap:12%;padding:0 8%;text-align:center;position:relative;z-index:2}
+.connection-voice.blue{color:#a6cee3}.connection-voice.red{color:#e4afa0}
+.connection-voice>span{font:10px/1.6 var(--sans);letter-spacing:.13em;opacity:.65}
+.connection-voice strong{display:block;font:43px/1.6 var(--serif);font-weight:400;letter-spacing:.045em;white-space:nowrap;margin:13px 0 7px}
+.connection-voice small{font:11px/1.8 var(--sans);letter-spacing:.08em;opacity:.75}
+.lens-stage{display:block;position:relative;isolation:isolate;width:100%;aspect-ratio:1100/480;margin:16px 0 0;padding:0;border:0;background:none;color:inherit;cursor:pointer;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+.lens-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lens-halo{fill:none;stroke:currentColor;stroke-width:13;opacity:.035}
+.lens-surface.blue{color:#a3d3ee}.lens-surface.red{color:#efb6a6}
+.lens-edge{fill:none;stroke-width:1.4}
+.lens-inner-edge{fill:none;stroke:currentColor;stroke-width:.5;opacity:.17}
+.lens-shine{fill:none;stroke:#ece6d5;stroke-width:1.15;opacity:.32}
+#lens-shared{stroke:#ead3ad;stroke-width:.8;stroke-opacity:.45}
+.lens-label{position:absolute;top:45.833%;transform:translate(-50%,-50%);display:block;text-align:center;pointer-events:none;white-space:nowrap}
+.lens-label.blue{left:33.218%;color:#b2d6e8}.lens-label.red{left:66.782%;color:#e9bbab}
+.lens-label strong{display:block;font:40px/1.45 var(--serif);font-weight:400;letter-spacing:.06em;margin-bottom:9px}
+.lens-label small{font:10px/1.7 var(--sans);letter-spacing:.14em;opacity:.7}
+.lens-label.shared{left:50%;color:#f0ddbc}
+.lens-label.shared strong{font-size:32px;letter-spacing:.04em}
+.lens-label.shared small{letter-spacing:.12em}
+.lens-action{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:13px;font:11px/1.8 var(--sans);letter-spacing:.09em;color:#b7b5ad}
+.lens-action i{font-size:20px;font-style:normal;font-family:var(--sans);color:#c9b28c}
+.lens-stage:hover .lens-action{color:#e3d2b3}
+.lens-stage:focus-visible{outline:1px solid #dac29760;outline-offset:4px;border-radius:5px}
+.lens-caption{text-align:center;padding:32px 18px 0;position:relative}
+.lens-caption>span{font:9px/1.6 var(--sans);letter-spacing:.25em;color:#cbb28d}
+#lens-status{font:24px/1.9 var(--serif);letter-spacing:.05em;color:#e6ddce;margin:10px 0 14px}
+.lens-caption>small{font:8px/1.5 var(--sans);letter-spacing:.12em;color:#78838e}
 @media(max-width:1100px){
- .courtyard-installation{margin-inline:0}
- .court-room-control{width:160px}.court-room-control strong,.court-common-label strong{font-size:23px}
- #court-status{font-size:20px}
+ .lens-installation{margin-inline:0}.connection-voices{gap:8%;padding:0 5%}
+ .connection-voice strong{font-size:34px}.lens-label strong{font-size:33px}.lens-label.shared strong{font-size:27px}
+ #lens-status{font-size:21px}
 }
 @media(max-width:760px){
- .courtyard-installation{margin-inline:-10px;padding:25px 0 24px}
- .court-heading{padding:0 6%;font-size:8px;letter-spacing:.08em}
- .court-stage{aspect-ratio:760/850;margin-top:18px}
- .court-room-control{width:135px;padding:0 3px 8px}
- .court-room-control strong{font-size:19px;margin:3px 0}.court-control-index,.court-common-label>span{font-size:7px;letter-spacing:.09em}
- .court-room-control .court-action{font-size:9px;letter-spacing:0;padding-bottom:2px}
- .court-common-label strong{font-size:20px;margin:4px 0}.court-common-label small{font-size:8px;letter-spacing:0}
- .court-fold-note{font-size:8px;width:120px}.court-fold-note i{height:10px;margin-top:3px}
- .court-reservation{font-size:8px;letter-spacing:0}.court-reservation:before{height:10px;margin:-15px auto 5px}
- .court-caption{padding:6px 18px 0}
- #court-status{font-size:17px;line-height:1.8;min-height:62px;display:grid;place-content:center;letter-spacing:.02em;margin:10px 0 8px}
- #court-hint{font-size:10px;line-height:1.9;max-width:280px;margin:auto;min-height:38px}
- .court-caption-label{font-size:9px}
+ .lens-installation{margin-inline:-8px;padding:28px 0 23px}
+ .connection-voices{padding:0 3%;gap:5%}.connection-voice>span{font-size:8px;letter-spacing:.02em}
+ .connection-voice strong{font-size:22px;letter-spacing:.015em;margin:13px 0 6px}
+ .connection-voice small{font-size:9px;letter-spacing:.02em}
+ .lens-stage{aspect-ratio:760/500;margin-top:22px}
+ .lens-label strong{font-size:27px;letter-spacing:0;margin-bottom:7px}.lens-label small{font-size:9px;letter-spacing:.02em}
+ .lens-label.shared strong{font-size:20px;letter-spacing:0}.lens-label.shared small{font-size:8px;letter-spacing:0}
+ .lens-action{font-size:9px;gap:9px;letter-spacing:.025em}.lens-action i{font-size:17px}
+ .lens-caption{padding-top:27px}#lens-status{font-size:17px;letter-spacing:.01em;line-height:1.9;margin:10px 0 12px}
 }
-.reduced-motion .courtyard-installation *{transition:none!important}
-@media(prefers-reduced-motion:reduce){.courtyard-installation *{transition:none!important}}

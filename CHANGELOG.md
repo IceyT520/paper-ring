@@ -4,6 +4,23 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.11.0] — 2026-10-21
+
+### Changed
+- Restored the original Chapter 06 statements: blue “不能失去自己” and red
+  “不能没有你”. Both remain prominent throughout the interaction and replay.
+- Simplified the scene to one gesture. Two translucent circles approach without
+  shrinking; their actual intersection lights up as “我们”, while “我” and “你”
+  remain in the two private regions. Tap again to replay.
+- Removed the multi-step room, door and courtyard mechanics. The animation is
+  finite, honors reduced motion and stops rendering at rest or offscreen.
+
+### Added
+- Browser regression checks for both required statements, one-action operation,
+  four viewport widths, native touch scrolling, replay and idle rendering.
+- Geometry checks for constant circle size and the exact shared lens; one new
+  self-hosted glyph for the simplified interaction.
+
 ## [1.10.0] — 2026-10-21
 
 ### Changed

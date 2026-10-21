@@ -1,38 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createCourtyard,visitRoom,personPoint,floorFold} from '../src/connection-geometry';
+import {connectionLayout,intersectionPath} from '../src/connection-geometry';
 
-test('each person chooses independently; the shared place survives both returning home',()=>{
- let state=createCourtyard();
- state=visitRoom(state,'blue');
- assert.deepEqual(state,{blue:true,red:false,openedBlue:true,openedRed:false,established:false});
- state=visitRoom(state,'red');assert.equal(state.established,true);
- state=visitRoom(state,'blue');
- assert.equal(state.blue,false);assert.equal(state.red,true);assert.equal(state.established,true);
- state=visitRoom(state,'red');
- assert.equal(state.blue,false);assert.equal(state.red,false);assert.equal(state.established,true);
- assert.equal(state.openedBlue,true);assert.equal(state.openedRed,true);
- assert.equal(createCourtyard().established,false);
-});
-
-test('walking to the courtyard uses the actual doorway, never the other private room',()=>{
- for(const side of ['blue','red'] as const){
-  const sign=side==='blue'?-1:1;
-  assert.equal(personPoint(side,0).u,sign*320);assert.equal(personPoint(side,1).u,sign*90);
-  const gate=personPoint(side,.5);assert.equal(gate.u,sign*200);
-  assert(gate.v>36&&gate.v<116);assert(gate.z<92);
-  for(let i=0;i<=100;i++){
-   const p=personPoint(side,i/100);
-   assert(p.u*sign>=90&&p.u*sign<=320);assert(p.v>36&&p.v<116);
+test('approaching creates a third space while both personal spaces keep their full size',()=>{
+ for(const narrow of [false,true]){
+  const initial=connectionLayout(0,narrow),end=connectionLayout(1,narrow);
+  assert(initial.right-initial.left>2*initial.radius,'two separate spaces before the gesture');
+  assert(end.sharedWidth>0,'a common region exists after the gesture');
+  for(let i=0;i<=50;i++){
+   const state=connectionLayout(i/50,narrow);
+   assert.equal(state.radius,initial.radius,'closeness cannot shrink the original spaces');
+   assert(state.right-state.left>state.radius,'a visible private region remains on either side');
+   assert.equal(state.left+state.right,state.width,'the pair stays centered');
+   assert(state.left-state.radius>=0&&state.right+state.radius<=state.width);
+   assert(state.y-state.radius>=0&&state.y+state.radius<=state.height);
   }
  }
 });
 
-test('unfolding adds a common floor without consuming either private room',()=>{
- for(const side of ['blue','red'] as const)for(let n=0;n<=20;n++){
-  const facets=floorFold(side,n/20);
-  for(const facet of facets)for(const p of facet){assert(p.u>=-200&&p.u<=200);assert(p.z>=0)}
-  const hinge=facets[0][0];assert.equal(hinge.u,side==='blue'?-200:200);assert.equal(hinge.z,0);
-  if(n===20){assert(Math.abs(facets.at(-1)![1].u)<1e-8);assert(facets.flat().every((p:{z:number})=>p.z===0))}
- }
+test('the shared lens follows the actual intersection, never a decorative third circle',()=>{
+ assert.equal(intersectionPath(0,300,100,100),'');
+ assert.equal(intersectionPath(0,200,100,100),'');
+ const lens=intersectionPath(0,120,100,100);
+ // The two intersections are (60,20) and (60,180): 60²+80²=100².
+ assert.match(lens,/M60(?:\.0+)?[ ,]20(?:\.0+)?/);
+ assert.match(lens,/[ ,]60(?:\.0+)?[ ,]180(?:\.0+)?/);
+ assert(!/NaN|Infinity/.test(lens));
 });

@@ -14,8 +14,8 @@ try{
    const frames=[],longTasks=[];
    const observer=new PerformanceObserver(list=>longTasks.push(...list.getEntries().map(e=>e.duration)));
    observer.observe({type:'longtask'});
-   const scene=document.querySelector('#mirror-installation'),button=document.querySelector('#court-room-blue');
-   button.click();document.querySelector('#court-room-red').click();
+   const scene=document.querySelector('#mirror-installation'),button=document.querySelector('#connection-meet');
+   button.click();
    await new Promise(resolve=>{
     let start=0,last=0;
     function sample(now){
@@ -32,7 +32,7 @@ try{
    const idleObserver=new MutationObserver(list=>idleMutations+=list.length);
    idleObserver.observe(scene,{subtree:true,attributes:true});
    await new Promise(resolve=>setTimeout(resolve,500));idleObserver.disconnect();
-   return {frameCount:frames.length,medianFrameMs:frames[Math.floor(frames.length*.5)],p95FrameMs:frames[Math.floor(frames.length*.95)],longTasks,idleMutations,state:scene.dataset.established};
+   return {frameCount:frames.length,medianFrameMs:frames[Math.floor(frames.length*.5)],p95FrameMs:frames[Math.floor(frames.length*.95)],longTasks,idleMutations,state:scene.dataset.connected};
   });
   assert.equal(result.idleMutations,0,'the settled scene must stop writing geometry and styles');
   assert.equal(result.state,'true');
