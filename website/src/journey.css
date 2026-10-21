@@ -526,73 +526,71 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 .gate.is-open .gate-flap{opacity:0;transition:transform 1.15s cubic-bezier(.36,.06,.2,1),opacity .35s ease .5s}
 @media(prefers-reduced-motion:reduce){.gate.is-open .gate-flap{transition:none}}
 
-/* 06 — separate paper rooms, a route that stays reachable. */
-.connection-installation{display:block;position:relative;isolation:isolate;min-height:0;height:auto;margin-inline:-3%;padding:36px 0 28px;border-color:#d7d4cc24;background:radial-gradient(ellipse at 18% 50%,#43779c18,transparent 52%),radial-gradient(ellipse at 83% 50%,#b25e7117,transparent 52%)}
-.connection-head{display:grid;grid-template-columns:1fr 1fr;gap:20%;padding:0 10%;position:relative;z-index:2}
-.connection-head>div:last-child{text-align:right;color:#e6a398}
-.connection-head>div:first-child{color:#92c5e3}
-.connection-head span{font:9px/1.5 var(--mono);letter-spacing:.13em}
-.connection-head strong{display:block;font:46px/1.4 var(--serif);font-weight:400;letter-spacing:.08em;margin:15px 0 11px}
-.connection-head small{font:11px/1.7 var(--sans);letter-spacing:.08em;opacity:.75}
-.connection-stage{height:490px;position:relative;isolation:isolate;margin-top:15px}
-.connection-art{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.room-engraving{fill:none;stroke:#b8cccf;stroke-width:.6;stroke-dasharray:2 7;opacity:.25}
-.room-rim{fill:none;stroke:#e4dfcf;stroke-width:1.4;stroke-opacity:.58}
-.room-wall{stroke:none}
-.room-light{opacity:.5;transition:opacity .45s}
-.connection-road-shadow{fill:none;stroke:#05080b;stroke-width:13;opacity:.5;transform:translateY(5px)}
-.connection-road{fill:none;stroke:url(#connection-gold);stroke-width:10;stroke-opacity:.22;stroke-linejoin:round}
-#connection-path{fill:none;stroke:url(#connection-gold);stroke-width:1.8;opacity:1;stroke-dasharray:1;stroke-dashoffset:0}
-.connection-traveler{fill:#ffefd0;opacity:0}
-.connection-traveler-halo{fill:#f4d1a4;fill-opacity:.14;opacity:0}
-.connection-boundary{fill:#819ba8;font:10px var(--sans);letter-spacing:3px;text-anchor:middle}
-.boundary-red{fill:#b88b8d}
-.connection-person{position:absolute;z-index:4;width:150px;height:104px;transform:translate(-50%,-50%);background:none;border:0;padding:0;color:#aed3e9;cursor:pointer;touch-action:pan-y}
-.connection-person-blue{left:26.364%;top:46.296%}
-.connection-person-red{left:73.636%;top:46.296%;color:#e9b5a8}
-.connection-person strong{position:absolute;left:0;right:0;top:0;font:29px/1.2 var(--serif);font-weight:400;text-align:center;pointer-events:none;text-shadow:0 1px 18px #0e1826}
-.connection-person small{position:absolute;left:50%;top:calc(50% + 21px);transform:translateX(-50%);white-space:nowrap;font:10px/1.8 var(--sans);letter-spacing:.06em;color:#bcc5c9}
-.connection-person small i{font-style:normal;margin-left:4px}
-.connection-orb{position:absolute;width:13px;height:13px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:#e3f4ff;box-shadow:0 0 0 7px #a2cce619,0 0 26px 8px #6aafe548;transition:box-shadow .4s}
-.connection-person-red .connection-orb{background:#ffded3;box-shadow:0 0 0 7px #eaa2901c,0 0 26px 8px #ee8a8045}
-.connection-person:hover .connection-orb,.connection-person:focus-visible .connection-orb{box-shadow:0 0 0 12px #eacb9621,0 0 32px 12px #eacb9645}
-.connection-person:focus-visible{outline:1px solid #d3ba936b;outline-offset:0;border-radius:45%}
-.connection-message{position:absolute;z-index:5;transform:translate(-50%,-50%);font:13px/1.5 var(--serif);letter-spacing:.08em;color:#c6ddea;white-space:nowrap;pointer-events:none}
-.connection-message-red{color:#e5b4aa}
-.connection-message:not(:empty):before{content:'';position:absolute;left:50%;top:calc(100% + 9px);height:16px;width:1px;background:linear-gradient(currentColor,transparent);opacity:.4}
-.connection-bridge-note{position:absolute;top:39%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:12px;color:#d7bd95;font:10px/1.5 var(--sans);letter-spacing:.2em;pointer-events:none}
-.connection-bridge-note i{height:1px;width:15px;background:#d7bd9550}
-.connection-caption{text-align:center;padding:0 24px;position:relative;margin-top:-32px;z-index:2}
-.connection-caption-label{font:10px/1.6 var(--sans);letter-spacing:.3em;color:#d3b890}
-#connection-status{font:23px/1.8 var(--serif);letter-spacing:.06em;color:#e7dccb;margin:14px 0 11px;min-height:42px}
-#connection-hint{font:10px/1.8 var(--sans);letter-spacing:.03em;color:#a1abb2;margin:0}
-#connection-replay{border:0;background:none;color:#bba88b;font:10px/1.5 var(--sans);letter-spacing:.1em;padding:18px 16px 12px;cursor:pointer}
-#connection-replay span{margin-left:8px;font-size:13px}
-.connection-source{display:block;font:8px/1.5 var(--sans);letter-spacing:.14em;color:#78838e}
-.connection-installation[data-phase="answering"] .connection-floor-blue .room-light,.connection-installation[data-phase="answered"] .connection-floor-red .room-light,.connection-installation[data-phase="received"] .connection-floor-red .room-light{opacity:1}
-.connection-installation[data-phase="sent"] .connection-floor-red .room-light{opacity:.85}
-.connection-installation[data-phase="answering"] .connection-person-blue .connection-orb,.connection-installation[data-phase="received"] .connection-person-red .connection-orb{background:#ffedce;box-shadow:0 0 0 12px #eacb9628,0 0 38px 16px #eacb9660}
+/* 06 — a pop-up courtyard: mine, yours, and a third place that remains. */
+.courtyard-installation{display:block;position:relative;isolation:isolate;min-height:0;height:auto;margin-inline:-4%;padding:30px 0 26px;overflow:hidden;border-color:#d7d4cc21;background:radial-gradient(ellipse at 18% 45%,#43779c16,transparent 50%),radial-gradient(ellipse at 83% 50%,#b25e7114,transparent 50%);--court-built:0}
+.court-heading{display:flex;justify-content:space-between;padding:0 6%;font:10px/1.7 var(--sans);letter-spacing:.18em;color:#9aa7b1}
+.court-heading span:first-child{color:#d0bda2}
+.court-stage{position:relative;aspect-ratio:1100/530;margin-top:12px;isolation:isolate}
+.court-art{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.court-art path{stroke-linejoin:round}
+.court-static-labels{display:none}
+.courtyard-installation:not([data-ready]) .court-room-control{visibility:hidden}
+.court-paper-edge.blue{fill:#92aab3}.court-paper-edge.red{fill:#bb9290}
+.court-cut-edge{fill:#e8e2ce;opacity:.7}
+.court-inset-line{fill:none;stroke:#d3d5c4;stroke-width:.65;opacity:.26}
+.court-plan{fill:#d0b59006;stroke:#d4c0a0;stroke-width:1;stroke-dasharray:3 9;opacity:.25}
+.court-door{stroke:#cbd3c5;stroke-opacity:.35;stroke-width:1}
+.court-arch{stroke:#e5d6ba;stroke-width:.8}
+.court-chair-front.blue{fill:#668596}.court-chair-front.red{fill:#997376}
+.court-person-shadow{fill:#03090c;opacity:.35}
+.court-person.blue{color:#aad6f1}.court-person.red{color:#f2b3a4}
+.court-person-halo{fill:currentColor;opacity:.13}
+.court-person-paper{fill:currentColor;stroke:#fff7e0;stroke-width:.55}
+.court-person-head{fill:#fff0d4}
+.court-touch{pointer-events:all;cursor:pointer;touch-action:pan-y}
+.court-room-control{position:absolute;z-index:3;transform:translateX(-50%);width:190px;padding:0 8px 12px;text-align:center;cursor:pointer;border:0;background:none;color:#a5cadd;touch-action:pan-y}
+.court-room-control.red{color:#dfb0a4}
+.court-control-index,.court-common-label>span{display:block;font:8px/1.6 var(--mono);letter-spacing:.16em;opacity:.65}
+.court-room-control strong,.court-common-label strong{display:block;font:27px/1.6 var(--serif);font-weight:400;letter-spacing:.08em;margin:5px 0}
+.court-room-control .court-action{display:inline-block;font:10px/1.8 var(--sans);letter-spacing:.05em;border-bottom:1px solid #a4b8bc30;padding-bottom:4px;color:#b7bfc1;transition:color .25s,border-color .25s}
+.court-action i{font-style:normal;margin-left:4px}
+.court-room-control:hover .court-action,.court-room-control:focus-visible .court-action{color:#f1dfbf;border-color:#d6bb8c}
+.court-room-control:focus-visible{outline:1px solid #d9bc8966;outline-offset:6px;border-radius:3px}
+.court-common-label{position:absolute;z-index:2;text-align:center;transform:translate(-50%,-50%);white-space:nowrap;color:#dec49d;pointer-events:none}
+.court-common-label strong{font-size:28px}
+.court-common-label small{font:10px/1.8 var(--sans);letter-spacing:.07em;opacity:.7}
+.court-fold-note{position:absolute;transform:translate(-50%,-50%);color:#bead93;font:10px/1.8 var(--sans);letter-spacing:.07em;text-align:center;opacity:calc(1 - var(--court-built));pointer-events:none}
+.court-fold-note i{display:block;width:1px;height:22px;margin:10px auto 0;background:linear-gradient(#c8ad8555,transparent)}
+.courtyard-installation[data-blue="courtyard"] .court-fold-note,.courtyard-installation[data-red="courtyard"] .court-fold-note{visibility:hidden}
+.court-reservation{position:absolute;z-index:2;transform:translate(-50%,0);font:9px/1.6 var(--sans);letter-spacing:.04em;white-space:nowrap;color:#9ebdcb;pointer-events:none;opacity:0}
+.court-reservation.red{color:#cba397}
+.court-reservation:before{content:'';display:block;width:1px;height:17px;background:linear-gradient(transparent,currentColor);opacity:.3;margin:-24px auto 6px}
+.court-caption{text-align:center;padding:5px 24px 0;position:relative;z-index:2}
+.court-caption-label{font:10px/1.6 var(--sans);letter-spacing:.3em;color:#d3b890}
+#court-status{font:23px/1.8 var(--serif);letter-spacing:.04em;color:#e7dccb;margin:12px 0 10px;min-height:42px}
+#court-hint{font:11px/1.8 var(--sans);letter-spacing:.03em;color:#9ca9b3;margin:0;min-height:20px}
+#court-reset{border:0;background:none;color:#bba88b;font:10px/1.5 var(--sans);letter-spacing:.1em;padding:18px 16px 12px;cursor:pointer}
+#court-reset span{margin-left:8px;font-size:13px}
+.court-source{display:block;font:8px/1.5 var(--sans);letter-spacing:.14em;color:#78838e}
 @media(max-width:1100px){
- .connection-installation{margin-inline:0}
- .connection-head{gap:12%;padding:0 7%}.connection-head strong{font-size:38px}
- .connection-stage{height:450px}.connection-caption{margin-top:-20px}
- #connection-status{font-size:20px}
+ .courtyard-installation{margin-inline:0}
+ .court-room-control{width:160px}.court-room-control strong,.court-common-label strong{font-size:23px}
+ #court-status{font-size:20px}
 }
 @media(max-width:760px){
- .connection-installation{margin-inline:-8px;padding:28px 0 24px}
- .connection-head{padding:0 6%;gap:6%}.connection-head strong{font-size:27px;letter-spacing:.04em;margin:12px 0 8px}
- .connection-head span{font-size:8px;letter-spacing:.04em}.connection-head small{font-size:9px;letter-spacing:0}
- .connection-stage{height:540px;margin-top:22px}
- .connection-person{width:128px;height:92px}.connection-person strong{font-size:26px;top:0}
- .connection-person small{font-size:9px;letter-spacing:0;top:calc(50% + 18px)}
- .connection-orb{width:11px;height:11px}
- .connection-message{font-size:11px;letter-spacing:.025em}
- .connection-bridge-note{left:72%;top:43%;font-size:9px;gap:7px;letter-spacing:.07em}.connection-bridge-note i{width:7px}
- .connection-caption{padding:0 14px;margin-top:-15px}
- #connection-status{font-size:17px;line-height:1.8;min-height:62px;display:grid;place-content:center;letter-spacing:.02em;margin:10px 0 8px}
- #connection-hint{font-size:9px;line-height:1.9;max-width:260px;margin:auto}
- .connection-caption-label{font-size:9px}.connection-boundary{font-size:15px;letter-spacing:3px}
- .room-rim{stroke-width:1.8}#connection-path{stroke-width:2.6}.connection-road{stroke-width:14}
+ .courtyard-installation{margin-inline:-10px;padding:25px 0 24px}
+ .court-heading{padding:0 6%;font-size:8px;letter-spacing:.08em}
+ .court-stage{aspect-ratio:760/850;margin-top:18px}
+ .court-room-control{width:135px;padding:0 3px 8px}
+ .court-room-control strong{font-size:19px;margin:3px 0}.court-control-index,.court-common-label>span{font-size:7px;letter-spacing:.09em}
+ .court-room-control .court-action{font-size:9px;letter-spacing:0;padding-bottom:2px}
+ .court-common-label strong{font-size:20px;margin:4px 0}.court-common-label small{font-size:8px;letter-spacing:0}
+ .court-fold-note{font-size:8px;width:120px}.court-fold-note i{height:10px;margin-top:3px}
+ .court-reservation{font-size:8px;letter-spacing:0}.court-reservation:before{height:10px;margin:-15px auto 5px}
+ .court-caption{padding:6px 18px 0}
+ #court-status{font-size:17px;line-height:1.8;min-height:62px;display:grid;place-content:center;letter-spacing:.02em;margin:10px 0 8px}
+ #court-hint{font-size:10px;line-height:1.9;max-width:280px;margin:auto;min-height:38px}
+ .court-caption-label{font-size:9px}
 }
-.reduced-motion .connection-installation *{transition:none!important}
-@media(prefers-reduced-motion:reduce){.connection-installation *{transition:none!important}}
+.reduced-motion .courtyard-installation *{transition:none!important}
+@media(prefers-reduced-motion:reduce){.courtyard-installation *{transition:none!important}}

@@ -4,6 +4,27 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.10.0] — 2026-10-21
+
+### Changed
+- Rebuilt Chapter 06 as a paper pop-up courtyard: two private rooms retain
+  their own floors, walls and belongings. Each owner opens their own door and
+  unfolds one concertina leaf; together the leaves create a third space with
+  an arch, a table and two cups.
+- Returning home does not move the other person or dismantle the shared
+  courtyard. Empty chairs retain their places, making boundaries and belonging
+  simultaneously visible. A full restart is an explicit separate action.
+- Direct room clicks and native keyboard/touch controls share the same state.
+  The mobile view reprojects the physical geometry into a diagonal composition.
+  Door motion, walking through the opening and folding run in order, including
+  when actions are interrupted. Rendering stops at rest and offscreen.
+
+### Added
+- Tests for independent choices, shared-space persistence, doorway routes and
+  private-floor preservation. Browser coverage includes four widths, touch
+  scrolling, rapid reversal, reduced motion and idle rendering.
+- A static no-JavaScript illustration and four additional self-hosted glyphs.
+
 ## [1.9.0] — 2026-10-20
 
 ### Changed

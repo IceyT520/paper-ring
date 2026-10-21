@@ -1,50 +1,38 @@
-export type Point={x:number;y:number};
-export type Room=Point&{radius:number;height:number};
-export type ConnectionLayout={
- width:number;height:number;left:Room;right:Room;
- gateLeft:Point;gateRight:Point;controlLeft:Point;controlRight:Point;angle:number;
-};
-export function connectionLayout(space:number,narrow:boolean):ConnectionLayout{
- const t=Math.max(0,Math.min(1,space));
- const left:Room=narrow?{x:170-35*t,y:210-60*t,radius:128,height:61}:{x:290-75*t,y:250-14*t,radius:175,height:72};
- const right:Room=narrow?{x:450,y:500,radius:128,height:61}:{x:810,y:250,radius:175,height:72};
- const angle=Math.atan2((right.y-left.y)/.46,right.x-left.x);
- const at=(room:Room,a:number)=>({x:room.x+Math.cos(a)*room.radius,y:room.y+Math.sin(a)*room.radius*.46});
- const gateLeft=at(left,angle),gateRight=at(right,angle+Math.PI);
- const dx=gateRight.x-gateLeft.x,dy=gateRight.y-gateLeft.y,len=Math.hypot(dx,dy);
- const bow=narrow?48:100,normal={x:-dy/len*bow,y:dx/len*bow};
- return{width:narrow?620:1100,height:narrow?700:540,left,right,gateLeft,gateRight,angle,
-  controlLeft:{x:gateLeft.x+dx*.28+normal.x,y:gateLeft.y+dy*.28+normal.y},
-  controlRight:{x:gateRight.x-dx*.28+normal.x,y:gateRight.y-dy*.28+normal.y}};
+export type Side='blue'|'red';
+export type World={u:number;v:number;z:number};
+export type Courtyard={blue:boolean;red:boolean;openedBlue:boolean;openedRed:boolean;established:boolean};
+export const createCourtyard=():Courtyard=>({blue:false,red:false,openedBlue:false,openedRed:false,established:false});
+export function visitRoom(previous:Courtyard,side:Side):Courtyard{
+ const state={...previous,[side]:!previous[side]};
+ if(state.blue)state.openedBlue=true;
+ if(state.red)state.openedRed=true;
+ state.established=state.openedBlue&&state.openedRed;
+ return state;
 }
-export function bridgePoint(layout:ConnectionLayout,t:number):Point{
- if(t<=0)return layout.gateLeft;
- if(t>=1)return layout.gateRight;
- const s=1-t,{gateLeft:a,controlLeft:b,controlRight:c,gateRight:d}=layout;
- return{x:s*s*s*a.x+3*s*s*t*b.x+3*s*t*t*c.x+t*t*t*d.x,y:s*s*s*a.y+3*s*s*t*b.y+3*s*t*t*c.y+t*t*t*d.y};
+export const clamp=(v:number)=>Math.max(0,Math.min(1,v));
+export const smooth=(v:number)=>{const p=clamp(v);return p*p*(3-2*p)};
+export function project({u,v,z}:World,narrow:boolean){
+ return narrow?{x:320+u*.54+v*.45,y:465+u*.52-v*.42-z}:{x:515+u+v*.35,y:375-v*.5-z};
 }
-const f=(n:number)=>n.toFixed(2);
-const p=(v:Point)=>`${f(v.x)},${f(v.y)}`;
-export function connectionPath(layout:ConnectionLayout){
- return`M${p(layout.left)} L${p(layout.gateLeft)} C${p(layout.controlLeft)} ${p(layout.controlRight)} ${p(layout.gateRight)} L${p(layout.right)}`;
+export function polygon(points:World[],narrow:boolean){
+ return points.map((p,i)=>{const q=project(p,narrow);return `${i?'L':'M'}${q.x.toFixed(2)},${q.y.toFixed(2)}`}).join(' ')+'Z';
 }
-/** The light takes the same route as the visible bridge, including the two
- *  sections inside the paper rooms. No floating, disconnected endpoints. */
-export function connectionPoint(layout:ConnectionLayout,t:number):Point{
- const mix=(a:Point,b:Point,q:number)=>({x:a.x+(b.x-a.x)*q,y:a.y+(b.y-a.y)*q});
- if(t<.24)return mix(layout.left,layout.gateLeft,Math.max(0,t)/.24);
- if(t>.76)return mix(layout.gateRight,layout.right,Math.min(1,(t-.76)/.24));
- return bridgePoint(layout,(t-.24)/.52);
+export function personPoint(side:Side,t:number):World{
+ const sign=side==='blue'?-1:1,p=clamp(t);
+ const a={u:sign*320,v:60,z:15},b={u:sign*200,v:76,z:15},c={u:sign*90,v:92,z:32};
+ const [from,to,q]=p<.5?[a,b,p*2]:[b,c,(p-.5)*2];
+ return{u:from.u+(to.u-from.u)*q,v:from.v+(to.v-from.v)*q,z:from.z+(to.z-from.z)*q};
 }
-export function roomFacets(room:Room,doorAngle:number){
- const gap=.34,count=40;
- const floor=(angle:number)=>({x:room.x+Math.cos(angle)*room.radius,y:room.y+Math.sin(angle)*room.radius*.46});
- return Array.from({length:count},(_,i)=>{
-  const a=doorAngle+gap+(Math.PI*2-gap*2)*i/count,b=doorAngle+gap+(Math.PI*2-gap*2)*(i+1)/count;
-  const v=floor(a),w=floor(b),topV={x:v.x,y:v.y-room.height},topW={x:w.x,y:w.y-room.height};
-  const arc=`${room.radius} ${f(room.radius*.46)} 0 0`;
-  return{body:`M${p(v)} A${arc} 1 ${p(w)} L${p(topW)} A${arc} 0 ${p(topV)} Z`,
-   rim:`M${p(topV)} A${arc} 1 ${p(topW)}`,
-   light:.37+.52*(.5+.5*Math.cos((a+b)/2+1))};
- });
+/** The two concertina leaves have fixed hinges. Opening creates extra space;
+ * neither private floor moves, shrinks, or gets absorbed by the courtyard. */
+export function floorFold(side:Side,progress:number):World[][]{
+ const sign=side==='blue'?-1:1,p=clamp(progress),width=200*(.06+.94*p);
+ const point=(i:number,v:number)=>({u:sign*(200-width*i/4),v,z:i%2?42*(1-p):0});
+ return Array.from({length:4},(_,i)=>[point(i,0),point(i+1,0),point(i+1,180),point(i,180)]);
+}
+export function doorPanel(side:Side,progress:number):World[]{
+ const sign=side==='blue'?-1:1,angle=clamp(progress)*Math.PI*.47;
+ const hinge={u:sign*200,v:116,z:0};
+ const free={u:hinge.u+sign*80*Math.sin(angle),v:116-80*Math.cos(angle),z:0};
+ return[hinge,free,{...free,z:92},{...hinge,z:92}];
 }

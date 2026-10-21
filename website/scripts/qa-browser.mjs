@@ -67,9 +67,10 @@ try{
   await page.locator('#menu-toggle').click();await page.locator('#chapter-menu a[href="#chapter-06"]').click();
   assert(!await page.locator('#chapter-menu').isVisible());assert.equal(new URL(page.url()).hash,'#chapter-06');
  });
- await check('safe connection answers; coin, peel layers and fear filter respond',async()=>{
-  await page.locator('#connection-call').click();
-  assert.match(await page.locator('#connection-blue-message').textContent(),/我在/);
+ await check('shared courtyard persists; coin, peel layers and fear filter respond',async()=>{
+  await page.locator('#court-room-blue').click();await page.locator('#court-room-red').click();
+  await page.locator('#court-room-blue').click();
+  assert.equal(await page.locator('#mirror-installation').getAttribute('data-established'),'true');
   await page.locator('#paper-coin').click();assert(await page.locator('#paper-coin').evaluate(e=>e.classList.contains('flipped')));
   await page.locator('#peel-button').click();assert.equal(await page.locator('#peel-text').textContent(),'我很害怕，我需要你。');
   await page.locator('#peel-button').click();assert.equal(await page.locator('#peel-text').textContent(),'求你拉住我，别推我走。');
