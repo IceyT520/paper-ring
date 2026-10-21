@@ -393,6 +393,13 @@ Playwright 已安装，浏览器使用本机 Edge：`chromium.launch({channel:'m
 - 12 个单元测试、19 项浏览器综合检查、离线/全文核对与四宽度互动检查通过。`qa-mirror.mjs` 明确检查两句话在初始、动画中、完成和重播时保留，并检查只有一个操作、圆大小不变、原生触屏滚动、无闲置 DOM 更新。
 - 音乐、开场、莫比乌斯、正文与其他章节保持原有实现。根目录单文件与 GitHub Pages 按既有授权同步发布。
 
+### 11.14 v1.11.1（2026-10-21）：减少动态模式必须即时完成
+
+- GitHub 的 Chromium 验收在 768px 下发现：`data-connected=true` 时“我们”的计算透明度仍为 0。本机同步复现得到 inline opacity=1、computed opacity=0、存在运行中的 CSSTransition；下一帧后才变为 1。
+- 根因是旧的全局 `prefers-reduced-motion` 规则把所有元素的 transition-duration 设为 0.01ms，反而给本来没有过渡的元素创建了短暂过渡。此前 Edge 在较快刷新下恰好绕过了时序问题。
+- 新图形对 `.reduced-motion` 和系统 reduce 偏好明确使用 `transition:none!important`。正常模式继续由有限 rAF 驱动；两句话及整个视觉设计不变。
+- `qa-mirror.mjs` 新增同一 JS 任务内点击并读取“我们”透明度的断言，避免用等待掩盖问题。不要通过增加 sleep 或删掉这个断言处理未来回归。
+
 继续开发时，先确认用户打开的是根目录 `纸环的两面.html`，改完用 `pnpm release` 重出成品。历史验收结果不代表后续修改自动通过。
 
 ## 12. 给下一位 AI 的简短提醒

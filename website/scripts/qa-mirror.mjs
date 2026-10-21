@@ -5,6 +5,17 @@ import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 const url=(process.argv.includes('--offline')?offlineUrlNoGate:devUrlNoGate)+'#chapter-06';
 const browser=await launchBrowser(),report=[];
 try{
+ // Reduced motion must apply the result synchronously. A global 0.01ms CSS
+ // duration still creates a transition that waits for the next painted frame.
+ const immediate=await browser.newPage({viewport:{width:768,height:1000},reducedMotion:'reduce'});
+ await immediate.goto(url,{waitUntil:'networkidle'});
+ await immediate.locator('#mirror-installation').scrollIntoViewIfNeeded();
+ const settledOpacity=await immediate.evaluate(()=>{
+  document.querySelector('#connection-meet').click();
+  return getComputedStyle(document.querySelector('#lens-shared-label')).opacity;
+ });
+ assert.equal(settledOpacity,'1','reduced motion must show the shared word immediately, without a hidden CSS transition');
+ await immediate.close();
  for(const width of [1440,768,390,360]){
   const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));await page.goto(url,{waitUntil:'networkidle'});

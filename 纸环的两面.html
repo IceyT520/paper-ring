@@ -620,6 +620,8 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 .lens-caption>span{font:9px/1.6 var(--sans);letter-spacing:.25em;color:#cbb28d}
 #lens-status{font:24px/1.9 var(--serif);letter-spacing:.05em;color:#e6ddce;margin:10px 0 14px}
 .lens-caption>small{font:8px/1.5 var(--sans);letter-spacing:.12em;color:#78838e}
+.reduced-motion .lens-installation *{transition:none!important}
+@media(prefers-reduced-motion:reduce){.lens-installation *{transition:none!important}}
 @media(max-width:1100px){
  .lens-installation{margin-inline:0}.connection-voices{gap:8%;padding:0 5%}
  .connection-voice strong{font-size:34px}.lens-label strong{font-size:33px}.lens-label.shared strong{font-size:27px}

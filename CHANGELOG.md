@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.11.1] — 2026-10-21
+
+### Fixed
+- Reduced-motion mode now shows the shared word synchronously. The global
+  0.01ms transition duration was creating an opacity transition, leaving it
+  hidden until the next painted frame on some browsers. This scene explicitly
+  disables those CSS transitions while retaining its normal animation.
+- Added a same-task activation/visibility check so the issue cannot be hidden
+  by test timing or a faster display refresh rate.
+
 ## [1.11.0] — 2026-10-21
 
 ### Changed
