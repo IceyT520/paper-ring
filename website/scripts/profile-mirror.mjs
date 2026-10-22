@@ -22,7 +22,7 @@ try{
      if(!start)start=now;
      if(last)frames.push(now-last);
      last=now;
-     if(now-start<3300)requestAnimationFrame(sample);else resolve();
+     if(now-start<6500)requestAnimationFrame(sample);else resolve();
     }
     requestAnimationFrame(sample);
    });

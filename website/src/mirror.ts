@@ -1,68 +1,76 @@
-import {connectionLayout,intersectionPath,smooth} from './connection-geometry';
+import {shelterGeometry,wingPaths,roofAt,smooth} from './connection-geometry';
 
-/** One gesture, three legible regions. The original two statements stay in
- * ordinary HTML and remain visible for every frame, including replay. */
+/** One click unfolds a shared shelter; neither person's own space is taken away.
+ * Geometry is written only during the finite sequence, never in an idle loop. */
 export function initMirror(){
  const scene=document.querySelector<HTMLElement>('#mirror-installation')!;
  const $=<T extends Element=HTMLElement>(s:string)=>scene.querySelector<T>(s)!;
- const button=$<HTMLButtonElement>('#connection-meet'),svg=$<SVGSVGElement>('.lens-art');
- const shared=$<SVGPathElement>('#lens-shared'),action=$('#lens-action-text');
- const surfaces=['blue','red'].map(side=>({
-  group:$<SVGGElement>(`#lens-${side}`),circles:[...scene.querySelectorAll<SVGCircleElement>(`#lens-${side} circle`)],
-  shine:$<SVGPathElement>(`#lens-${side} .lens-shine`),label:$(`#lens-${side}-label`)
+ const button=$<HTMLButtonElement>('#connection-meet'),action=$('#shelter-action-text');
+ const clip=$<SVGPathElement>('#shelter-rain-boundary'),rain=$<SVGPathElement>('#shelter-rain');
+ const splashes=$<SVGPathElement>('#shelter-drops'),common=$<SVGGElement>('#shelter-common');
+ const shared=$('#shelter-shared-label'),gap=$('#shelter-gap'),seam=$<SVGPathElement>('#shelter-seam');
+ const wings=['blue','red'].map(side=>({
+  face:$<SVGPathElement>(`#shelter-${side} .shelter-paper`),fold:$<SVGPathElement>(`#shelter-${side} .shelter-fold`),
+  edge:$<SVGPathElement>(`#shelter-${side} .shelter-edge`),crease:$<SVGPathElement>(`#shelter-${side} .shelter-crease`)
  }));
- let progress=0,frame=0,start=0,replay=false,visible=false,narrow=matchMedia('(max-width:760px)').matches;
+ let progress=0,warmth=0,frame=0,start=0,replay=false,visible=false;
+ let paintedProgress=-1,paintedWarmth=-1,rainTime=0,rainStart=0;
  const quiet=()=>document.body.classList.contains('reduced-motion');
- function draw(){
-  const l=connectionLayout(progress,narrow);
-  surfaces.forEach((surface,i)=>{
-   const x=i?l.right:l.left;
-   surface.group.setAttribute('transform',`translate(${x.toFixed(3)} ${l.y})`);
-   surface.label.style.left=`${(x+(i?1:-1)*l.radius*.34)/l.width*100}%`;
-   surface.label.style.top=`${l.y/l.height*100}%`;
-  });
-  shared.setAttribute('d',intersectionPath(l.left,l.right,l.y,l.radius));
-  // The word is revealed only when the intersection can physically hold it.
-  $('#lens-shared-label').style.opacity=String(smooth((l.sharedWidth-28)/65));
- }
- function resize(){
-  const l=connectionLayout(progress,narrow);svg.setAttribute('viewBox',`0 0 ${l.width} ${l.height}`);
-  for(const surface of surfaces){
-   surface.circles.forEach((circle,i)=>circle.setAttribute('r',String(l.radius+[2,0,0,-4][i])));
-   const r=l.radius;
-   surface.shine.setAttribute('d',`M${-r*Math.sqrt(3)/2} ${-r/2} A${r} ${r} 0 0 1 ${r/2} ${-r*Math.sqrt(3)/2}`);
+ function draw(time:number){
+  rainTime=time;
+  if(paintedProgress!==progress){
+   const g=shelterGeometry(progress);
+   [g.left,g.right].forEach((wing,i)=>{
+    const paths=wingPaths(wing.outer,wing.tip);
+    for(const key of ['face','fold','edge','crease'] as const)wings[i][key].setAttribute('d',paths[key]);
+   });
+   clip.setAttribute('d',g.rainClip);gap.style.opacity=String(1-smooth(progress/.5));
+   paintedProgress=progress;
   }
-  $('#lens-shared-label').style.top=`${l.y/l.height*100}%`;draw();
+  if(paintedWarmth!==warmth){
+   common.style.opacity=String(warmth);shared.style.opacity=String(warmth);seam.style.opacity=String(warmth);
+   paintedWarmth=warmth;
+  }
+  let drops='',hits='';
+  // A fixed set of fine rain strokes. The exact roof polygon clips each stroke;
+  // splashes are placed on that same top edge, never inside the protected space.
+  for(let i=0;i<46;i++){
+   const x=67+(i*137)%970,y=((i*79+time*.13)%600)-25,len=12+i%4*4;
+   drops+=`M${x} ${y.toFixed(1)}v${len}`;
+   const roof=roofAt(x,progress);
+   if(roof!==null&&y>roof-10&&y<roof+30){
+    const t=(y-roof+10)/40,r=2+t*7;
+    hits+=`M${x-r} ${(roof-2-Math.sin(t*Math.PI)*3).toFixed(1)}q${r} -3 ${r*2} 0`;
+   }
+  }
+  rain.setAttribute('d',drops);splashes.setAttribute('d',hits);
  }
  function finish(){
-  cancelAnimationFrame(frame);frame=0;progress=1;draw();
+  cancelAnimationFrame(frame);frame=0;progress=1;warmth=1;draw(rainTime);
   scene.dataset.connected='true';scene.dataset.animating='false';button.setAttribute('aria-busy','false');
-  button.setAttribute('aria-label','再看一次：两个完整的空间靠近，交叠处成为共同空间');
+  button.setAttribute('aria-label','再看一次：保留各自的空间，共同撑起一片挡雨的屋檐');
   action.textContent='再次轻触，重看一次';
-  $('#lens-status').textContent='我的空间、你的空间，也有我们的空间';
+  $('#shelter-status').textContent='各自自在，也能一起避雨';
  }
  function tick(now:number){
   frame=0;
   if(!visible||document.hidden||quiet()||document.body.classList.contains('reader-mode')){finish();return}
   if(!start)start=now;
-  const elapsed=now-start;
-  if(replay&&elapsed<600)progress=1-smooth(elapsed/600);
-  else progress=smooth((elapsed-(replay?600:0))/2400);
-  draw();
-  if(elapsed>=(replay?3000:2400)){finish();return}
+  const elapsed=now-start,offset=replay?750:0,t=elapsed-offset;
+  if(replay&&elapsed<750){progress=1-smooth(elapsed/750);warmth=1-smooth(elapsed/450)}
+  else{progress=smooth((t-450)/2500);warmth=smooth((t-2950)/1100)}
+  draw(rainStart+elapsed);
+  if(t>=5700){finish();return}
   frame=requestAnimationFrame(tick);
  }
  button.disabled=false;button.addEventListener('click',()=>{
   if(frame)return;
-  replay=progress===1;start=0;scene.dataset.animating='true';button.setAttribute('aria-busy','true');
-  action.textContent='靠近，也为彼此留出空间';
+  replay=progress===1;start=0;rainStart=rainTime;scene.dataset.animating='true';button.setAttribute('aria-busy','true');
+  action.textContent='把中间，变成可以安心停留的地方';
   if(quiet()||!visible||document.hidden){finish();return}
   frame=requestAnimationFrame(tick);
  });
- resize();scene.dataset.animating='false';scene.dataset.ready='true';
- new ResizeObserver(()=>{
-  const next=matchMedia('(max-width:760px)').matches;if(next===narrow)return;narrow=next;resize();
- }).observe(button);
+ draw(0);scene.dataset.animating='false';scene.dataset.ready='true';
  new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible&&frame)finish()},{threshold:.1}).observe(button);
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame)finish()});
  new MutationObserver(()=>{if(frame&&(quiet()||document.body.classList.contains('reader-mode')))finish()}).observe(document.body,{attributes:true,attributeFilter:['class']});

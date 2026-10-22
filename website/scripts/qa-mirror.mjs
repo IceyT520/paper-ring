@@ -12,7 +12,7 @@ try{
  await immediate.locator('#mirror-installation').scrollIntoViewIfNeeded();
  const settledOpacity=await immediate.evaluate(()=>{
   document.querySelector('#connection-meet').click();
-  return getComputedStyle(document.querySelector('#lens-shared-label')).opacity;
+  return getComputedStyle(document.querySelector('#shelter-shared-label')).opacity;
  });
  assert.equal(settledOpacity,'1','reduced motion must show the shared word immediately, without a hidden CSS transition');
  await immediate.close();
@@ -26,20 +26,21 @@ try{
   assert.deepEqual(await voices.allTextContents(),['不能失去自己','不能没有你']);
   assert.equal(await scene.locator('button').count(),1,'one directly understandable action');
   const button=page.locator('#connection-meet');
-  const radii=()=>page.locator('.lens-body').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('r')));
-  const before=await radii();
-  await scene.screenshot({path:`test-results/lens-${width}-before.png`});
+  const privateSpaces=()=>page.locator('[data-private]').evaluateAll(nodes=>nodes.map(n=>n.innerHTML));
+  const before=await privateSpaces();
+  await scene.screenshot({path:`test-results/shelter-${width}-before.png`});
   await button.focus();await page.keyboard.press('Enter');
   assert.equal(await scene.getAttribute('data-connected'),'true');
-  assert.equal(await page.locator('#lens-shared-label').evaluate(el=>getComputedStyle(el).opacity),'1');
-  assert.deepEqual(await radii(),before,'personal spaces never shrink to make room for a relationship');
-  assert((await page.locator('#lens-shared').getAttribute('d')).length>20);
+  assert.equal(await page.locator('#shelter-shared-label').evaluate(el=>getComputedStyle(el).opacity),'1');
+  assert.deepEqual(await privateSpaces(),before,'personal spaces never shrink to make room for a relationship');
+  assert.equal(await page.locator('#shelter-common').evaluate(el=>getComputedStyle(el).opacity),'1');
+  assert((await page.locator('#shelter-rain-boundary').getAttribute('d')).includes('L550 95'));
   for(const el of await voices.all()){
    assert(await el.isVisible());assert(await el.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))>=22);
    const b=await el.boundingBox();assert(b.x>=0&&b.x+b.width<=width+1);
   }
   assert.deepEqual(await voices.allTextContents(),['不能失去自己','不能没有你']);
-  await scene.screenshot({path:`test-results/lens-${width}-after.png`});
+  await scene.screenshot({path:`test-results/shelter-${width}-after.png`});
   await page.keyboard.press('Space');assert.equal(await scene.getAttribute('data-connected'),'true');
   await page.locator('#chapter-05').scrollIntoViewIfNeeded();await scene.scrollIntoViewIfNeeded();
   assert.equal(await scene.getAttribute('data-connected'),'true');
@@ -77,6 +78,6 @@ try{
  await page.setViewportSize({width:390,height:844});assert.equal(await scene.getAttribute('data-connected'),'true');
  assert.deepEqual(errors,[]);await page.close();
  report.push({nativeTouchScrolling:true,rapidClicks:true,offscreenStop:true,idleWrites:0,reducedMotion:true});
- fs.writeFileSync('test-results/lens-qa.json',JSON.stringify(report,null,2));
+ fs.writeFileSync('test-results/shelter-qa.json',JSON.stringify(report,null,2));
  console.log('PASS touch, replay, rapid clicks, responsive state, reduced motion, and zero idle writes');
 }finally{await browser.close()}

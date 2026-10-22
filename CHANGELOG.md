@@ -4,6 +4,19 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.12.0] — 2026-10-22
+
+### Changed
+- Replaced the overlapping circles in Chapter 06 with two folded paper wings
+  that form a shared roof. One click closes the exposed gap, keeps rain outside,
+  and lights a shared place with two seats while both private spaces stay intact.
+- Preserved the exact blue/red statements throughout the interaction and replay.
+- Rain clipping and impact marks use the same roof geometry. The 5.7-second
+  sequence stops updating when settled, offscreen, hidden, or in reading mode;
+  reduced motion applies the completed scene synchronously.
+- Updated responsive, keyboard, touch, geometry and standalone checks for the
+  new shelter. The full article and other exhibition scenes are unchanged.
+
 ## [1.11.1] — 2026-10-21
 
 ### Fixed

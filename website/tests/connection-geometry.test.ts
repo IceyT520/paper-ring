@@ -1,29 +1,34 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {connectionLayout,intersectionPath} from '../src/connection-geometry';
+import * as geometry from '../src/connection-geometry';
 
-test('approaching creates a third space while both personal spaces keep their full size',()=>{
- for(const narrow of [false,true]){
-  const initial=connectionLayout(0,narrow),end=connectionLayout(1,narrow);
-  assert(initial.right-initial.left>2*initial.radius,'two separate spaces before the gesture');
-  assert(end.sharedWidth>0,'a common region exists after the gesture');
-  for(let i=0;i<=50;i++){
-   const state=connectionLayout(i/50,narrow);
-   assert.equal(state.radius,initial.radius,'closeness cannot shrink the original spaces');
-   assert(state.right-state.left>state.radius,'a visible private region remains on either side');
-   assert.equal(state.left+state.right,state.width,'the pair stays centered');
-   assert(state.left-state.radius>=0&&state.right+state.radius<=state.width);
-   assert(state.y-state.radius>=0&&state.y+state.radius<=state.height);
-  }
+test('the roof closes the exposed gap without moving or shrinking either private space',()=>{
+ assert.equal(typeof geometry.shelterGeometry,'function','the scene needs two paper wings and an actual shelter');
+ const first=geometry.shelterGeometry(0),last=geometry.shelterGeometry(1);
+ assert(first.gap>300,'rain can initially fall into the middle');
+ assert.equal(last.gap,0,'the final roof has no open seam');
+ for(let i=0;i<=100;i++){
+  const g=geometry.shelterGeometry(i/100);
+  assert.deepEqual(g.privateSpaces,first.privateSpaces,'both private spaces stay intact');
+  assert(g.left.tip.x<=550&&g.right.tip.x>=550,'the two paper wings must never cross');
+  assert.equal(g.left.tip.x+g.right.tip.x,1100,'the shared shelter remains centered');
+  assert.equal(g.left.tip.y,g.right.tip.y,'the paper edges meet at the same height');
+  assert(!/NaN|Infinity/.test(g.rainClip));
  }
 });
 
-test('the shared lens follows the actual intersection, never a decorative third circle',()=>{
- assert.equal(intersectionPath(0,300,100,100),'');
- assert.equal(intersectionPath(0,200,100,100),'');
- const lens=intersectionPath(0,120,100,100);
- // The two intersections are (60,20) and (60,180): 60²+80²=100².
- assert.match(lens,/M60(?:\.0+)?[ ,]20(?:\.0+)?/);
- assert.match(lens,/[ ,]60(?:\.0+)?[ ,]180(?:\.0+)?/);
- assert(!/NaN|Infinity/.test(lens));
+test('rain is stopped at the actual paper surface; only an open gap lets it reach the floor',()=>{
+ assert.equal(typeof geometry.roofAt,'function','rain needs geometric occlusion, not a decorative fade');
+ assert.equal(geometry.roofAt(550,0),null);
+ assert.equal(geometry.roofAt(550,1),95);
+ assert.equal(geometry.roofAt(100,1),null,'rain remains outside the shelter');
+ for(const p of [0,.25,.5,.75,1]){
+  const g=geometry.shelterGeometry(p);
+  for(const wing of [g.left,g.right]){
+   assert.equal(geometry.roofAt(wing.tip.x,p),wing.tip.y);
+   const mid=(wing.outer.x+wing.tip.x)/2;
+   const surface=geometry.roofAt(mid,p);assert.notEqual(surface,null);
+   assert(Math.abs(surface!-(wing.outer.y+wing.tip.y)/2)<1e-8);
+  }
+ }
 });

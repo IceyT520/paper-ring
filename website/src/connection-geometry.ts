@@ -1,17 +1,26 @@
 export const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 export const smooth=(v:number)=>{const t=clamp(v);return t*t*(3-2*t)};
-/** Equal circles retain their size. Only their separation changes, with enough
- * distance at the end to leave a clear private area on each side. */
-export function connectionLayout(progress:number,narrow:boolean){
- const t=clamp(progress),width=narrow?760:1100,height=narrow?500:480;
- const radius=narrow?170:190,y=narrow?225:220;
- const distance=narrow?376-166*t:460-220*t;
- return{width,height,radius,y,left:(width-distance)/2,right:(width+distance)/2,sharedWidth:Math.max(0,2*radius-distance)};
+type Point={x:number;y:number};
+/** Two fixed outer eaves unfold to one ridge. Private floor areas never move. */
+export function shelterGeometry(progress:number){
+ const p=clamp(progress),x=350+200*p,y=190-95*p;
+ const left={outer:{x:130,y:260},tip:{x,y}},right={outer:{x:970,y:260},tip:{x:1100-x,y}};
+ // The vertical gap is real. Rain and the paper use the same vertices.
+ const rainClip=`M0 0H1100V570H970V260L${right.tip.x} ${y}V570H${x}V${y}L130 260V570H0Z`;
+ return{left,right,gap:right.tip.x-x,rainClip,privateSpaces:[{x:275,y:480,rx:140,ry:48},{x:825,y:480,rx:140,ry:48}]};
 }
-/** Two arcs of the original circles bound their actual common surface. */
-export function intersectionPath(left:number,right:number,y:number,radius:number){
- const distance=right-left;
- if(distance>=radius*2||distance<=0)return '';
- const x=(left+right)/2,h=Math.sqrt(radius*radius-(distance/2)**2),f=(n:number)=>n.toFixed(3);
- return `M${f(x)} ${f(y-h)} A${radius} ${radius} 0 0 1 ${f(x)} ${f(y+h)} A${radius} ${radius} 0 0 1 ${f(x)} ${f(y-h)}Z`;
+export function roofAt(x:number,progress:number):number|null{
+ const p=clamp(progress),tipX=350+200*p,tipY=190-95*p;
+ const localX=x>550?1100-x:x;
+ if(localX>=130&&localX<=tipX)return 260+(tipY-260)*(localX-130)/(tipX-130);
+ return null;
+}
+export function wingPaths(outer:Point,tip:Point){
+ const direction=outer.x<550?1:-1,heel={x:outer.x+95*direction,y:outer.y+51};
+ return{
+  face:`M${outer.x} ${outer.y}L${tip.x} ${tip.y}L${tip.x} ${tip.y+52}L${heel.x} ${heel.y}Z`,
+  fold:`M${outer.x} ${outer.y}L${tip.x} ${tip.y+52}L${heel.x} ${heel.y}Z`,
+  edge:`M${outer.x} ${outer.y}L${tip.x} ${tip.y}L${tip.x} ${tip.y+52}L${heel.x} ${heel.y}Z`,
+  crease:`M${outer.x} ${outer.y}L${tip.x} ${tip.y+52}`,
+ };
 }
