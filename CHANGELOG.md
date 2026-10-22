@@ -4,6 +4,19 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.13.0] — 2026-10-22
+
+### Changed
+- Tightened the spacing between the Chapter 06 statements and the paper roof
+  on desktop and mobile while preserving both original statements.
+- Rain now continues after the roof connects. Added distant rain, paper folds,
+  surface runoff, eave drips, ground ripples, seat shadows and subtle warm light.
+- Separated the unfolding sequence from ambient weather, so replay remains
+  available. Only weather updates once the roof settles; all motion pauses
+  offscreen, in the background, in reading mode or with reduced motion enabled.
+- Updated browser and performance checks to require continued rain when visible
+  and zero scene writes / paused light animations while offscreen.
+
 ## [1.12.0] — 2026-10-22
 
 ### Changed

@@ -45,7 +45,7 @@
   <div class="connection-voice red"><span>焦虑 · 害怕被抛弃</span><strong data-voice="red">不能没有你</strong><small>我需要确定你在</small></div>
  </div>
  <button id="connection-meet" class="shelter-stage" aria-label="轻触，一起撑起屋檐" aria-describedby="shelter-status" disabled>
-  <svg class="shelter-art" viewBox="0 0 1100 620" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="shelter-art" viewBox="0 60 1100 560" preserveAspectRatio="none" aria-hidden="true">
    <defs>
     <linearGradient id="shelter-paper-blue" x1="0" y1="1" x2=".7" y2="0"><stop stop-color="#1e3d53"/><stop offset=".52" stop-color="#5b8297"/><stop offset=".98" stop-color="#c4d9d5"/></linearGradient>
     <linearGradient id="shelter-paper-red" x1="1" y1="1" x2=".3" y2="0"><stop stop-color="#53333b"/><stop offset=".52" stop-color="#ac7972"/><stop offset=".98" stop-color="#e9cabb"/></linearGradient>
@@ -79,11 +79,12 @@
 </g>
    <g id="shelter-common">
     <path d="M550 240L690 480Q550 542 410 480Z" fill="url(#shelter-common-beam)"/>
-    <ellipse cx="550" cy="482" rx="180" ry="73" fill="url(#shelter-common-floor)"/>
+    <ellipse id="shelter-reflection" cx="550" cy="482" rx="180" ry="73" fill="url(#shelter-common-floor)"/>
     <ellipse class="shelter-common-boundary" cx="550" cy="480" rx="124" ry="48"/>
     <path class="shelter-pendant shared" d="M550 147V273"/>
-    <circle cx="550" cy="280" r="53" fill="url(#shelter-common-lamp)"/>
+    <circle id="shelter-lamp-halo" cx="550" cy="280" r="53" fill="url(#shelter-common-lamp)"/>
     <path class="shelter-lantern" d="M542 276L550 269L558 276L550 287Z"/>
+    <ellipse class="shelter-seat-shadow" cx="500" cy="489" rx="28" ry="6"/><ellipse class="shelter-seat-shadow" cx="600" cy="489" rx="28" ry="6"/>
     <path class="shelter-seats blue" d="M480 467L520 456L520 466L480 477ZM480 477V491M520 466V480"/>
     <path class="shelter-seats red" d="M580 456L620 467L620 477L580 466ZM580 466V480M620 477V491"/>
    </g>
@@ -91,16 +92,19 @@
  <path class="shelter-paper" d="M130 260L550 95L550 147L225 311Z" fill="url(#shelter-paper-blue)"/>
  <path class="shelter-fold" d="M130 260L550 147L225 311Z"/>
  <path class="shelter-edge" d="M130 260L550 95L550 147L225 311Z"/>
+ <path class="shelter-grain"/>
  <path class="shelter-crease" d="M130 260L550 147"/>
 </g><g class="shelter-wing red" id="shelter-red">
  <path class="shelter-paper" d="M970 260L550 95L550 147L875 311Z" fill="url(#shelter-paper-red)"/>
  <path class="shelter-fold" d="M970 260L550 147L875 311Z"/>
  <path class="shelter-edge" d="M970 260L550 95L550 147L875 311Z"/>
+ <path class="shelter-grain"/>
  <path class="shelter-crease" d="M970 260L550 147"/>
 </g>
+   <path id="shelter-runnels"/>
    <path id="shelter-seam" d="M550 95V147"/>
-   <g clip-path="url(#shelter-rain-clip)"><path id="shelter-rain" d="M90 80v17M171 110v22M266 60v18M387 35v20M496 48v17M612 30v22M724 60v16M830 80v20M960 100v16M1010 290v18"/></g>
-   <path id="shelter-drops"/>
+   <g clip-path="url(#shelter-rain-clip)"><path id="shelter-rain-far"/><path id="shelter-rain" d="M90 80v17M171 110v22M266 60v18M387 35v20M496 48v17M612 30v22M724 60v16M830 80v20M960 100v16M1010 290v18"/></g>
+   <path id="shelter-drops"/><path id="shelter-drips"/><g id="shelter-ripples"><path/><path/></g>
   </svg>
   <span class="shelter-label blue"><strong>我</strong><small>我的空间</small></span>
   <span class="shelter-label red"><strong>你</strong><small>你的空间</small></span>
