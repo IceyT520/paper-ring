@@ -599,19 +599,25 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 .connection-voice>span{font:10px/1.6 var(--sans);letter-spacing:.13em;opacity:.65}
 .connection-voice strong{display:block;font:43px/1.6 var(--serif);font-weight:400;letter-spacing:.045em;white-space:nowrap;margin:13px 0 7px}
 .connection-voice small{font:11px/1.8 var(--sans);letter-spacing:.08em;opacity:.75}
-.shelter-stage{display:block;position:relative;isolation:isolate;width:100%;aspect-ratio:1100/560;margin:4px 0 0;padding:0;border:0;background:none;color:inherit;cursor:pointer;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+.shelter-stage{display:block;position:relative;isolation:isolate;width:100%;aspect-ratio:1100/640;margin:4px 0 0;padding:0;border:0;background:none;color:inherit;cursor:pointer;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
 .shelter-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.shelter-ground{fill:none;stroke:#c9bfa7;stroke-opacity:.11;stroke-width:1}
 .shelter-room.blue{color:#a3d3ee}.shelter-room.red{color:#efb6a6}
-.shelter-boundary{fill:none;stroke:currentColor;stroke-width:1;opacity:.36}
-.shelter-boundary.inner{stroke-width:.5;opacity:.1}
 .shelter-pendant{fill:none;stroke:currentColor;stroke-width:1;opacity:.38}
 .shelter-pendant.shared{stroke:#f4d7a5;opacity:.6}
-.shelter-common-boundary{fill:none;stroke:#e5c497;stroke-width:1;stroke-opacity:.65}
 .shelter-lantern{fill:#f3dfbb;stroke:#ffedcf;stroke-width:1}
-.shelter-seats{stroke-width:1;stroke-linejoin:round}.shelter-seats.blue{fill:#638a9c;stroke:#96bbc7}.shelter-seats.red{fill:#a47268;stroke:#d3a78f}
 .shelter-wing.blue{color:#b8d9e1}.shelter-wing.red{color:#ebc6b2}
-.shelter-seat-shadow{fill:#17120b;opacity:.24}
+/* One perspective and one floor level keep all three spaces grounded. */
+.shelter-deck{stroke-width:.8;stroke-linejoin:round}.shelter-deck.blue{fill:#3e5c703d;stroke:#96b9cb50}.shelter-deck.red{fill:#805a5938;stroke:#d7afa04d}.shelter-deck.shared{fill:#c1a87d24;stroke:#e1c39a6e}
+.shelter-deck-edge{fill:#b7c2c616;stroke:#c1ccd332;stroke-width:.7}.shelter-deck-edge.shared{fill:#d5b88c25;stroke:#e4c99d5c}
+.shelter-object-shadow{fill:#0c1117;opacity:.3}
+.shelter-chair{stroke-linejoin:round;stroke-width:1}.shelter-chair.blue{--chair:#779aab;--chair-light:#b1c7cd;--chair-dark:#3b5766;--chair-leg:#9bafb5}.shelter-chair.red{--chair:#b88a7c;--chair-light:#e1bca9;--chair-dark:#795b56;--chair-leg:#c2a79a}
+.chair-legs{fill:none;stroke:var(--chair-leg);stroke-width:3;stroke-linecap:round}.chair-back,.chair-seat{fill:var(--chair);stroke:var(--chair-light)}
+.chair-back-inset{fill:var(--chair-light);fill-opacity:.25;stroke:var(--chair-light);stroke-opacity:.35}.chair-seat{fill:var(--chair-light)}
+.chair-seat-front{fill:var(--chair-dark);stroke:var(--chair-light);stroke-opacity:.6}.chair-seat-seam{fill:none;stroke:var(--chair);stroke-opacity:.5;stroke-width:.65}
+.shelter-desk{stroke-linejoin:round;stroke-width:1}.desk-legs,.desk-stool-legs{fill:none;stroke:#99afb6;stroke-width:3;stroke-linecap:round}.desk-top{fill:#7897a2;stroke:#bdd0d2}.desk-front{fill:#385362;stroke:#89a7b3}.desk-drawer{fill:#526c78;stroke:#88a0aa;stroke-width:.8}.desk-handle{fill:none;stroke:#c4d0ce;stroke-width:1.6}.desk-stool{fill:#a6b8ba;stroke:#d1d6ca}.desk-book-left{fill:#d8d6bf;stroke:#f0e7cc}.desk-book-right{fill:#f0e8d3;stroke:#fff0d9}.desk-book-fold{fill:none;stroke:#817d6a;stroke-width:.7}
+.plant-stems,.plant-pot-stem{fill:none;stroke:#9daa8e;stroke-width:2}.plant-leaf{fill:#748b7f;stroke:#afbaa0;stroke-width:.8}.plant-leaf.dark{fill:#485f5b}.plant-leaf.light{fill:#8e9c83}.plant-veins{fill:none;stroke:#c7c9a1;stroke-opacity:.5;stroke-width:.7}.plant-pot{fill:#ac8071;stroke:#dcb9a3;stroke-width:1}.plant-pot-shade{fill:#745550;fill-opacity:.6}.plant-pot-rim{fill:#433e3b;stroke:#d2ac94;stroke-width:1.5}
+.shelter-table{stroke-linejoin:round}.table-stem{fill:none;stroke:#c9b89a;stroke-width:3}.table-foot{fill:#9e8b71;stroke:#cfbb99;stroke-width:.8}.table-edge{fill:#8c775d;stroke:#bca180;stroke-width:.8}.table-top{fill:#d1b992;stroke:#eedcbb;stroke-width:1}.table-cup{stroke-width:.85}.table-cup.blue{fill:#a9c1c7;stroke:#d3e0da}.table-cup.red{fill:#c69884;stroke:#f0d1b4}.cup-handle{fill:none}
+
 .shelter-grain{fill:none;stroke:currentColor;stroke-width:.6;stroke-opacity:.14}
 .shelter-fold{fill:#101a2a;fill-opacity:.43}
 .shelter-edge{fill:none;stroke:currentColor;stroke-width:1.1;stroke-opacity:.65}
@@ -627,12 +633,12 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 #shelter-reflection{animation-delay:-2s;animation-duration:9s}
 .shelter-installation[data-weather="running"] #shelter-lamp-halo,.shelter-installation[data-weather="running"] #shelter-reflection{animation-play-state:running}
 #shelter-drops{fill:none;stroke:#d7dde0;stroke-opacity:.35;stroke-width:.8}
-.shelter-label{position:absolute;top:60%;transform:translate(-50%,-50%);display:block;text-align:center;pointer-events:none;white-space:nowrap}
+.shelter-label{position:absolute;top:82.5%;transform:translate(-50%,-50%);display:block;text-align:center;pointer-events:none;white-space:nowrap}
 .shelter-label.blue{left:25%;color:#b2d6e8}.shelter-label.red{left:75%;color:#e9bbab}
-.shelter-label strong{display:block;font:34px/1.45 var(--serif);font-weight:400;letter-spacing:.06em;margin-bottom:8px}
+.shelter-label strong{display:block;font:23px/1.4 var(--serif);font-weight:400;letter-spacing:.06em;margin-bottom:5px}
 .shelter-label small{font:10px/1.7 var(--sans);letter-spacing:.14em;opacity:.7}
-.shelter-label.shared{left:50%;color:#f0ddbc}.shelter-label.shared strong{font-size:30px;letter-spacing:.04em}.shelter-label.shared small{letter-spacing:.05em}
-.shelter-gap{position:absolute;top:63.5%;left:50%;transform:translate(-50%,-50%);font:10px/2 var(--sans);letter-spacing:.1em;color:#a8afb7;white-space:nowrap;pointer-events:none}
+.shelter-label.shared{left:50%;color:#f0ddbc}.shelter-label.shared strong{font-size:23px;letter-spacing:.04em}.shelter-label.shared small{letter-spacing:.05em}
+.shelter-gap{position:absolute;top:82.5%;left:50%;transform:translate(-50%,-50%);font:10px/2 var(--sans);letter-spacing:.1em;color:#a8afb7;white-space:nowrap;pointer-events:none}
 .shelter-action{position:absolute;bottom:2%;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:13px;font:11px/1.8 var(--sans);letter-spacing:.09em;color:#b7b5ad}
 .shelter-action svg{width:23px;height:20px;fill:none;stroke:#d3b88f;stroke-width:1.2}
 .shelter-stage:hover .shelter-action{color:#e3d2b3}
@@ -645,7 +651,7 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 @media(prefers-reduced-motion:reduce){.shelter-installation *{transition:none!important;animation:none!important}}
 @media(max-width:1100px){
  .shelter-installation{margin-inline:0}.connection-voices{gap:8%;padding:0 5%}
- .connection-voice strong{font-size:34px}.shelter-label strong{font-size:28px}.shelter-label.shared strong{font-size:26px}
+ .connection-voice strong{font-size:34px}.shelter-label strong{font-size:22px}.shelter-label.shared strong{font-size:22px}
  #shelter-status{font-size:21px}
 }
 @media(max-width:760px){
@@ -653,9 +659,9 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
  .connection-voices{padding:0 3%;gap:5%}.connection-voice>span{font-size:8px;letter-spacing:.02em}
  .connection-voice strong{font-size:22px;letter-spacing:.015em;margin:13px 0 6px}
  .connection-voice small{font-size:9px;letter-spacing:.02em}
- .shelter-stage{aspect-ratio:760/560;margin-top:6px}
- .shelter-label strong{font-size:25px;letter-spacing:0;margin-bottom:7px}.shelter-label small{font-size:9px;letter-spacing:.02em}
- .shelter-label.shared strong{font-size:22px;letter-spacing:0}.shelter-label.shared small{font-size:8px;letter-spacing:0}
+ .shelter-stage{aspect-ratio:760/650;margin-top:6px}
+ .shelter-label strong{font-size:19px;letter-spacing:0;margin-bottom:3px}.shelter-label small{font-size:9px;letter-spacing:.02em}
+ .shelter-label.shared strong{font-size:19px;letter-spacing:0}.shelter-label.shared small{font-size:8px;letter-spacing:0}
  .shelter-gap{font-size:8px;white-space:normal;width:20%;line-height:1.9}
  .shelter-action{font-size:9px;gap:9px;letter-spacing:.025em}.shelter-action svg{width:18px}
  .shelter-caption{padding-top:24px}#shelter-status{font-size:17px;letter-spacing:.01em;line-height:1.9;margin:10px 0 12px}
@@ -706,7 +712,7 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
   <div class="connection-voice red"><span>焦虑 · 害怕被抛弃</span><strong data-voice="red">不能没有你</strong><small>我需要确定你在</small></div>
  </div>
  <button id="connection-meet" class="shelter-stage" aria-label="轻触，一起撑起屋檐" aria-describedby="shelter-status" disabled>
-  <svg class="shelter-art" viewBox="0 60 1100 560" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="shelter-art" viewBox="0 60 1100 640" preserveAspectRatio="none" aria-hidden="true">
    <defs>
     <linearGradient id="shelter-paper-blue" x1="0" y1="1" x2=".7" y2="0"><stop stop-color="#1e3d53"/><stop offset=".52" stop-color="#5b8297"/><stop offset=".98" stop-color="#c4d9d5"/></linearGradient>
     <linearGradient id="shelter-paper-red" x1="1" y1="1" x2=".3" y2="0"><stop stop-color="#53333b"/><stop offset=".52" stop-color="#ac7972"/><stop offset=".98" stop-color="#e9cabb"/></linearGradient>
@@ -720,34 +726,83 @@ html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
 <radialGradient id="shelter-lamp-red"><stop stop-color="#efac98" stop-opacity=".38"/><stop offset=".2" stop-color="#efac98" stop-opacity=".1"/><stop offset="1" stop-color="#efac98" stop-opacity="0"/></radialGradient>
     <clipPath id="shelter-rain-clip"><path id="shelter-rain-boundary" d="M0 0H1100V570H970V260L550 95V570H550V95L130 260V570H0Z"/></clipPath>
    </defs>
-   <path class="shelter-ground" d="M80 480H1020"/>
    <g class="shelter-room blue" data-private="blue">
  <path d="M213 250L337 250L413 480Q275 540 137 480Z" fill="url(#shelter-beam-blue)"/>
- <ellipse cx="275" cy="480" rx="140" ry="48" fill="url(#shelter-floor-blue)"/>
- <ellipse class="shelter-boundary" cx="275" cy="480" rx="140" ry="48"/>
- <ellipse class="shelter-boundary inner" cx="275" cy="480" rx="133" ry="43"/>
+ <ellipse cx="275" cy="482" rx="140" ry="48" fill="url(#shelter-floor-blue)"/>
+ <path class="shelter-deck blue" d="M190 448H420L400 514H155Z"/>
+ <path class="shelter-deck-edge" d="M155 514H400V520H155Z"/>
  <path class="shelter-pendant" d="M275 270V313"/>
  <circle cx="275" cy="317" r="24" fill="url(#shelter-lamp-blue)"/>
  <circle cx="275" cy="317" r="3" fill="currentColor"/>
+ <g class="shelter-desk" transform="translate(206 402)">
+ <ellipse class="shelter-object-shadow" cx="69" cy="94" rx="82" ry="12"/>
+ <path class="desk-legs" d="M18 31L12 94M117 34L126 94M91 16L94 76"/>
+ <path class="desk-front" d="M4 20L40 36L136 22V29L40 43L4 27Z"/>
+ <path class="desk-top" d="M4 20L100 6L136 22L40 36Z"/>
+ <path class="desk-drawer" d="M45 44L112 34V50L45 60Z"/>
+ <path class="desk-handle" d="M72 46L85 44"/>
+ <path class="desk-stool-legs" d="M58 75L54 96M83 70L88 94M69 65V85"/>
+ <path class="desk-stool" d="M48 69L75 63L93 72L66 79Z"/>
+ <path class="desk-book-left" d="M47 8L67 11L81 24L60 20Z"/>
+ <path class="desk-book-right" d="M67 11L84 1L98 14L81 24Z"/>
+ <path class="desk-book-fold" d="M67 11L81 24M52 12L64 14M56 16L68 18M76 11L85 6M80 15L89 10"/>
+</g>
 </g><g class="shelter-room red" data-private="red">
  <path d="M763 250L887 250L963 480Q825 540 687 480Z" fill="url(#shelter-beam-red)"/>
- <ellipse cx="825" cy="480" rx="140" ry="48" fill="url(#shelter-floor-red)"/>
- <ellipse class="shelter-boundary" cx="825" cy="480" rx="140" ry="48"/>
- <ellipse class="shelter-boundary inner" cx="825" cy="480" rx="133" ry="43"/>
+ <ellipse cx="825" cy="482" rx="140" ry="48" fill="url(#shelter-floor-red)"/>
+ <path class="shelter-deck red" d="M680 448H910L945 514H700Z"/>
+ <path class="shelter-deck-edge" d="M700 514H945V520H700Z"/>
  <path class="shelter-pendant" d="M825 270V313"/>
  <circle cx="825" cy="317" r="24" fill="url(#shelter-lamp-red)"/>
  <circle cx="825" cy="317" r="3" fill="currentColor"/>
+ <g class="shelter-plant" transform="translate(825 496)">
+ <ellipse class="shelter-object-shadow" cx="0" cy="2" rx="44" ry="10"/>
+ <path class="plant-stems" d="M0 -42Q-2 -85 3 -128M0 -60Q-17 -83 -32 -93M1 -80Q26 -101 40 -109M2 -106Q-15 -119 -23 -133"/>
+ <path class="plant-leaf dark" d="M-1 -70C-28 -71 -47 -89 -47 -108C-20 -112 -4 -92 -1 -70Z"/>
+ <path class="plant-leaf" d="M3 -94C14 -121 32 -132 53 -125C51 -101 30 -91 3 -94Z"/>
+ <path class="plant-leaf light" d="M3 -118C-18 -116 -34 -133 -29 -153C-7 -154 5 -141 3 -118Z"/>
+ <path class="plant-leaf" d="M1 -54C17 -78 40 -83 55 -72C45 -49 24 -47 1 -54Z"/>
+ <path class="plant-veins" d="M-1 -70L-37 -100M3 -94L42 -119M3 -118L-23 -145M1 -54L45 -69"/>
+ <path class="plant-pot" d="M-26 -43L-19 -2Q0 7 19 -2L26 -43Z"/>
+ <path class="plant-pot-shade" d="M5 -41L4 4Q14 3 19 -2L26 -43Z"/>
+ <ellipse class="plant-pot-rim" cx="0" cy="-43" rx="26" ry="8"/>
+ <path class="plant-pot-stem" d="M0 -43V-52"/>
+</g>
 </g>
    <g id="shelter-common">
-    <path d="M550 240L690 480Q550 542 410 480Z" fill="url(#shelter-common-beam)"/>
+    <path d="M550 280L700 514Q550 550 400 514Z" fill="url(#shelter-common-beam)"/>
     <ellipse id="shelter-reflection" cx="550" cy="482" rx="180" ry="73" fill="url(#shelter-common-floor)"/>
-    <ellipse class="shelter-common-boundary" cx="550" cy="480" rx="124" ry="48"/>
+    <path class="shelter-deck shared" d="M420 448H680L700 514H400Z"/>
+    <path class="shelter-deck-edge shared" d="M400 514H700V520H400Z"/>
     <path class="shelter-pendant shared" d="M550 147V273"/>
     <circle id="shelter-lamp-halo" cx="550" cy="280" r="53" fill="url(#shelter-common-lamp)"/>
     <path class="shelter-lantern" d="M542 276L550 269L558 276L550 287Z"/>
-    <ellipse class="shelter-seat-shadow" cx="500" cy="489" rx="28" ry="6"/><ellipse class="shelter-seat-shadow" cx="600" cy="489" rx="28" ry="6"/>
-    <path class="shelter-seats blue" d="M480 467L520 456L520 466L480 477ZM480 477V491M520 466V480"/>
-    <path class="shelter-seats red" d="M580 456L620 467L620 477L580 466ZM580 466V480M620 477V491"/>
+    <g class="shelter-chair blue" transform="translate(446 394) scale(1 1)">
+ <ellipse class="shelter-object-shadow" cx="39" cy="101" rx="45" ry="9"/>
+ <path class="chair-legs" d="M14 53L10 86M52 48L55 78M30 76L27 101M68 69L72 94"/>
+ <path class="chair-back" d="M6 8Q6 2 12 1L43 -4Q50 -5 51 3L55 47L10 53Z"/>
+ <path class="chair-back-inset" d="M14 12L43 7L47 35L17 40Z"/>
+ <path class="chair-seat" d="M10 48L55 42L73 62L27 70Z"/>
+ <path class="chair-seat-front" d="M27 70L73 62V69L27 77ZM10 48L27 70V77L10 55Z"/>
+ <path class="chair-seat-seam" d="M17 49L54 44L67 60L30 67Z"/>
+</g><g class="shelter-chair red" transform="translate(654 394) scale(-1 1)">
+ <ellipse class="shelter-object-shadow" cx="39" cy="101" rx="45" ry="9"/>
+ <path class="chair-legs" d="M14 53L10 86M52 48L55 78M30 76L27 101M68 69L72 94"/>
+ <path class="chair-back" d="M6 8Q6 2 12 1L43 -4Q50 -5 51 3L55 47L10 53Z"/>
+ <path class="chair-back-inset" d="M14 12L43 7L47 35L17 40Z"/>
+ <path class="chair-seat" d="M10 48L55 42L73 62L27 70Z"/>
+ <path class="chair-seat-front" d="M27 70L73 62V69L27 77ZM10 48L27 70V77L10 55Z"/>
+ <path class="chair-seat-seam" d="M17 49L54 44L67 60L30 67Z"/>
+</g>
+    <g class="shelter-table">
+     <ellipse class="shelter-object-shadow" cx="550" cy="497" rx="30" ry="7"/>
+     <path class="table-stem" d="M550 461V490"/>
+     <ellipse class="table-foot" cx="550" cy="491" rx="15" ry="4"/>
+     <path class="table-edge" d="M525 454V459C525 470 575 470 575 459V454"/>
+     <ellipse class="table-top" cx="550" cy="454" rx="25" ry="9"/>
+     <g class="table-cup blue"><path d="M535 443H544V451Q539.5 455 535 451Z"/><path class="cup-handle" d="M544 445Q550 444 549 448Q548 451 544 449"/></g>
+     <g class="table-cup red"><path d="M555 439H564V447Q559.5 451 555 447Z"/><path class="cup-handle" d="M564 441Q570 440 569 444Q568 447 564 445"/></g>
+    </g>
    </g>
    <g class="shelter-wing blue" id="shelter-blue">
  <path class="shelter-paper" d="M130 260L550 95L550 147L225 311Z" fill="url(#shelter-paper-blue)"/>

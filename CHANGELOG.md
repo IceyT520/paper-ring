@@ -4,6 +4,18 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.14.0] — 2026-10-23
+
+### Changed
+- Redrew the shared chairs with full backrests, seat planes and front/rear legs,
+  adding a small table and two cups between them.
+- Furnished the private spaces with a writing desk, open book and stool on one
+  side, and a substantial potted plant on the other. Both remain after connection.
+- Replaced the three isolated circular platforms with adjoining paper floor
+  panels using one perspective, and moved the space labels below the furniture.
+- Kept the approved roof, original statements, one-click interaction, continuous
+  rain and visibility-based animation scheduling unchanged.
+
 ## [1.13.0] — 2026-10-22
 
 ### Changed
