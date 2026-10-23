@@ -1,10 +1,11 @@
 import {DEFAULT_PARAMETERS,criticalDistance,regime,simulate,derivative,boundedEquilibrium,type Parameters,type ModelMode} from './model';
+import {formatModelNumber as fmt} from './number-format';
 const anx='#ee8a80',avd='#72b7ef',grid='#9ebddf22';
-const fmt=(v:number)=>v>=1000?v.toExponential(1):v>=10?v.toFixed(0):v>=1?v.toFixed(1):v.toFixed(2);
 function nice(v:number){const base=10**Math.floor(Math.log10(Math.max(v,.01)));const r=v/base;return(r<=1?1:r<=2?2:r<=5?5:10)*base}
 export function initSimulator(){
  let p:Parameters={...DEFAULT_PARAMETERS},mode:ModelMode='linear';
  const time=document.querySelector<SVGSVGElement>('#time-chart')!,phase=document.querySelector<SVGSVGElement>('#phase-chart')!;
+ let measuredWidth=0;
  function update(){
    document.querySelectorAll<HTMLInputElement>('[data-param]').forEach(el=>{
      const key=el.dataset.param as keyof Parameters;
@@ -16,17 +17,24 @@ export function initSimulator(){
    const yMax=mode==='bounded'?1:nice(Math.max(1,...samples.flatMap(s=>[s.A,s.R]))),tMax=last.t;
    time.dataset.max=String(Math.max(...samples.flatMap(s=>[s.A,s.R])));
    time.dataset.mode=mode;
-   const x=(t:number)=>48+t/tMax*646,y=(v:number)=>255-v/yMax*225;
-   const tick=Array.from({length:6},(_,i)=>{const v=i*yMax/5,xx=48+i*646/5;return `<path d="M48 ${y(v)}H694" stroke="${grid}"/><text x="37" y="${y(v)+3}" text-anchor="end">${fmt(v)}</text><text x="${xx}" y="278" text-anchor="middle">${(i*tMax/5).toFixed(1)}</text>`}).join('');
+   measuredWidth=Math.round(time.getBoundingClientRect().width);
+   const timeWidth=Math.min(720,Math.max(300,measuredWidth||720));
+   time.setAttribute('viewBox',`0 0 ${timeWidth} 300`);
+   // Reserve space for full decimal labels, including their thousands separators.
+   const timeLeft=Math.max(48,fmt(yMax).length*6.2+14),timeRight=timeWidth-26;
+   const x=(t:number)=>timeLeft+t/tMax*(timeRight-timeLeft),y=(v:number)=>255-v/yMax*225;
+   const tick=Array.from({length:6},(_,i)=>{const v=i*yMax/5,xx=x(i*tMax/5);return `<path d="M${timeLeft} ${y(v)}H${timeRight}" stroke="${grid}"/><text x="${timeLeft-11}" y="${y(v)+3}" text-anchor="end">${fmt(v)}</text><text x="${xx}" y="278" text-anchor="middle">${(i*tMax/5).toFixed(1)}</text>`}).join('');
    const trace=(key:'A'|'R',color:string)=>`<path d="${samples.map((s,i)=>`${i?'L':'M'}${x(s.t).toFixed(2)},${y(s[key]).toFixed(2)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/><circle cx="${x(last.t)}" cy="${y(last[key])}" r="3" fill="${color}"/>`;
-   time.innerHTML=`<title>${mode==='linear'?'原文线性':'有界扩展'}：A 与 R 随时间变化</title>${tick}<text x="694" y="297" text-anchor="end">时间 t →</text>${trace('A',anx)}${trace('R',avd)}`;
+   time.innerHTML=`<title>${mode==='linear'?'原文线性':'有界扩展'}：A 与 R 随时间变化</title>${tick}<text x="${timeRight}" y="297" text-anchor="end">时间 t →</text>${trace('A',anx)}${trace('R',avd)}`;
    const xMax=mode==='bounded'?1:nice(Math.max(1,...samples.map(s=>s.A)));
    const rMax=mode==='bounded'?1:nice(Math.max(1,...samples.map(s=>s.R)));
-   const px=(a:number)=>40+a/xMax*270,py=(r:number)=>245-r/rMax*220;
+   const phaseLeft=Math.max(40,fmt(rMax).length*6.2+14);
+   const phaseRight=330-Math.max(20,fmt(xMax).length*3.1+8);
+   const px=(a:number)=>phaseLeft+a/xMax*(phaseRight-phaseLeft),py=(r:number)=>245-r/rMax*220;
    let field='';
    for(let i=0;i<=8;i++)for(let j=0;j<=8;j++){
      const a=i*xMax/8,r=j*rMax/8,[da,dr]=derivative(a,r,p,mode);
-     const sx=da/xMax,sy=dr/rMax,m=Math.hypot(sx,sy);if(m<1e-9)continue;
+     const sx=da/xMax*(phaseRight-phaseLeft),sy=dr/rMax*220,m=Math.hypot(sx,sy);if(m<1e-9)continue;
      const ux=sx/m,uy=-sy/m,xx=px(a),yy=py(r),endX=xx+ux*8,endY=yy+uy*8;
      field+=`<path d="M${xx} ${yy}l${ux*8} ${uy*8}m${-ux*3+uy*2} ${-uy*3-ux*2}L${endX} ${endY}l${-ux*3-uy*2} ${-uy*3+ux*2}" stroke="#96b9dc70" stroke-width=".8" fill="none"/>`;
    }
@@ -37,7 +45,7 @@ export function initSimulator(){
    }else if(mode==='bounded'){
      const e=boundedEquilibrium(p);eq=`<circle cx="${px(e.A)}" cy="${py(e.R)}" r="5" fill="none" stroke="#8b8f61" stroke-width="1.5"/>`;
    }
-   phase.innerHTML=`<title>相平面与方向场${regime(p)==='critical'?'，虚线为原文线性平衡线':''}</title><defs><clipPath id="phase-clip"><rect x="38" y="23" width="274" height="224"/></clipPath></defs>${[0,.5,1].map(f=>`<path d="M40 ${py(f*rMax)}H310M${px(f*xMax)} 25V245" stroke="${grid}"/><text x="${px(f*xMax)}" y="263" text-anchor="middle">${fmt(f*xMax)}</text><text x="32" y="${py(f*rMax)+3}" text-anchor="end">${fmt(f*rMax)}</text>`).join('')}<g clip-path="url(#phase-clip)">${field}${eq}<path d="${samples.map((s,i)=>`${i?'L':'M'}${px(s.A).toFixed(2)},${py(s.R).toFixed(2)}`).join(' ')}" stroke="#d8c5a5" stroke-width="1.8" fill="none"/><circle cx="${px(last.A)}" cy="${py(last.R)}" r="3" fill="${anx}"/></g><text x="309" y="284" text-anchor="end">A 焦虑 →</text><text x="40" y="13">R 回避 ↑</text>`;
+   phase.innerHTML=`<title>相平面与方向场${regime(p)==='critical'?'，虚线为原文线性平衡线':''}</title><defs><clipPath id="phase-clip"><rect x="${phaseLeft-2}" y="23" width="${phaseRight-phaseLeft+4}" height="224"/></clipPath></defs>${[0,.5,1].map(f=>`<path d="M${phaseLeft} ${py(f*rMax)}H${phaseRight}M${px(f*xMax)} 25V245" stroke="${grid}"/><text x="${px(f*xMax)}" y="263" text-anchor="middle">${fmt(f*xMax)}</text><text x="${phaseLeft-8}" y="${py(f*rMax)+3}" text-anchor="end">${fmt(f*rMax)}</text>`).join('')}<g clip-path="url(#phase-clip)">${field}${eq}<path d="${samples.map((s,i)=>`${i?'L':'M'}${px(s.A).toFixed(2)},${py(s.R).toFixed(2)}`).join(' ')}" stroke="#d8c5a5" stroke-width="1.8" fill="none"/><circle cx="${px(last.A)}" cy="${py(last.R)}" r="3" fill="${anx}"/></g><text x="${phaseRight}" y="284" text-anchor="end">A 焦虑 →</text><text x="${phaseLeft}" y="13">R 回避 ↑</text>`;
    if(mode==='bounded')phase.querySelector('title')!.textContent='有界扩展：相平面、方向场与平衡点';
    document.querySelector('#critical-value')!.textContent=criticalDistance(p).toFixed(2);
    const state=regime(p);
@@ -55,4 +63,9 @@ export function initSimulator(){
  }));
  document.querySelector('#sim-reset')!.addEventListener('click',()=>{p={...DEFAULT_PARAMETERS};update()});
  update();
+ // Keep labels at a readable size instead of shrinking a desktop chart on phones.
+ new ResizeObserver(([entry])=>{
+  const width=Math.round(entry.contentRect.width);
+  if(width>0&&width!==measuredWidth)update();
+ }).observe(time);
 }

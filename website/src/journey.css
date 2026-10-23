@@ -125,7 +125,14 @@ body{background:var(--ink)}
 .simulator{border-color:#8da4b42e;padding:55px 0;gap:5vw;position:relative}
 .sim-controls h3 em{color:var(--avd)}.parameter>span,.advanced summary,.threshold{color:#a8b7c5}.parameter output,.threshold strong{color:#d5c7b1}
 .sim-status{color:#d7af9c}.chart-heading,.chart-description,.phase-area p,.model-equations{color:#a6b4c3}#time-chart text,#phase-chart text{fill:#a6b4c3}
-.phase-area{border-color:#8da4b426}.model-source{gap:8vw}.model-source .prose{font-size:17px!important}.margin-title p{color:#a9b4c0}
+.sim-intro{display:grid;grid-template-columns:300px minmax(0,1fr);gap:5vw;align-items:start;margin-bottom:28px}
+.sim-intro>.eyebrow{padding-top:5px;color:#d1b68d}
+.chart-description{font-size:12px;line-height:1.9}
+.sim-intro p{max-width:44em;font-size:14px;line-height:1.95;color:#c4c9cd}
+.sim-intro p+p{margin-top:10px;color:#a6b4c3;font-size:12px}
+@media(max-width:1100px){.sim-intro{grid-template-columns:240px minmax(0,1fr);gap:4vw}.phase-area>div{display:block}}
+@media(max-width:760px){.sim-intro{display:block;margin-bottom:24px}.sim-intro>.eyebrow{display:block;margin-bottom:16px}.sim-intro p{font-size:14px}.sim-intro p+p{font-size:12px}.phase-area{grid-template-columns:1fr;gap:10px}.phase-area svg{width:100%;max-width:360px}.phase-area h4{margin-bottom:12px}.chart-heading{font-size:11px}.chart-legend{font-size:10px}#model-description{display:block}}
+.phase-area{border-color:#8da4b426}.model-source{gap:8vw;margin:0 0 clamp(64px,8vw,112px)}.model-source .prose{font-size:17px!important}.margin-title p{color:#a9b4c0}
 .practice-part{border-color:#95b1c229;padding:95px 0;gap:8vw}.practice-aside h3{font-size:53px}.practice-aside>p{color:#b1bdc7}.practice-number{color:var(--gold)}
 .practice-orbit i:first-child{border-color:var(--anx)}.practice-orbit i:nth-child(2){border-color:var(--avd)}.practice-orbit span{color:#c8b9a3}
 .paper-window{background:linear-gradient(110deg,#bf997a,#ebba8a);box-shadow:0 0 80px #e7aa6f15}.paper-window i{background:linear-gradient(110deg,#587c9d,#304761);border-color:#7aa8d24d}

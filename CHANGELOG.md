@@ -4,6 +4,19 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.15.0] — 2026-10-23
+
+### Changed
+- Moved the complete model explanation and derivation before the interactive
+  sandbox, followed by a short guide to the red/blue curves and distance controls.
+- Replaced scientific notation with grouped decimal numbers throughout chart
+  ticks and result captions, without changing the underlying calculations.
+- Reserved space for longer axis labels and made the time chart adapt to narrow
+  screens so its labels stay readable. The phase chart and model assumptions
+  now remain visible together on phones and tablets.
+- Added formatting tests and responsive browser checks for reading order,
+  unclipped labels, large values, model modes, reset and window resizing.
+
 ## [1.14.0] — 2026-10-23
 
 ### Changed
