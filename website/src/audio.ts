@@ -21,7 +21,7 @@ function trackSource(){
  }catch{return TRACK}
 }
 
-export function initAudio(){
+export function initAudio(options:{waitForGate?:boolean}={}){
  const button=document.querySelector<HTMLButtonElement>('#sound-toggle');
  if(!button)return;
  const audio=new Audio(trackSource());
@@ -29,6 +29,7 @@ export function initAudio(){
  // Only the header is fetched up front; the file downloads when the seal breaks.
  audio.loop=true;audio.preload='metadata';audio.volume=0;
  let enabled=read()!=='off',failed=false,loaded=false,openingStartedAt=0,gestureBound=false,fade=0;
+ let entryReady=!options.waitForGate;
  const root=document.documentElement;
 
  function read(){try{return localStorage.getItem('paper-sound')}catch{return null}}
@@ -51,7 +52,7 @@ export function initAudio(){
   fade=requestAnimationFrame(step);
  }
  function play(seek?:number){
-  if(failed||!enabled)return;
+  if(failed||!enabled||!entryReady)return;
   if(seek!==undefined){try{audio.currentTime=seek}catch{/* not seekable yet */}}
   const started=audio.play();
   if(started&&typeof started.then==='function'){
@@ -61,7 +62,7 @@ export function initAudio(){
  }
  /** Browsers refuse sound before a gesture: start on the first one, in sync. */
  function bindGesture(){
-  if(gestureBound||failed)return;
+  if(gestureBound||failed||!entryReady)return;
   gestureBound=true;
   const once=()=>{
    document.removeEventListener('pointerdown',once,true);
@@ -82,7 +83,7 @@ export function initAudio(){
  audio.addEventListener('pause',()=>state('paused'));
 
  // Breaking the seal is the gesture that lets the track start.
- document.addEventListener('paper:gate-open',()=>{openingStartedAt=performance.now();play(0)});
+ document.addEventListener('paper:gate-open',()=>{entryReady=true;openingStartedAt=performance.now();play(0)});
 
  document.addEventListener('paper:opening-start',event=>{
   const detail=(event as CustomEvent<{at:number;replay?:boolean}>).detail;
@@ -99,6 +100,6 @@ export function initAudio(){
  });
 
  sync();
- // Without an opening (reduced motion, deep link) music still waits for a gesture.
+ // Direct reading waits for a gesture; sealed entry waits specifically for the envelope.
  bindGesture();
 }

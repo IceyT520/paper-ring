@@ -4,6 +4,38 @@ import {offlineUrlNoGate,devUrlNoGate} from './paths.mjs';
 const url=process.argv.includes('--offline')?offlineUrlNoGate:devUrlNoGate;
 const browser=await launchBrowser();
 try{
+ for(const touch of [false,true]){
+  const entry=await browser.newPage({viewport:{width:touch?390:1440,height:1000},hasTouch:touch});
+  await entry.addInitScript(()=>{
+   window.__entryPlayCalls=0;
+   const play=HTMLMediaElement.prototype.play;
+   HTMLMediaElement.prototype.play=function(){window.__entryPlayCalls++;return play.call(this)};
+  });
+  await entry.goto(url.replace('?nogate=1',''),{waitUntil:'load'});
+  await entry.waitForSelector('html[data-gate=sealed]');
+  await entry.waitForSelector('#theme-audio',{state:'attached'});
+  if(touch)await entry.touchscreen.tap(20,20);else await entry.mouse.click(20,20);
+  await entry.keyboard.press('ArrowRight');await entry.waitForTimeout(200);
+  assert.equal(await entry.evaluate(()=>window.__entryPlayCalls),0,'clicking outside the sealed envelope must not start music');
+  assert(await entry.locator('#theme-audio').evaluate(a=>a.paused));
+  assert.equal(await entry.locator('html').getAttribute('data-gate'),'sealed');
+  if(touch)await entry.locator('#gate-open').tap();else await entry.locator('#gate-open').click();
+  await entry.waitForSelector('html[data-opening=running]');
+  await entry.waitForFunction(()=>!document.querySelector('#theme-audio').paused);
+  assert(await entry.locator('#gate').isHidden());
+  assert.equal(await entry.evaluate(()=>scrollY),0);
+  console.log(`PASS ${touch?'touch':'mouse'}: outside gestures stay silent; envelope starts music and opening together`);
+  await entry.close();
+ }
+ const muted=await browser.newPage({reducedMotion:'reduce'});
+ await muted.addInitScript(()=>localStorage.setItem('paper-sound','off'));
+ await muted.goto(url.replace('?nogate=1',''),{waitUntil:'load'});
+ await muted.waitForSelector('html[data-gate=sealed]');
+ await muted.keyboard.press('Tab');await muted.keyboard.press('Enter');
+ await muted.locator('#gate').waitFor({state:'hidden'});
+ assert(await muted.locator('#theme-audio').evaluate(a=>a.paused),'opening by keyboard preserves a saved mute preference');
+ await muted.close();
+ console.log('PASS keyboard entry respects saved mute');
  const page=await browser.newPage({viewport:{width:1440,height:1000}});
  await page.goto(url+'#mobius-section',{waitUntil:'load'});
  await page.waitForSelector('#mobius-stage.ready');

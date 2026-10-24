@@ -49,16 +49,14 @@
 .mobius-coda:before{height:48px;margin-bottom:40px}
 .mobius-coda h3{margin-top:24px;margin-bottom:24px}
 #exhibition>#chapter-10{padding-top:96px;padding-bottom:48px}
-#chapter-10 .chapter-heading h2{font-size:46px;line-height:1.6;padding:0}
+#chapter-10 .chapter-heading h2{line-height:1.6;padding:0}
 .ordinary-things{margin:48px 0}.still-life{height:190px}
 #exhibition>#chapter-11{padding-top:96px}
-.dedication .chapter-heading h2{font-size:clamp(42px,4.8vw,68px)}
 #exhibition .dedication .waiting-scene{margin-top:0}
 .dedication-copy{margin-top:64px}
 #exhibition .dedication-copy .source-block{margin-bottom:24px;padding-top:16px;padding-bottom:16px}
 #exhibition .dedication-copy .source-block:last-child{margin-bottom:0}
-.dedication-end{font-size:60px;padding-top:80px;padding-bottom:24px}
-.colophon .chapter-heading h2{font-size:42px}
+.dedication-end{padding-top:80px;padding-bottom:24px}
 .colophon .editorial-collection{margin-top:48px}
 @media(max-width:1100px){#exhibition{--chapter-top:112px;--chapter-bottom:56px;--section-space:64px;--title-space:56px}}
 @media(max-width:760px){
@@ -93,12 +91,11 @@
  .mobius-coda:before{height:32px;margin-bottom:24px}
  .mobius-coda h3{margin-top:20px;margin-bottom:20px}
  #exhibition>#chapter-10{padding-top:64px;padding-bottom:40px}
- #chapter-10 .chapter-heading h2{font-size:32px}
  .ordinary-things{margin:32px 0}.still-life{height:150px}
  #exhibition>#chapter-11{padding-top:64px}
- .dedication .chapter-heading h2{font-size:36px}.dedication-copy{margin-top:40px}
+ .dedication-copy{margin-top:40px}
  #exhibition .dedication-copy .source-block{padding-top:12px;padding-bottom:12px;margin-bottom:20px}
- .dedication-end{padding-top:48px;font-size:50px}
- .colophon .chapter-heading h2{font-size:31px}.colophon .editorial-collection{margin-top:32px}
+ .dedication-end{padding-top:48px}
+ .colophon .editorial-collection{margin-top:32px}
 }
 @media print{.narrative-bridge,.roof-recall{break-inside:avoid}}

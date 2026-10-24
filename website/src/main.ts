@@ -16,10 +16,10 @@ const storage={get(key:string){try{return localStorage.getItem(key)}catch{return
 const media=matchMedia('(prefers-reduced-motion: reduce)');
 let reduced=storage.get('paper-motion')===null?media.matches:storage.get('paper-motion')==='reduced';
 let readerMode=false,currentSource='p001',currentChapter='01',paper:PaperController|undefined;
-// Audio listens before the opening can fire its first cue.
-initAudio();
 // Deep links, back/forward and ?nogate skip the envelope gate.
 const gateEnabled=!location.hash&&!location.search.includes('nogate')&&(performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming|undefined)?.type!=='back_forward';
+// Audio listens before the opening cue, and stays sealed until the envelope opens.
+initAudio({waitForGate:gateEnabled});
 const opening=initOpening(reduced,progress=>paper?.setOpening(progress),{defer:gateEnabled});
 const gate=gateEnabled?initGate(reduced):undefined;
 if(gate?.active)gate.onOpen(()=>opening.begin());

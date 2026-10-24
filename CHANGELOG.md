@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.16.2] — 2026-10-24
+
+### Fixed
+- Keep music silent behind the sealed envelope. Opening the envelope starts the
+  soundtrack and opening sequence from the same action; outside clicks no longer
+  consume an unrelated first-gesture music listener. Saved mute is respected.
+- Restored the original sizes of the conclusion, dedication and book-end titles
+  while retaining the revised spacing.
+- Added mouse, touch and muted keyboard entry checks to the deployment checks.
+
 ## [1.16.1] — 2026-10-24
 
 ### Changed
