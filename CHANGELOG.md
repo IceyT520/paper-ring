@@ -4,6 +4,17 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.16.1] — 2026-10-24
+
+### Changed
+- Restored the original fixed music level (0.30) throughout reading and scenes.
+- Restored the original full-size Möbius composition, paper rendering and ending
+  text. Step descriptions and controls stay visible; morphing remains button-only.
+- Removed the return-time mini-scene and its unused interaction code.
+- Applied a common spacing scale to chapter boundaries, headings, quotations,
+  illustrations, reading, model explanations and practice sections.
+- Gave mobile Möbius controls consistent space on short and tall screens.
+
 ## [1.16.0] — 2026-10-24
 
 ### Changed

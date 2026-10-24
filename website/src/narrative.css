@@ -1,111 +1,104 @@
-/* A continuous reading rhythm: discovery, difficulty, practice, connection, quiet. */
-.narrative-bridge{display:grid;grid-template-columns:100px minmax(0,580px);gap:32px;max-width:760px;margin:85px auto 15px;padding:38px 0 0;border-top:1px solid #adbbca29;align-items:center}
+/* Shared rhythm: paragraphs, scenes, then chapter changes. */
+#exhibition{--chapter-top:128px;--chapter-bottom:64px;--section-space:72px;--title-space:64px;--reading-gap:36px}
+#exhibition>.chapter:not(.cover){padding-top:var(--chapter-top);padding-bottom:var(--chapter-bottom)}
+#exhibition .chapter-heading{margin-bottom:var(--title-space)}
+#exhibition .source-block{margin-bottom:var(--reading-gap)}
+#exhibition .prose>.source-block:last-child{margin-bottom:0}
+#abstract{padding-top:128px;padding-bottom:64px}
+#exhibition .flow-study{margin-top:var(--section-space);margin-bottom:56px;padding-top:16px;padding-bottom:24px}
+#exhibition .study-origin{margin-bottom:0}
+#exhibition .study-weave{margin-bottom:0}
+#exhibition .large-quote{margin-top:var(--section-space);margin-bottom:var(--section-space)}
+#exhibition .peel-installation{margin-top:var(--section-space)}
+#exhibition .distance-section{padding-top:80px;padding-bottom:80px}
+#exhibition #distance-1{padding-top:56px}
+#exhibition #distance-6{padding-bottom:0}
+#exhibition .practice-part{padding-top:64px;padding-bottom:64px}
+#exhibition .practice-part:first-of-type{padding-top:0}
+#exhibition .practice-part:last-of-type{padding-bottom:0}
+#exhibition .practice-exercise,#exhibition .copy-note{margin-top:32px}
+#exhibition .rhythm-instrument{margin-top:40px}
+.narrative-bridge{display:grid;grid-template-columns:100px minmax(0,580px);gap:32px;max-width:760px;margin:64px auto 0;padding:32px 0 0;border-top:1px solid #adbbca29;align-items:center}
 .narrative-bridge .eyebrow{color:#ceb99e;font-size:10px}
-.narrative-bridge h3{font:30px/1.8 var(--serif);margin:20px 0}
+.narrative-bridge h3{font:30px/1.8 var(--serif);margin:16px 0}
 .narrative-bridge p{font-size:14px;line-height:2;color:#b4bec7}
 .fold-memory{width:100%;height:auto;stroke:#d0bca0;stroke-width:1;filter:drop-shadow(1px 0 0 #0c131c)}
 .fold-face>.fold-memory{position:absolute;width:80%;height:60%;left:10%;top:27%;opacity:.24;pointer-events:none}
 .shelter-memory{stroke:#ece0c2;stroke-width:1.1;fill:none;opacity:.5}
-.roof-recall{display:flex;align-items:center;gap:24px;margin:40px 0 10px}
+.roof-recall{display:flex;align-items:center;gap:24px;margin:32px 0 0}
 .roof-recall svg{width:125px;flex-shrink:0;stroke:#ceb9977a;stroke-width:1.1}
 .roof-recall .blue-ink{stroke:#72b7ef}.roof-recall .red-ink{stroke:#ee8a80}
 .roof-recall p{font:20px/1.8 var(--serif);color:#d7c5af}
 .roof-recall small{display:block;font:12px/1.9 var(--sans);color:#a7b3bf;margin-top:7px}
-.paper-memory{display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;max-width:760px;margin:70px auto 0;padding:30px 0;border-top:1px solid #c1b29f25}
-.paper-memory>div{display:flex;align-items:center;gap:15px}
-.paper-memory svg{width:80px;flex-shrink:0;stroke:#d4b58a;stroke-width:1.5}.paper-memory .memory-edge{stroke:#90a1b34a;stroke-width:1}
-.paper-memory p{font:20px/1.7 var(--serif);color:#d8c9b5}.paper-memory small{display:block;font:11px/1.8 var(--sans);color:#a5b0bc;margin-top:8px}
-.memory-trail{height:1px;width:48px;background:linear-gradient(90deg,#72b7ef60,#ee8a8060)}
-.paper-memory .memory-caption{grid-column:1/-1;font:13px/2 var(--sans);text-align:center;margin-top:23px;color:#aeb9c2}
-.buffer-scene{margin:45px 0 30px;padding:30px 0;border-block:1px solid #a3b5c42b}
-.buffer-scene figcaption h4{font:25px/1.7 var(--serif);color:#e4d9cc;margin:14px 0 8px}
-.buffer-scene figcaption p{font-size:13px;color:#b3bdc7;line-height:1.9}
-.buffer-drawing{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:0;padding:32px 0 28px}
-.buffer-person{text-align:center;min-width:0}.buffer-person>span{display:block;font:16px/20px var(--serif);color:#adcbe3}.buffer-other>span{color:#dfa59b}
-.buffer-person small{display:block;font-size:11px;line-height:1.8;color:#a8b5c1;min-height:36px}
-.buffer-window,.buffer-wait{position:relative;width:78px;height:95px;margin:18px auto;border:1px solid #78a9cd69;background:linear-gradient(110deg,#27405755,#0c162455);box-shadow:0 14px 28px #04091240}
-.buffer-window:before{content:'';position:absolute;inset:9px;border:1px solid #7da1bd4a}
-.buffer-window i{position:absolute;inset:10px;background:linear-gradient(90deg,#344c68,#121d2b);transform:perspective(180px) rotateY(-18deg);transform-origin:left;border:1px solid #90a4b439}
-.buffer-window:after{content:'';position:absolute;left:24%;right:24%;bottom:12px;height:18px;background:#e3b777;opacity:.08;box-shadow:0 0 24px 8px #dfb07544;transition:opacity .9s}
-.buffer-wait{border-color:#d68b805e;background:radial-gradient(ellipse at bottom,#a85b4930,#14202c77 70%)}
-.buffer-wait i{position:absolute;inset:12px;border:1px solid #d4917d2e}
-.buffer-between{align-self:center;position:relative;height:100px;text-align:center}
-.buffer-thread{position:absolute;top:42%;left:calc(-50% + 39px);right:calc(-50% + 39px);border-top:1px dashed #a6acb43b}
-.buffer-thread:after{content:'';position:absolute;inset:-1px 0 auto;height:1px;background:linear-gradient(90deg,#72b7ef,#d8bd95,#ee8a80);opacity:0;transition:opacity .9s}
-.buffer-unknown{position:absolute;inset:10px -12px auto;font-size:10px;color:#d3a59a}
-.return-time{position:relative;display:inline-block;margin-top:14px;padding:8px 13px;color:#e9d6b7;background:#1b252f;border:1px solid #d4b58a6b;font:20px/1.4 var(--serif)}
-.return-time small{font:10px var(--sans)}
-.has-return .buffer-thread:after{opacity:.7}.has-return .buffer-window:after{opacity:.8}
-.buffer-actions{display:flex;flex-wrap:wrap;gap:18px 25px}.buffer-actions .text-button{font-size:12px}
-.buffer-status{font-size:13px;line-height:1.9;color:#b8c2ca;margin-top:20px;min-height:50px}
-.buffer-scene [hidden]{display:none!important}
-#exhibition .model-unit{display:block;margin-bottom:22px}
+#exhibition .model-unit{display:block;margin-bottom:24px}
 #exhibition .model-equation{font:clamp(17px,1.55vw,23px)/1.9 var(--serif);letter-spacing:.015em;padding:16px 18px;background:linear-gradient(90deg,#96bbd410,transparent);border-left:1px solid #b9a68d6b;margin:12px 0;overflow-wrap:anywhere}
-.model-source .reading-subtitle{font-size:25px;margin:38px 0 25px;color:#d8c9b5}.model-source .reading-subtitle:first-child{margin-top:0}
+#exhibition .model-source{margin-top:0;margin-bottom:64px}
+#exhibition .model-source .reading-subtitle{font-size:25px;margin:40px 0 24px;color:#d8c9b5}
+#exhibition .model-source .reading-subtitle:first-child{margin-top:0}
+#exhibition .model-source .source-block{margin-bottom:32px}
+#exhibition .model-source .source-block:last-child{margin-bottom:0}
 #exhibition .source-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-#exhibition .source-location{font-size:10px;letter-spacing:.02em;color:#8e9aa6;opacity:.8;margin-top:15px}
+#exhibition .source-location{font-size:10px;letter-spacing:.02em;color:#8e9aa6;opacity:.8;margin-top:14px}
 .source-reader .source-heading{position:static;width:auto;height:auto;clip-path:none;white-space:normal}
-#chapter-07>.chapter-heading{margin-bottom:45px}#chapter-07>.chapter-heading h2{font-size:clamp(42px,4.8vw,68px)}
+#chapter-07>.chapter-heading h2{font-size:clamp(42px,4.8vw,68px)}
 #chapter-08>.chapter-heading h2{font-size:clamp(40px,4.5vw,64px)}
-#chapter-09>.chapter-heading{max-width:100%;padding-bottom:25px;margin-bottom:25px;border-bottom:1px solid #a2b5c329}
 .chapter-heading .eyebrow>span:last-child{color:#83929f}
-/* Keep the principal action next to its meaning; optional tools sit below the scene. */
-#mobius-section{margin-top:42px}
-.mobius-sticky{display:grid;grid-template-columns:.85fr 1.3fr;grid-template-rows:1fr auto auto;gap:0 22px;align-items:center;height:auto;max-height:none;min-height:760px;padding:60px var(--gutter) 35px;overflow:visible}
-.mobius-caption{position:relative;inset:auto;width:auto;max-width:none;grid-column:1;grid-row:1/3;pointer-events:auto}
-.mobius-caption h3{font-size:clamp(39px,4.2vw,66px);line-height:1.6;margin:22px 0}
-.mobius-caption .mobius-intro{font-size:14px;margin-bottom:30px}
-.mobius-caption #twist-caption{position:static;font-size:11px;letter-spacing:.04em}
-.mobius-caption #twist-description{position:static;font-size:14px;max-width:330px;min-height:84px;margin-bottom:25px}
-.connection-actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.mobius-caption .connection-actions button{position:static;max-width:none;font-size:12px;line-height:1.8}
-.quiet-link{display:inline-flex;align-items:center;gap:16px;margin-top:25px;font-size:12px;color:#91a1b0;border-bottom:1px solid #91a1b029;padding-bottom:8px}
-.quiet-link:hover,.quiet-link:focus-visible{color:#e7d8c3}
-#mobius-section .paper-stage{position:relative;inset:auto;grid-column:2;grid-row:1;width:100%;height:clamp(430px,43vw,660px);min-height:0}
-#mobius-stage .stage-coordinate{display:none}
-.mobius-touch{position:relative;inset:auto;transform:none;grid-column:2;grid-row:2;width:100%;max-width:none;text-align:center;z-index:3;min-height:110px}
-.mobius-touch .light-offering{margin:auto}.mobius-touch #light-status{font-size:12px;line-height:1.9;max-width:390px;margin:16px auto 0}
-#mobius-section[data-connection=open] .mobius-touch{visibility:hidden;pointer-events:none}
-.mobius-settings{grid-column:1/-1;grid-row:3;margin-top:25px;border-top:1px solid #b5c0ca24;position:relative;z-index:5}
-.mobius-settings>summary{list-style:none;cursor:pointer;text-align:right;font-size:11px;color:#9ba9b5;padding:18px 0;display:flex;justify-content:flex-end;gap:20px}
-.mobius-settings>summary::-webkit-details-marker{display:none}
-.mobius-settings[open]>summary>span{transform:rotate(45deg)}
-.mobius-settings-panel{max-width:780px;margin-left:auto;padding:8px 0 12px}
-.mobius-settings .mobius-tools{position:static;display:flex;justify-content:flex-end;gap:25px;margin:0 0 15px}
-.mobius-settings .mobius-tools button{font-size:12px}
-.mobius-settings .touch-hint{position:static;text-align:right;display:block;font-size:11px;color:#8494a4;margin-bottom:18px}
-.mobius-settings .mobius-steps{position:static;inset:auto;gap:20px;grid-template-columns:repeat(3,1fr)}
-.mobius-settings .mobius-steps small{font-size:10px;letter-spacing:0}.mobius-settings .mobius-steps strong{font-size:15px;letter-spacing:0}
-.mobius-settings .mobius-steps button{padding:15px 0}
-.mobius-coda{margin:40px auto 0;padding:30px 0 0;max-width:800px}
-.mobius-coda:before{height:28px;margin:0 auto 25px}.mobius-coda h3{font-size:32px;line-height:1.8;margin:15px 0 20px}.mobius-coda .coda-metaphor{font-size:16px}
-#chapter-10{padding-top:95px;padding-bottom:45px}#chapter-10 .chapter-heading{margin-bottom:45px}
+/* The original full-size Möbius installation keeps every control in view. */
+#mobius-section{margin-top:64px}
+.mobius-coda{margin-top:64px;padding-top:0;padding-bottom:16px}
+.mobius-coda:before{height:48px;margin-bottom:40px}
+.mobius-coda h3{margin-top:24px;margin-bottom:24px}
+#exhibition>#chapter-10{padding-top:96px;padding-bottom:48px}
 #chapter-10 .chapter-heading h2{font-size:46px;line-height:1.6;padding:0}
-.ordinary-things{margin:50px 0}.still-life{height:190px}
-#chapter-11{padding-top:75px}.dedication .chapter-heading h2{font-size:clamp(42px,4.8vw,68px)}
-.dedication .chapter-heading{margin-bottom:40px}.dedication .waiting-scene{margin-top:35px}
-.dedication-copy{margin-top:75px}.dedication-copy .source-block{margin-bottom:15px;padding-top:13px;padding-bottom:13px}
-.dedication-end{font-size:60px;padding-top:70px;padding-bottom:30px}
-.colophon .chapter-heading h2{font-size:42px}.colophon .chapter-heading{margin-bottom:45px}
-.reduced-motion .buffer-scene *{transition:none!important;animation:none!important}
-@media(prefers-reduced-motion:reduce){.buffer-scene *{transition:none!important;animation:none!important}}
-@media(max-width:1100px){.mobius-sticky{grid-template-columns:1fr 1.2fr;gap:0 15px}.mobius-caption h3{font-size:42px}.mobius-caption #twist-description{font-size:13px}}
+.ordinary-things{margin:48px 0}.still-life{height:190px}
+#exhibition>#chapter-11{padding-top:96px}
+.dedication .chapter-heading h2{font-size:clamp(42px,4.8vw,68px)}
+#exhibition .dedication .waiting-scene{margin-top:0}
+.dedication-copy{margin-top:64px}
+#exhibition .dedication-copy .source-block{margin-bottom:24px;padding-top:16px;padding-bottom:16px}
+#exhibition .dedication-copy .source-block:last-child{margin-bottom:0}
+.dedication-end{font-size:60px;padding-top:80px;padding-bottom:24px}
+.colophon .chapter-heading h2{font-size:42px}
+.colophon .editorial-collection{margin-top:48px}
+@media(max-width:1100px){#exhibition{--chapter-top:112px;--chapter-bottom:56px;--section-space:64px;--title-space:56px}}
 @media(max-width:760px){
- .narrative-bridge{grid-template-columns:1fr;gap:0;margin:50px auto 10px;padding-top:28px}.narrative-bridge>.fold-memory{width:70px;height:65px;margin-bottom:10px}.narrative-bridge h3{font-size:25px}.narrative-bridge p{font-size:14px}
- .roof-recall{gap:15px}.roof-recall svg{width:85px}.roof-recall p{font-size:18px}.roof-recall small{font-size:11px}
- .paper-memory{grid-template-columns:1fr 24px 1fr;gap:0;margin-top:45px;padding-top:20px}.paper-memory>div{display:block;text-align:center}.paper-memory svg{width:70px;height:70px}.paper-memory p{font-size:18px}.paper-memory small{font-size:10px}.memory-trail{width:24px}.paper-memory .memory-caption{font-size:12px}
- .buffer-scene{padding:25px 0;margin-top:32px}.buffer-scene figcaption h4{font-size:23px}.buffer-window,.buffer-wait{width:62px;height:85px}.buffer-person>span{font-size:14px}.buffer-person small{font-size:10px}.buffer-thread{left:calc(-50% + 31px);right:calc(-50% + 31px)}.buffer-unknown{font-size:9px}.buffer-status{font-size:12px}.return-time{font-size:18px;padding:8px}.buffer-actions{gap:14px}.buffer-actions .text-button{font-size:11px}
- #exhibition .source-location{font-size:10px}.model-source .reading-subtitle{font-size:22px}.model-source .model-equation{font-size:18px}
+ #exhibition{--chapter-top:80px;--chapter-bottom:40px;--section-space:48px;--title-space:40px;--reading-gap:28px}
+ #abstract{padding-top:80px;padding-bottom:40px}
+ #exhibition .flow-study{margin-bottom:40px;padding-top:12px;padding-bottom:16px}
+ #exhibition .study-origin,#exhibition .study-weave{margin-bottom:0}
+ #exhibition .waiting-scene{margin-top:0}
+ #exhibition .distance-section{padding-top:48px;padding-bottom:32px}
+ #exhibition #distance-1{padding-top:40px}
+ #exhibition .distance-visual{margin-bottom:32px}
+ #exhibition .practice-part{padding-top:40px;padding-bottom:40px}
+ #exhibition .practice-part:first-of-type{padding-top:0}
+ #exhibition .practice-part:last-of-type{padding-bottom:0}
+ #exhibition .practice-aside{margin-bottom:24px}
+ #exhibition .practice-exercise,#exhibition .copy-note{margin-top:24px}
+ #exhibition .rhythm-instrument{margin-top:32px}
+ .narrative-bridge{grid-template-columns:1fr;gap:0;margin:40px auto 0;padding-top:24px}
+ .narrative-bridge>.fold-memory{width:70px;height:65px;margin-bottom:8px}
+ .narrative-bridge h3{font-size:25px}.narrative-bridge p{font-size:14px}
+ .roof-recall{gap:16px;margin-top:24px}.roof-recall svg{width:85px}.roof-recall p{font-size:18px}.roof-recall small{font-size:11px}
+ #exhibition .model-source{margin-bottom:40px}
+ #exhibition .model-source .reading-subtitle{font-size:22px;margin-top:32px;margin-bottom:20px}
+ #exhibition .model-source .source-block{margin-bottom:24px}
+ #exhibition .model-source .source-block:last-child{margin-bottom:0}
+ .model-source .model-equation{font-size:18px}
  #chapter-07>.chapter-heading h2,#chapter-08>.chapter-heading h2{font-size:34px}
- #mobius-section{margin-top:25px}.mobius-sticky{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:40px 25px 20px;min-height:0;height:auto;max-height:none}
- .mobius-caption{width:100%;position:static}.mobius-caption h3{font-size:38px;margin:14px 0}.mobius-caption>.eyebrow{font-size:10px}.mobius-caption .mobius-intro{font-size:13px;margin-bottom:25px}
- .mobius-caption #twist-caption{font-size:10px}.mobius-caption #twist-description{font-size:13px;max-width:100%;min-height:52px;margin-bottom:20px}
- .mobius-caption .connection-actions button{font-size:12px}.quiet-link{margin-top:18px;font-size:11px}
- #mobius-section .paper-stage{width:100%;height:340px;min-height:0;margin:15px 0 0}
- .mobius-touch{position:relative;inset:auto;width:100%;transform:none;min-height:105px}.mobius-touch .light-offering{max-width:100%}.mobius-touch #light-status{font-size:11px}
- .mobius-settings{margin-top:10px}.mobius-settings-panel{max-width:100%}.mobius-settings .mobius-steps{gap:12px}.mobius-settings .mobius-steps small{font-size:9px;line-height:1.8}.mobius-settings .mobius-steps strong{font-size:12px;line-height:1.8}
- .mobius-coda{margin-top:28px;padding-top:15px}.mobius-coda h3{font-size:25px}.mobius-coda>p{font-size:13px}.mobius-coda .coda-metaphor{font-size:15px}
- #chapter-10{padding-top:65px;padding-bottom:35px}#chapter-10 .chapter-heading h2{font-size:32px}.ordinary-things{margin:35px 0}.still-life{height:150px}
- #chapter-11{padding-top:55px}.dedication .chapter-heading h2{font-size:36px}.dedication-copy{margin-top:45px}.dedication-end{padding-top:50px;font-size:50px}.colophon .chapter-heading h2{font-size:31px}
+ #mobius-section{margin-top:48px}
+ .mobius-sticky{height:880px;min-height:880px;max-height:none}
+ .mobius-touch{top:592px}
+ .mobius-coda{margin-top:40px;padding-top:0;padding-bottom:0}
+ .mobius-coda:before{height:32px;margin-bottom:24px}
+ .mobius-coda h3{margin-top:20px;margin-bottom:20px}
+ #exhibition>#chapter-10{padding-top:64px;padding-bottom:40px}
+ #chapter-10 .chapter-heading h2{font-size:32px}
+ .ordinary-things{margin:32px 0}.still-life{height:150px}
+ #exhibition>#chapter-11{padding-top:64px}
+ .dedication .chapter-heading h2{font-size:36px}.dedication-copy{margin-top:40px}
+ #exhibition .dedication-copy .source-block{padding-top:12px;padding-bottom:12px;margin-bottom:20px}
+ .dedication-end{padding-top:48px;font-size:50px}
+ .colophon .chapter-heading h2{font-size:31px}.colophon .editorial-collection{margin-top:32px}
 }
-@media print{.narrative-bridge,.paper-memory,.buffer-scene,.roof-recall{break-inside:avoid}.buffer-actions,.mobius-settings{display:none}}
+@media print{.narrative-bridge,.roof-recall{break-inside:avoid}}

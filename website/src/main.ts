@@ -7,7 +7,6 @@ import {initOpening} from './opening';
 import {initAudio} from './audio';
 import {initGate} from './gate';
 import {initMirror} from './mirror';
-import {initNarrative} from './narrative';
 import type {PaperController} from './paper';
 gsap.registerPlugin(ScrollTrigger);
 
@@ -94,7 +93,7 @@ new ResizeObserver(measureChapters).observe(document.body);
 const twistCopy=[
  ['01 / 打开接缝','先让惯性的追逐与退缩，停在这里。打开接缝，也是在为另一种可能留下空间。'],
  ['02 / 将一端扭转半圈','改变观察的角度。试着看见：沉默里的害怕，和追问背后的需要。'],
- ['03 / 重新连接，同一个面','红蓝的痕迹各自保留。沿着同一张纸，可以走进彼此的世界，也仍然是自己。']
+ ['03 / 重新连接，同一个面','沿着这张纸继续走，会经过曾经的另一面。理解，让两个世界有了连续的路径。']
 ];
 let twistTween:gsap.core.Tween|undefined;
 let tracePaused=false;
@@ -111,13 +110,13 @@ function paintTwist(value:number){
 }
 function stopTwist(){
  twistTween?.kill();twistTween=undefined;
- const pause=$<HTMLButtonElement>('#pause-twist');pause.disabled=true;pause.hidden=true;pause.setAttribute('aria-pressed','false');pause.textContent='暂停形变';
+ const pause=$<HTMLButtonElement>('#pause-twist');pause.disabled=true;pause.setAttribute('aria-pressed','false');pause.textContent='暂停形变';
 }
 function animateTwist(value:number,duration:number,onComplete?:()=>void){
  stopTwist();
  if(reduced){paintTwist(value);onComplete?.();return}
  const progress={value:Math.max(0,paintedTwist)};
- $<HTMLButtonElement>('#pause-twist').disabled=false;$<HTMLButtonElement>('#pause-twist').hidden=false;
+ $<HTMLButtonElement>('#pause-twist').disabled=false;
  twistTween=gsap.to(progress,{value,duration,ease:'sine.inOut',onUpdate:()=>paintTwist(progress.value),onComplete:()=>{stopTwist();onComplete?.()}});
 }
 function setupMotion(){
@@ -210,7 +209,7 @@ $('#trace-pause').addEventListener('click',()=>{
 });
 $('#reset-paper-view').addEventListener('click',()=>paper?.resetView());
 
-initSimulator();initJourney();initNarrative();setupMotion();measureChapters();updateProgress();
+initSimulator();initJourney();setupMotion();measureChapters();updateProgress();
 initOpticalTitles(()=>{measureChapters();ScrollTrigger.refresh();paper?.refresh()});
 // The entire article and every non-3D interaction work before the optional renderer arrives.
 async function loadPaper(){try{const {createPaper}=await import('./paper');paper=createPaper(reduced);paper.setOpening(opening.progress());ScrollTrigger.refresh();paintTwist(paintedTwist<0?(reduced?1:0):paintedTwist);paper.refresh()}catch{document.documentElement.classList.add('no-webgl');paintTwist(1)}

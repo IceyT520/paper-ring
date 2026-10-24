@@ -29,7 +29,7 @@ try{
   await page.evaluate(()=>{const el=document.querySelector('#mobius-section');scrollTo({top:el.getBoundingClientRect().top+scrollY,behavior:'instant'})});
   await page.waitForTimeout(350);
   await check(`${width}px: Mobius steps, reverse scroll and replay`,async()=>{
-   await page.locator('#mobius-settings').evaluate(e=>e.open=true);await page.locator('[data-twist-step="2"]').click();await page.waitForFunction(()=>document.querySelector('#mobius-stage').dataset.paperProgress==='1');
+   await page.locator('[data-twist-step="2"]').click();await page.waitForFunction(()=>document.querySelector('#mobius-stage').dataset.paperProgress==='1');
    assert.equal(await page.locator('[data-twist-step="2"]').getAttribute('aria-pressed'),'true');
    assert((await page.locator('#twist-caption').textContent()).includes('重新连接'));
    assert(await page.locator('#mobius-stage canvas').isVisible());

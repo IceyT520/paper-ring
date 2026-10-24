@@ -53,7 +53,6 @@ try{
    assert.equal(await progress(),initial,'wheel must not advance the morph');
    await page.locator('#mobius-section').evaluate(el=>scrollTo({top:scrollY+el.getBoundingClientRect().top-40,behavior:'instant'}));
    await page.waitForTimeout(100);
-   await page.locator('#mobius-settings summary').click();
    await page.locator('[data-twist-step="1"]').scrollIntoViewIfNeeded();
    const y=await page.evaluate(()=>scrollY);
    await page.locator('[data-twist-step="1"]').click();await page.waitForTimeout(1900);
