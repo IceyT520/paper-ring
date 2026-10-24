@@ -59,17 +59,22 @@ try{
  assert(await touchPage.evaluate(()=>scrollY)>before+30);
  assert.equal(await touchPage.locator('#mirror-installation').getAttribute('data-connected'),'false','scrolling is not an activation');
  await touchPage.close();
- const page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await browser.newPage({viewport:{width:1440,height:1100},reducedMotion:'no-preference'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'networkidle'});
  const scene=page.locator('#mirror-installation'),button=page.locator('#connection-meet');await scene.scrollIntoViewIfNeeded();
+ await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running');
  await button.click();await page.waitForTimeout(650);
  for(const el of await scene.locator('[data-voice]').all())assert(await el.isVisible(),'the two statements must stay during the transition');
  await button.click();await button.click();
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.animating==='false');
  assert.equal(await scene.getAttribute('data-connected'),'true');
+ // Playwright may scroll a focused button, and visibility pauses weather by design.
+ // Measure moving rain only after the installation is visible and running again.
+ await scene.scrollIntoViewIfNeeded();
+ await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running');
  const roof=await page.locator('#shelter-blue').innerHTML();
  const rain=await page.locator('#shelter-rain').getAttribute('d');
- await page.waitForTimeout(300);
+ await page.waitForFunction(previous=>document.querySelector('#shelter-rain').getAttribute('d')!==previous,rain,{timeout:2000});
  assert.notEqual(await page.locator('#shelter-rain').getAttribute('d'),rain,'rain must keep falling after the roof is connected');
  assert.equal(await page.locator('#shelter-blue').innerHTML(),roof,'continued weather must not keep rebuilding the settled roof');
  await button.click();await page.waitForTimeout(250);
