@@ -1,9 +1,10 @@
+import {initSoundscape} from './soundscape';
 /** Background music: starts with the opening, loops, and can be switched off.
  *  The site streams `theme.mp3`; the packaged single file carries the track as
  *  base64 in `window.__paperTrack`, turned into a blob so it needs no sibling
  *  file. Without either, the control stays hidden and the exhibition is silent. */
 const TRACK='theme.mp3';
-const VOLUME=.3;
+
 
 declare global {
  interface Window { __paperTrack?: string }
@@ -29,6 +30,7 @@ export function initAudio(){
  audio.loop=true;audio.preload='metadata';audio.volume=0;
  let enabled=read()!=='off',failed=false,loaded=false,openingStartedAt=0,gestureBound=false,fade=0;
  const root=document.documentElement;
+ let targetVolume=.12;
 
  function read(){try{return localStorage.getItem('paper-sound')}catch{return null}}
  function store(value:string){try{localStorage.setItem('paper-sound',value)}catch{/* private mode */}}
@@ -54,9 +56,9 @@ export function initAudio(){
   if(seek!==undefined){try{audio.currentTime=seek}catch{/* not seekable yet */}}
   const started=audio.play();
   if(started&&typeof started.then==='function'){
-   started.then(()=>{state('playing');ramp(VOLUME,2400)})
+   started.then(()=>{if(!enabled){audio.pause();return}state('playing');ramp(targetVolume,2400)})
     .catch(()=>{state('paused');bindGesture()});
-  }else{state('playing');ramp(VOLUME,2400)}
+  }else{state('playing');ramp(targetVolume,2400)}
  }
  /** Browsers refuse sound before a gesture: start on the first one, in sync. */
  function bindGesture(){
@@ -97,6 +99,11 @@ export function initAudio(){
   else{ramp(0,320);setTimeout(()=>{if(!enabled)audio.pause()},350)}
  });
 
+ initSoundscape(level=>{
+  targetVolume=level;
+  if(document.hidden){cancelAnimationFrame(fade);audio.volume=0;return}
+  if(enabled&&!audio.paused)ramp(level,1800);
+ });
  sync();
  // Without an opening (reduced motion, deep link) music still waits for a gesture.
  bindGesture();

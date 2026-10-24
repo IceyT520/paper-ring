@@ -518,14 +518,6 @@ body.reduced-motion .gate,body.reduced-motion .gate-envelope,body.reduced-motion
 .distance-shield ~ .inline-controls{opacity:.45;transition:opacity .9s ease .45s}
 .distance-shield.unveiled ~ .inline-controls{opacity:1}
 
-/* 09 — the Möbius act: no scrolling past until the two sides are reconnected. */
-.mobius-lock{margin:14px 0 0;font:10px/1.8 var(--mono);letter-spacing:.08em;color:var(--gold);max-width:300px;opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s}
-html[data-mobius-lock] .mobius-lock{opacity:1;transform:none}
-@keyframes mobius-nudge{0%,100%{box-shadow:0 0 0 0 #d1b68d00}45%{box-shadow:0 0 0 1px var(--gold),0 0 26px 2px #d1b68d2e}}
-html[data-mobius-lock] #replay-twist{box-shadow:0 0 0 1px #d1b68d66}
-html[data-mobius-lock] #replay-twist.nudge{animation:mobius-nudge .9s ease 2}
-@media(max-width:760px){.mobius-lock{font-size:9px;max-width:100%}}
-
 /* Gate polish: an address line on the pocket, wax mottling, and the opened
    flap steps aside so it never presses on the letter. */
 .gate-pocket i{position:absolute;left:0;right:0;bottom:13%;font:9px/1 var(--mono);font-style:normal;letter-spacing:.34em;color:#9a8668;opacity:.6;text-align:center}

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {paperShape,paperTrace,paperPoint,paperNormal} from './paper-geometry';
+import marks from '../content/paper-marks.json';
 export interface PaperController{setOpening(value:number):void;setReduced(value:boolean):void;setTwist(value:number):void;flip():void;resetView():void;nudgeView(x:number,y:number):void;setTracePaused(value:boolean):void;sendLight(phase?:number,offset?:number):void;refresh():void;destroy():void}
 export function createPaper(reduced=false):PaperController{
  const slots=[...document.querySelectorAll<HTMLElement>('[data-stage]')];
@@ -25,8 +26,6 @@ export function createPaper(reduced=false):PaperController{
  let seed=17;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};
  for(let i=0;i<16000;i++){ctx.strokeStyle=`rgba(${rand()>.5?'255,253,244':'85,76,58'},${rand()*.085})`;const x=rand()*2048,y=rand()*256;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+rand()*11,y+rand()*1.5);ctx.stroke()}
  ctx.strokeStyle='#6d72602b';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(0,25);ctx.lineTo(2048,25);ctx.moveTo(0,231);ctx.lineTo(2048,231);ctx.stroke();
- ctx.fillStyle='#6c716342';ctx.font='10px monospace';
- for(let x=50;x<2000;x+=340){ctx.fillText('TWO SIDES / ONE PAPER',x,213);ctx.fillText('01 — ATTACHMENT STUDY',x,45)}
  // The colored paths are ink on each paper face. They share the exact mesh depth.
  const surfaces=Array.from({length:2},()=>{
    const canvas=document.createElement('canvas');canvas.width=2048;canvas.height=256;
@@ -34,14 +33,37 @@ export function createPaper(reduced=false):PaperController{
    texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
    return{canvas,context,texture};
  });
- let inkStep=-1;
+ let inkStep='';
  function paintLines(twist:number){
-   const step=Math.round(twist*30);if(step===inkStep)return;inkStep=step;
+   const step=Math.round(twist*30),memory=mode==='mobius',cache=`${step}:${memory}`;
+   if(cache===inkStep)return;inkStep=cache;
    surfaces.forEach(({context,texture},i)=>{
      context.drawImage(textureCanvas,0,0);
+     if(memory){
+      for(const [x,y,u,v] of marks.folds){
+       context.beginPath();context.moveTo(x*2048,y*256);context.lineTo(u*2048,v*256);context.strokeStyle='#655e5266';context.lineWidth=2.5;context.stroke();
+       context.beginPath();context.moveTo(x*2048+3,y*256);context.lineTo(u*2048+3,v*256);context.strokeStyle='#fff7df99';context.lineWidth=1.5;context.stroke();
+      }
+      if(twist>.8){
+       context.globalAlpha=(twist-.8)*5;
+       context.strokeStyle='#7c6549';context.lineWidth=1.4;
+       for(const y of marks.stitches)for(const edge of [0,2048]){
+        context.beginPath();context.moveTo(edge-17,y*256+5);context.lineTo(edge+17,y*256-5);context.stroke();
+        context.beginPath();context.moveTo(edge-17,y*256+3);context.lineTo(edge+17,y*256-7);context.strokeStyle='#e7c58b';context.stroke();context.strokeStyle='#7c6549';
+       }
+       context.globalAlpha=1;
+      }
+     }
      const base=new THREE.Color(i===0?'#df7669':'#508bc8'),other=new THREE.Color(i===0?'#508bc8':'#df7669');
-     const gradient=context.createLinearGradient(0,0,2048,0);gradient.addColorStop(0,base.getStyle());gradient.addColorStop(1,base.clone().lerp(other,step/30).getStyle());
+     const gradient=context.createLinearGradient(0,0,2048,0);gradient.addColorStop(0,base.getStyle());gradient.addColorStop(.86,base.getStyle());gradient.addColorStop(1,base.clone().lerp(other,step/30).getStyle());
      context.fillStyle=gradient;const v=i===0?.28:-.28,y=(.5-v/1.42)*256;context.fillRect(0,y-2.2,2048,4.4);
+     if(memory&&twist>.7){
+      // Both colors can now occupy either face; each retains its own visible path.
+      const second=context.createLinearGradient(0,0,2048,0);
+      second.addColorStop(0,other.getStyle());second.addColorStop(.86,other.getStyle());second.addColorStop(1,other.clone().lerp(base,step/30).getStyle());
+      context.globalAlpha=Math.min(1,(twist-.7)/.3)*.85;context.fillStyle=second;
+      context.fillRect(0,(.5+v/1.42)*256-2.2,2048,4.4);context.globalAlpha=1;
+     }
      texture.needsUpdate=true;
    });
  }

@@ -3,6 +3,7 @@ const wing=(side,outer,tip)=>`<g class="shelter-wing ${side}" id="shelter-${side
  <path class="shelter-fold" d="M${outer} 260L550 147L${tip} 311Z"/>
  <path class="shelter-edge" d="M${outer} 260L550 95L550 147L${tip} 311Z"/>
  <path class="shelter-grain"/>
+ <path class="shelter-memory"/>
  <path class="shelter-crease" d="M${outer} 260L550 147"/>
 </g>`;
 // These furnishings are part of the illustration, not extra interaction steps.

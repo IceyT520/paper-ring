@@ -13,7 +13,7 @@ export function initMirror(){
  const wings=['blue','red'].map(side=>({
   face:$<SVGPathElement>(`#shelter-${side} .shelter-paper`),fold:$<SVGPathElement>(`#shelter-${side} .shelter-fold`),
   edge:$<SVGPathElement>(`#shelter-${side} .shelter-edge`),crease:$<SVGPathElement>(`#shelter-${side} .shelter-crease`),
-  grain:$<SVGPathElement>(`#shelter-${side} .shelter-grain`)
+  grain:$<SVGPathElement>(`#shelter-${side} .shelter-grain`),memory:$<SVGPathElement>(`#shelter-${side} .shelter-memory`)
  }));
  let progress=0,warmth=0,frame=0,lastFrame=0,elapsed=0,replay=false,visible=false,transitioning=false;
  let paintedProgress=-1,paintedWarmth=-1,weatherTime=0;
@@ -24,7 +24,7 @@ export function initMirror(){
    const g=shelterGeometry(progress);
    [g.left,g.right].forEach((wing,i)=>{
     const paths=wingPaths(wing.outer,wing.tip);
-    for(const key of ['face','fold','edge','crease','grain'] as const)wings[i][key].setAttribute('d',paths[key]);
+    for(const key of ['face','fold','edge','crease','grain','memory'] as const)wings[i][key].setAttribute('d',paths[key]);
    });
    clip.setAttribute('d',g.rainClip);gap.style.opacity=String(1-smooth(progress/.5));
    paintedProgress=progress;

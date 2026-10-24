@@ -4,6 +4,29 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.16.0] — 2026-10-24
+
+### Changed
+- Connected the shelter, renewed conflict, practical agreements and final paper
+  transformation through quieter transitions and a clearer ending hierarchy.
+- Kept both original statements and private spaces. Repeated one shared crease
+  pattern across the defensive folds, roof and final strip; added four seam
+  stitches and retained distinct red/blue paths after reconnection.
+- Added a simple return-time comparison: private space remains while a specific
+  next conversation gives the waiting person an expectation.
+- Separated model definitions, equations and derivation into readable units,
+  simplified source labels and varied chapter/title spacing without changing
+  any of the 71 corrected article blocks or the author's personal narrative.
+- Removed the compulsory Möbius scrolling gate. Morphing remains button-only;
+  the primary action leads, light follows connection, and optional tools sit
+  in an expandable panel. The opening's scroll lock remains unchanged.
+- Gave the existing music a scene-sensitive volume envelope: quieter during
+  reading, present in major scenes, silent for the final dedication and while
+  the page is hidden. Manual mute remains authoritative.
+- Added responsive narrative/keyboard/audio checks to deployment, refreshed
+  playback checks, and prepared a first-reader observation sheet. Actual human
+  reader sessions have not yet been conducted.
+
 ## [1.15.0] — 2026-10-23
 
 ### Changed

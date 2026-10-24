@@ -29,6 +29,7 @@ try{
   assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');
   assert.equal(await page.evaluate(()=>localStorage.getItem('paper-sound')),'off');
   await page.reload({waitUntil:'networkidle'});
+  await page.locator('#sound-toggle').waitFor({state:'visible',timeout:5000});
   assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');
   await page.locator('#sound-toggle').click();
   await page.waitForTimeout(400);

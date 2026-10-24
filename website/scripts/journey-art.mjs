@@ -1,3 +1,4 @@
+import {foldMark} from './narrative-art.mjs';
 ﻿// Code-native illustrations: each line responds to a mechanism in the essay.
 const path=(d,cls='',extra='')=>`<path d="${d}" class="${cls}" ${extra}/>`;
 const svg=(body,cls='',view='0 0 900 440')=>`<svg class="narrative-svg ${cls}" viewBox="${view}" fill="none" aria-hidden="true">${body}</svg>`;
@@ -6,11 +7,11 @@ const node=(x,y,cls)=>`<circle cx="${x}" cy="${y}" r="5" class="node ${cls}"/><c
 // One physical accordion, with different words printed on the two faces.
 export const defenseSculpture=(()=>{
  const wing=(side,words,inner)=>{
-  const fold=i=>`<div class="defense-fold fold-${['first','second','third'][i]}"><div class="fold-face fold-front"><small>0${i+1}</small><span>${words[i]}</span><i></i></div><div class="fold-face fold-back"><small>0${i+1}</small><span>${inner[i]}</span><i></i></div>${i<2?fold(i+1):''}</div>`;
+  const fold=i=>`<div class="defense-fold fold-${['first','second','third'][i]}"><div class="fold-face fold-front"><small>0${i+1}</small><span>${words[i]}</span><i></i>${i===0?foldMark:''}</div><div class="fold-face fold-back"><small>0${i+1}</small><span>${inner[i]}</span><i></i>${i===0?foldMark:''}</div>${i<2?fold(i+1):''}</div>`;
   return `<div class="defense-wing defense-wing-${side}">${fold(0)}</div>`;
  };
  return `<div class="wall-art defense-scene">
-  <div class="defense-kicker"><span>04 / THE DEFENSE</span><span id="defense-view">外侧 · 看得见的退缩</span></div>
+  <div class="defense-kicker"><span>防御的两面</span><span id="defense-view">外侧 · 看得见的退缩</span></div>
   <div class="defense-viewport">
    <div class="defense-key-light" aria-hidden="true"></div><div class="defense-inner-aura" aria-hidden="true"></div>
    <div class="defense-ground" aria-hidden="true"><svg viewBox="0 0 600 130" fill="none"><ellipse cx="300" cy="65" rx="235" ry="46"/><path d="M45 65H65M535 65H555M300 7V19M300 111V123"/></svg></div>
@@ -26,7 +27,7 @@ export const defenseSculpture=(()=>{
   <p class="defense-instruction" id="defense-instruction"><span class="defense-mouse-hint">把光标移向纸片中央，看看它如何回应。</span><span class="defense-touch-hint">轻触折页，看看靠近时会发生什么。</span></p>
   <div class="defense-actions"><button class="text-button" id="wall-approach" disabled aria-pressed="false">靠近一点 <span>↑</span></button><button class="text-button wall-toggle" id="wall-perspective" disabled aria-pressed="false">绕到墙后 <span>↗</span></button></div>
   <p class="wall-response" id="wall-response" role="status">想靠近，也会先保护自己。</p>
-  <p class="defense-footnote">文章意象 · 墙外是退缩，墙内仍有需要</p>
+  <p class="defense-footnote">墙外是退缩，墙内仍有需要。折痕，会跟着这张纸走下去。</p>
  </div>`;
 })();
 // A mathematical Mobius surface remains visible even without WebGL or JavaScript.
@@ -100,4 +101,4 @@ const promiseClasp=(x,i)=>{
  return `<g class="promise-stitch" data-stitch="${i}"><path class="stitch-cord" pathLength="1" d="M${x} ${top}C${x-12} ${top+20} ${x-12} ${middle-22} ${x} ${middle-8}M${x} ${middle+8}C${x+12} ${middle+22} ${x+12} ${bottom-20} ${x} ${bottom}"/><circle class="stitch-anchor" data-anchor="red" cx="${x}" cy="${top}" r="3.5"/><circle class="stitch-anchor" data-anchor="blue" cx="${x}" cy="${bottom}" r="3.5"/><ellipse class="stitch-knot" cx="${x}" cy="${middle}" rx="5" ry="8"/><path class="stitch-guide" d="M${x} ${bottom+14}V285"/></g>`;
 };
 export const rhythm=`<div class="rhythm-instrument" data-art><div class="study-kicker"><span>THE LITTLE PROMISES</span><span>一针一线 / 留下相遇的时刻</span></div><div class="promise-loom"><svg id="rhythm-svg" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true">${loomThread(0,'red')}${loomThread(1,'blue')}${promiseX.map(promiseClasp).join('')}</svg>${['问候','告知','倾听','未来'].map((t,i)=>`<button class="stitch-pin" data-promise="${i}" style="--pin:${promiseX[i]/8}%" aria-pressed="false" aria-label="缝下关于${t}的约定"><span class="pin-thread" aria-hidden="true"></span><span class="pin-eye" aria-hidden="true">+</span><span class="pin-label">${t}</span></button>`).join('')}</div><div class="promise-caption"><span id="rhythm-caption">在两条线之间，缝下一次约定。</span><small id="promise-count">00 / 04</small></div><p id="promise-detail" role="status">点亮针孔。保留各自的走向，也留下可以相遇的时刻。</p><button id="promise-reset" class="text-button">轻轻拆线，重新约定 <span>↶</span></button></div>`;
-export function mobiusScene(stage){return `<div class="mobius-section" id="mobius-section"><div class="mobius-sticky"><div class="mobius-aura" aria-hidden="true"></div><div class="mobius-orbits" aria-hidden="true"><i></i><i></i><i></i></div><div class="mobius-caption"><span class="eyebrow">THE TURNING POINT / 连接的另一种可能</span><h3>从两面，<br>到<span>同一面。</span></h3><p class="mobius-intro">不必撕掉任何一面。<br>试着，改变连接的方式。</p><p id="twist-caption">01 / 打开接缝</p><p id="twist-description">先让惯性的追逐与退缩，停在这里。打开接缝，也是在为另一种可能留下空间。</p><button class="text-button" id="replay-twist">播放这次连接 <span aria-hidden="true">↗</span></button><p class="mobius-lock" id="mobius-lock" role="status">先播放这次连接，才能继续往下。</p></div>${stage('mobius-stage','mobius','打开接缝，扭转半圈，重新连接成莫比乌斯环')}<div class="mobius-touch"><button id="send-light" data-paper-control class="light-offering"><span class="offering-orbit" aria-hidden="true"><i></i><i></i><b>✦</b></span><span>放下一束光<small>让它走到曾经的另一面</small></span></button><p id="light-status" role="status">连接完成后，也可以轻触纸面，让光从指尖出发。</p><div class="mobius-tools"><button id="trace-pause" data-paper-control aria-pressed="false">暂停光点</button><button id="reset-paper-view" data-paper-control>复位视角</button><button id="pause-twist" data-paper-control aria-pressed="false" disabled>暂停形变</button></div><small class="touch-hint">轻触放光 · 拖动旋转 · 方向键微调</small></div><span class="mobius-type" aria-hidden="true">MÖBIUS</span><div class="mobius-steps"><button data-twist-step="0" aria-pressed="true"><small>01 / OPEN</small><strong>松开，旧的连接</strong></button><button data-twist-step="1" aria-pressed="false"><small>02 / TURN</small><strong>转过，观察的角度</strong></button><button data-twist-step="2" aria-pressed="false"><small>03 / RECONNECT</small><strong>相遇，在同一面</strong></button></div><div class="twist-progress" aria-hidden="true"><i></i></div></div></div><div class="mobius-coda"><span class="eyebrow">FOLLOW THE LINE</span><h3>一直走下去，<br>会经过你的那一面。</h3><p>当纸带的一端扭转半圈，再重新接合，原本的两面成为一个连续的表面。<br>沿着它出发，无须跨过边缘，就能抵达曾经的另一侧。</p><p class="coda-metaphor">这是文章里的隐喻：理解让我们有机会，走进彼此的世界。</p><a class="text-button" href="#chapter-10">带着理解，继续往前 <span aria-hidden="true">↓</span></a></div>`}
+export {mobiusScene} from './narrative-art.mjs';

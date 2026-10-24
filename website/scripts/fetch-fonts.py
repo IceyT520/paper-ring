@@ -4,7 +4,7 @@ import re, urllib.request, urllib.parse, json, concurrent.futures, time, hashlib
 ROOT=Path(__file__).resolve().parents[1]
 out=ROOT/'public'/'fonts';out.mkdir(exist_ok=True)
 text=json.loads((ROOT/'content'/'article.json').read_text(encoding='utf-8'))['source']
-for p in list((ROOT/'src').glob('*.ts'))+[ROOT/'scripts'/'render.mjs',ROOT/'scripts'/'journey-art.mjs',ROOT/'scripts'/'connection-art.mjs',ROOT/'content'/'corrections.json']:
+for p in list((ROOT/'src').glob('*.ts'))+[ROOT/'scripts'/'render.mjs',ROOT/'scripts'/'journey-art.mjs',ROOT/'scripts'/'connection-art.mjs',ROOT/'scripts'/'narrative-art.mjs',ROOT/'content'/'corrections.json']:
     text+=p.read_text(encoding='utf-8')
 chars=sorted(set(text)|set(chr(i) for i in range(32,127)))
 existing=(out/'fonts.css').read_text(encoding='utf-8') if (out/'fonts.css').exists() else ''

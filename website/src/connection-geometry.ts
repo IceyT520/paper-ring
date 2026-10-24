@@ -1,3 +1,4 @@
+import marks from '../content/paper-marks.json';
 export const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 export const smooth=(v:number)=>{const t=clamp(v);return t*t*(3-2*t)};
 type Point={x:number;y:number};
@@ -17,11 +18,17 @@ export function roofAt(x:number,progress:number):number|null{
 }
 export function wingPaths(outer:Point,tip:Point){
  const direction=outer.x<550?1:-1,heel={x:outer.x+95*direction,y:outer.y+51};
+ const surface=(u:number,v:number)=>{
+  const top={x:outer.x+(tip.x-outer.x)*u,y:outer.y+(tip.y-outer.y)*u};
+  const bottom={x:heel.x+(tip.x-heel.x)*u,y:heel.y+(tip.y+52-heel.y)*u};
+  return `${top.x+(bottom.x-top.x)*v} ${top.y+(bottom.y-top.y)*v}`;
+ };
  return{
   face:`M${outer.x} ${outer.y}L${tip.x} ${tip.y}L${tip.x} ${tip.y+52}L${heel.x} ${heel.y}Z`,
   fold:`M${outer.x} ${outer.y}L${tip.x} ${tip.y+52}L${heel.x} ${heel.y}Z`,
   edge:`M${outer.x} ${outer.y}L${tip.x} ${tip.y}L${tip.x} ${tip.y+52}L${heel.x} ${heel.y}Z`,
   crease:`M${outer.x} ${outer.y}L${tip.x} ${tip.y+52}`,
   grain:[.22,.5,.78].map(t=>`M${outer.x+(tip.x-outer.x)*t} ${outer.y+(tip.y-outer.y)*t}L${heel.x+(tip.x-heel.x)*t} ${heel.y+(tip.y+52-heel.y)*t}`).join(''),
+  memory:marks.folds.map(([x,y,u,v])=>`M${surface(x,y)}L${surface(u,v)}`).join(''),
  };
 }

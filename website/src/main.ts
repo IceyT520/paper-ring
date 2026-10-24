@@ -7,6 +7,7 @@ import {initOpening} from './opening';
 import {initAudio} from './audio';
 import {initGate} from './gate';
 import {initMirror} from './mirror';
+import {initNarrative} from './narrative';
 import type {PaperController} from './paper';
 gsap.registerPlugin(ScrollTrigger);
 
@@ -47,7 +48,6 @@ all<HTMLAnchorElement>('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>
 function setReader(next:boolean,id=currentSource,move=true){
  opening.finish();
  readerMode=next;$('#exhibition').hidden=next;$('#source-reader').hidden=!next;document.body.classList.toggle('reader-mode',next);
- if(next)setMobiusLock(false);
  $('#reader-toggle').innerHTML=next?'回到展览 <span aria-hidden="true">↗</span>':'阅读全文 <span aria-hidden="true">↗</span>';
  $('#reader-toggle').setAttribute('aria-pressed',String(next));
  const target=document.getElementById(`${next?'reader-':''}${id}`);
@@ -84,7 +84,6 @@ function updateProgress(){
    header.classList.remove('on-paper');
    updateAtmosphere(Number(currentChapter),Math.max(0,Math.min(1,(at-active.top)/(active.bottom-active.top))));
  }
- updateMobiusLock();
 }
 let scrollTick=false;
 addEventListener('scroll',()=>{if(!scrollTick){scrollTick=true;requestAnimationFrame(()=>{updateProgress();scrollTick=false})}},{passive:true});
@@ -95,7 +94,7 @@ new ResizeObserver(measureChapters).observe(document.body);
 const twistCopy=[
  ['01 / 打开接缝','先让惯性的追逐与退缩，停在这里。打开接缝，也是在为另一种可能留下空间。'],
  ['02 / 将一端扭转半圈','改变观察的角度。试着看见：沉默里的害怕，和追问背后的需要。'],
- ['03 / 重新连接，同一个面','沿着这张纸继续走，会经过曾经的另一面。理解，让两个世界有了连续的路径。']
+ ['03 / 重新连接，同一个面','红蓝的痕迹各自保留。沿着同一张纸，可以走进彼此的世界，也仍然是自己。']
 ];
 let twistTween:gsap.core.Tween|undefined;
 let tracePaused=false;
@@ -104,59 +103,21 @@ function paintTwist(value:number){
  if(document.documentElement.classList.contains('no-webgl'))value=1;
  paper?.setTwist(value);
  if(paintedTwist!==value){paintedTwist=value;$('.twist-progress i').style.transform=`scaleX(${value})`;$('.mobius-aura').style.opacity=String(.4+value*.6)}
- if(value>=.999)setMobiusLock(false);
+ $('#mobius-section').dataset.connection=value>=.999?'connected':'open';
  const index=value<.2?0:value<.8?1:2;
  if(index===twistIndex)return;twistIndex=index;
  $('#twist-caption').textContent=twistCopy[index][0];$('#twist-description').textContent=twistCopy[index][1];
  all<HTMLButtonElement>('[data-twist-step]').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
 }
-/** The Möbius act gates the page: until the two sides reconnect, scrolling
- *  down is refused (scrolling back up still works, so nobody is trapped). */
-let mobiusLocked=false,mobiusTouchY=0;
-function pulseMobius(){
- const button=document.getElementById('replay-twist');if(!button)return;
- button.classList.remove('nudge');void (button as HTMLElement).offsetWidth;button.classList.add('nudge');
- setTimeout(()=>button.classList.remove('nudge'),2000);
-}
-function blockMobiusWheel(event:WheelEvent){if(event.deltaY<=0)return;event.preventDefault();pulseMobius()}
-function blockMobiusKeys(event:KeyboardEvent){
- const typing=(event.target as HTMLElement)?.tagName==='BUTTON';
- if(['ArrowDown','PageDown','End'].includes(event.key)||(event.key===' '&&!typing)){event.preventDefault();pulseMobius()}
-}
-function blockMobiusTouchStart(event:TouchEvent){mobiusTouchY=event.touches[0]?.clientY??0}
-function blockMobiusTouch(event:TouchEvent){const y=event.touches[0]?.clientY??0;if(y<mobiusTouchY-2){event.preventDefault();pulseMobius()}}
-function setMobiusLock(on:boolean){
- if(on===mobiusLocked)return;mobiusLocked=on;
- if(on){
-  document.documentElement.dataset.mobiusLock='1';
-  addEventListener('wheel',blockMobiusWheel,{passive:false});
-  addEventListener('touchstart',blockMobiusTouchStart,{passive:true});
-  addEventListener('touchmove',blockMobiusTouch,{passive:false});
-  addEventListener('keydown',blockMobiusKeys,true);
- }else{
-  delete document.documentElement.dataset.mobiusLock;
-  removeEventListener('wheel',blockMobiusWheel);
-  removeEventListener('touchstart',blockMobiusTouchStart);
-  removeEventListener('touchmove',blockMobiusTouch);
-  removeEventListener('keydown',blockMobiusKeys,true);
- }
-}
-function updateMobiusLock(){
- if(reduced||paintedTwist>=1){setMobiusLock(false);return}
- const section=document.getElementById('mobius-section');
- if(!section){setMobiusLock(false);return}
- const box=section.getBoundingClientRect();
- setMobiusLock(box.top<=innerHeight*.24&&box.bottom>innerHeight*.58);
-}
 function stopTwist(){
  twistTween?.kill();twistTween=undefined;
- const pause=$<HTMLButtonElement>('#pause-twist');pause.disabled=true;pause.setAttribute('aria-pressed','false');pause.textContent='暂停形变';
+ const pause=$<HTMLButtonElement>('#pause-twist');pause.disabled=true;pause.hidden=true;pause.setAttribute('aria-pressed','false');pause.textContent='暂停形变';
 }
 function animateTwist(value:number,duration:number,onComplete?:()=>void){
  stopTwist();
  if(reduced){paintTwist(value);onComplete?.();return}
  const progress={value:Math.max(0,paintedTwist)};
- $<HTMLButtonElement>('#pause-twist').disabled=false;
+ $<HTMLButtonElement>('#pause-twist').disabled=false;$<HTMLButtonElement>('#pause-twist').hidden=false;
  twistTween=gsap.to(progress,{value,duration,ease:'sine.inOut',onUpdate:()=>paintTwist(progress.value),onComplete:()=>{stopTwist();onComplete?.()}});
 }
 function setupMotion(){
@@ -167,7 +128,6 @@ function setupMotion(){
  $('#motion-toggle').setAttribute('aria-label',reduced?'开启动态效果':'减少动态效果');
  $('.motion-label').textContent=reduced?'静态':'动态';paper?.setReduced(reduced);
  paintTwist(paintedTwist<0?(reduced?1:0):paintedTwist);
- updateMobiusLock();
  if(reduced){ScrollTrigger.refresh();paper?.refresh();return}
  context=gsap.context(()=>{
    all<HTMLElement>('.chapter-heading h2,.large-quote').filter(el=>!el.closest('#chapter-10')).forEach(el=>{
@@ -237,7 +197,7 @@ function offerLight(phase?:number,offset?:number){
 }
 $('#send-light').addEventListener('click',()=>offerLight());
 $('#mobius-stage').addEventListener('paper-touch',((event:CustomEvent<{phase:number;offset:number}>)=>{
- if(paintedTwist<1){$('#light-status').textContent='先用下方按钮完成连接，再轻触纸面，让光出发。';return}
+ if(paintedTwist<1){$('#light-status').textContent='先播放这次连接，再轻触纸面，让光出发。';return}
  offerLight(event.detail.phase,event.detail.offset);
 }) as EventListener);
 $('#pause-twist').addEventListener('click',()=>{
@@ -250,7 +210,7 @@ $('#trace-pause').addEventListener('click',()=>{
 });
 $('#reset-paper-view').addEventListener('click',()=>paper?.resetView());
 
-initSimulator();initJourney();setupMotion();measureChapters();updateProgress();
+initSimulator();initJourney();initNarrative();setupMotion();measureChapters();updateProgress();
 initOpticalTitles(()=>{measureChapters();ScrollTrigger.refresh();paper?.refresh()});
 // The entire article and every non-3D interaction work before the optional renderer arrives.
 async function loadPaper(){try{const {createPaper}=await import('./paper');paper=createPaper(reduced);paper.setOpening(opening.progress());ScrollTrigger.refresh();paintTwist(paintedTwist<0?(reduced?1:0):paintedTwist);paper.refresh()}catch{document.documentElement.classList.add('no-webgl');paintTwist(1)}

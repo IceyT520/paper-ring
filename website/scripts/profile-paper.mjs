@@ -7,9 +7,9 @@ await page.addInitScript(()=>{
  const proto=WebGL2RenderingContext.prototype,original=proto.clear;
  proto.clear=function(...args){if(window.__measurePaper&&this.canvas.parentElement?.id==='mobius-stage')window.__paperFrames.push(performance.now());return original.apply(this,args)};
 });
-await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
+await page.goto('http://127.0.0.1:4173/?nogate=1#mobius-section',{waitUntil:'networkidle'});await page.evaluate(()=>document.fonts.ready);
 await page.evaluate(()=>{const el=document.querySelector('#mobius-section');scrollTo({top:el.getBoundingClientRect().top+scrollY,behavior:'instant'})});
-await page.waitForTimeout(600);await page.locator('[data-twist-step="2"]').click();await page.waitForTimeout(2000);
+await page.waitForTimeout(600);await page.locator('#mobius-settings summary').click();await page.locator('[data-twist-step="2"]').click();await page.waitForTimeout(2000);
 await page.locator('#send-light').click();await page.waitForTimeout(2000);
 const report=await page.evaluate(async()=>{
  window.__paperFrames=[];window.__measurePaper=true;

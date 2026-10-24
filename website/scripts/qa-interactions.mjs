@@ -48,7 +48,7 @@ try{
    await page.locator('#promise-reset').click();assert.equal(await page.locator('.promise-stitch.sewn').count(),0);
   });
   await check(`${width}: touch actual paper, orbit, pause and reduced-motion light journey`,async()=>{
-   await near(page,'#mobius-section');await page.locator('[data-twist-step="2"]').click();await page.waitForFunction(()=>document.querySelector('#mobius-stage').dataset.paperProgress==='1');
+   await near(page,'#mobius-section');await page.locator('#mobius-settings').evaluate(e=>e.open=true);await page.locator('[data-twist-step="2"]').click();await page.waitForFunction(()=>document.querySelector('#mobius-stage').dataset.paperProgress==='1');
    await page.waitForTimeout(1900); // let the morph settle before tapping the surface
    const stage=page.locator('#mobius-stage');assert.equal(await stage.getAttribute('data-paper-progress'),'1');
    await stage.focus();await page.keyboard.press('ArrowRight');assert(JSON.parse(await stage.getAttribute('data-view')).x>.1);await page.locator('#reset-paper-view').click();assert.deepEqual(JSON.parse(await stage.getAttribute('data-view')),{x:0,y:0});
