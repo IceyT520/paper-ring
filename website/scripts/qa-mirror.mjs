@@ -62,7 +62,12 @@ try{
  const page=await browser.newPage({viewport:{width:1440,height:1100},reducedMotion:'no-preference'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'networkidle'});
  const scene=page.locator('#mirror-installation'),button=page.locator('#connection-meet');await scene.scrollIntoViewIfNeeded();
- await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running');
+ try{
+  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running',undefined,{timeout:8000});
+ }catch(error){
+  console.error('Weather setup state',JSON.stringify(await page.evaluate(()=>({hidden:document.hidden,classes:document.body.className,media:matchMedia('(prefers-reduced-motion:reduce)').matches,weather:document.querySelector('#mirror-installation').dataset.weather,scroll:scrollY,viewport:[innerWidth,innerHeight],button:document.querySelector('#connection-meet').getBoundingClientRect().toJSON(),scene:document.querySelector('#mirror-installation').getBoundingClientRect().toJSON()}))));
+  throw error;
+ }
  await button.click();await page.waitForTimeout(650);
  for(const el of await scene.locator('[data-voice]').all())assert(await el.isVisible(),'the two statements must stay during the transition');
  await button.click();await button.click();
