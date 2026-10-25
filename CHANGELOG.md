@@ -4,6 +4,17 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.17.0] — 2026-10-25
+
+### Added
+- An optional 22-second Möbius film: paper close-ups, two colored seam lights,
+  a slow half-turn, a warm joining halo and a continuous light path over both sides.
+- Modal playback with pause, replay, Escape/exit, background suspension and a
+  static alternative for reduced motion or unavailable WebGL.
+- Reuse the existing renderer; retain the original installation, its controls,
+  text and selected state. No soundtrack changes or scroll-driven progression.
+- Desktop/mobile playback and fallback checks in the deployment workflow.
+
 ## [1.16.4] — 2026-10-25
 
 ### Changed

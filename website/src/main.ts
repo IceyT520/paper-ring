@@ -7,6 +7,7 @@ import {initOpening} from './opening';
 import {initAudio} from './audio';
 import {initGate} from './gate';
 import {initMirror} from './mirror';
+import {initFinale} from './finale';
 import type {PaperController} from './paper';
 gsap.registerPlugin(ScrollTrigger);
 
@@ -120,6 +121,7 @@ function animateTwist(value:number,duration:number,onComplete?:()=>void){
  twistTween=gsap.to(progress,{value,duration,ease:'sine.inOut',onUpdate:()=>paintTwist(progress.value),onComplete:()=>{stopTwist();onComplete?.()}});
 }
 function setupMotion(){
+ finale.close();
  opening.setReduced(reduced);
  stopTwist();
  context?.revert();document.body.classList.toggle('reduced-motion',reduced);
@@ -209,6 +211,7 @@ $('#trace-pause').addEventListener('click',()=>{
 });
 $('#reset-paper-view').addEventListener('click',()=>paper?.resetView());
 
+const finale=initFinale({paper:()=>paper,reduced:()=>reduced,beforeOpen:stopTwist});
 initSimulator();initJourney();setupMotion();measureChapters();updateProgress();
 initOpticalTitles(()=>{measureChapters();ScrollTrigger.refresh();paper?.refresh()});
 // The entire article and every non-3D interaction work before the optional renderer arrives.

@@ -10,6 +10,7 @@ fonts=fonts.replace(/url\('\.\/([^']+)'\)/g,(_,name)=>`url('data:font/${name.end
 const css=fs.readFileSync(path.join(root,'src/style.css'),'utf8').replace('@charset "UTF-8";','');
 const journeyCSS=fs.readFileSync(path.join(root,'src/journey.css'),'utf8');
 const narrativeCSS=fs.readFileSync(path.join(root,'src/narrative.css'),'utf8');
+const finaleCSS=fs.readFileSync(path.join(root,'src/finale.css'),'utf8');
 const icon=encodeURIComponent(fs.readFileSync(path.join(root,'public/favicon.svg'),'utf8'));
 // The soundtrack travels inside the single file, so one HTML is enough to share.
 const track=path.join(root,'public/theme.mp3');
@@ -20,6 +21,7 @@ let html=fs.readFileSync(path.join(root,'index.html'),'utf8')
  .replace('<link rel="stylesheet" href="/src/style.css">',()=>`<style>${css}</style>`)
  .replace('<link rel="stylesheet" href="/src/journey.css">',()=>`<style>${journeyCSS}</style>`)
  .replace('<link rel="stylesheet" href="/src/narrative.css">',()=>`<style>${narrativeCSS}</style>`)
+ .replace('<link rel="stylesheet" href="/src/finale.css">',()=>`<style>${finaleCSS}</style>`)
  .replace('href="/favicon.svg"',()=>`href="data:image/svg+xml,${icon}"`)
  .replaceAll('href="./paper.pdf"',`href="./${encodeURIComponent(path.basename(sourcePdf))}"`)
  .replace('<script type="module" src="/src/main.ts"></script>',()=>`${inline}<script>${js}</script>`);

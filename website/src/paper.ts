@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {paperShape,paperTrace,paperPoint,paperNormal} from './paper-geometry';
-export interface PaperController{setOpening(value:number):void;setReduced(value:boolean):void;setTwist(value:number):void;flip():void;resetView():void;nudgeView(x:number,y:number):void;setTracePaused(value:boolean):void;sendLight(phase?:number,offset?:number):void;refresh():void;destroy():void}
+import {finaleScore} from './finale-score';
+export interface PaperController{setOpening(value:number):void;setFinale(seconds:number|null):void;setReduced(value:boolean):void;setTwist(value:number):void;flip():void;resetView():void;nudgeView(x:number,y:number):void;setTracePaused(value:boolean):void;sendLight(phase?:number,offset?:number):void;refresh():void;destroy():void}
 export function createPaper(reduced=false):PaperController{
  const slots=[...document.querySelectorAll<HTMLElement>('[data-stage]')];
  let renderer:THREE.WebGLRenderer;
@@ -8,11 +9,12 @@ export function createPaper(reduced=false):PaperController{
    document.documentElement.classList.add('no-webgl');
    const flip=document.querySelector<HTMLButtonElement>('#flip-ring');if(flip){flip.disabled=true;flip.textContent='纸环静态示意'}
    const replay=document.querySelector<HTMLButtonElement>('#replay-twist');if(replay){replay.disabled=true;replay.textContent='连接方式示意'}
-   return{setOpening(){},setReduced(){},setTwist(){},flip(){},resetView(){},nudgeView(){},setTracePaused(){},sendLight(){},refresh(){},destroy(){}};
+   return{setOpening(){},setFinale(){},setReduced(){},setTwist(){},flip(){},resetView(){},nudgeView(){},setTracePaused(){},sendLight(){},refresh(){},destroy(){}};
  }
  renderer.setClearColor(0,0);
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
  renderer.domElement.setAttribute('aria-hidden','true');
+ renderer.domElement.dataset.paperRenderer='';
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(0,0,11.8);
  const ambient=new THREE.AmbientLight('#e9e4d6',.9);scene.add(ambient);
  const key=new THREE.DirectionalLight('#fff1d6',3);key.position.set(-3,5,6);scene.add(key);
@@ -60,6 +62,41 @@ export function createPaper(reduced=false):PaperController{
  const dotR=new THREE.Mesh(new THREE.SphereGeometry(.055,16,12),new THREE.MeshBasicMaterial({color:'#a7d8ff'}));group.add(dotA,dotR);
  const trailPositions=new Float32Array(24*3),trailGeometry=new THREE.BufferGeometry();trailGeometry.setAttribute('position',new THREE.BufferAttribute(trailPositions,3).setUsage(THREE.DynamicDrawUsage));trailGeometry.boundingSphere=geometry.boundingSphere;
  const trailMaterial=new THREE.PointsMaterial({color:'#ffe0ba',size:.027,transparent:true,opacity:.8,depthWrite:false});const trail=new THREE.Points(trailGeometry,trailMaterial);trail.visible=false;group.add(trail);
+ // The film uses the same strip and renderer. Light ribbons are sampled from
+ // its actual surface, including the side change, and remain depth-tested.
+ const filmGroup=new THREE.Group();filmGroup.visible=false;group.add(filmGroup);
+ const FILM_SEGMENTS=512;
+ function lightRibbon(width:number,opacity:number){
+  const p=new Float32Array((FILM_SEGMENTS+1)*6),colors=new Float32Array(p.length),idx:number[]=[];
+  const red=new THREE.Color('#ff9b8a'),blue=new THREE.Color('#7fc9ff');
+  for(let i=0;i<=FILM_SEGMENTS;i++){
+   const phase=i/FILM_SEGMENTS,color=red.clone().lerp(blue,(1-Math.cos(phase*Math.PI*2))/2);
+   for(let j=0;j<2;j++){
+    const sample=paperTrace(phase,0,1,.28+(j?width:-width));
+    const at=(i*2+j)*3;
+    for(let axis=0;axis<3;axis++)p[at+axis]=sample.point[axis]+sample.normal[axis]*sample.side*.018;
+    color.toArray(colors,at);
+   }
+   if(i<FILM_SEGMENTS){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(colors,3));g.setIndex(idx);
+  const m=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
+  const mesh=new THREE.Mesh(g,m);filmGroup.add(mesh);return mesh;
+ }
+ const filmRibbons=[lightRibbon(.012,.95),lightRibbon(.055,.16)];
+ const seamLights=[0,1].map(i=>{
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(25*3),3).setUsage(THREE.DynamicDrawUsage));
+  const m=new THREE.LineBasicMaterial({color:i?'#ffa28c':'#91d2ff',transparent:true,opacity:.85,toneMapped:false});
+  const mesh=new THREE.Line(g,m);filmGroup.add(mesh);return mesh;
+ });
+ const halo=new THREE.Mesh(new THREE.RingGeometry(2.95,2.962,144),new THREE.MeshBasicMaterial({color:'#e7ba7c',transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));halo.position.z=-1.2;halo.visible=false;scene.add(halo);
+ const glowCanvas=document.createElement('canvas');glowCanvas.width=glowCanvas.height=64;const gc=glowCanvas.getContext('2d')!,gradient=gc.createRadialGradient(32,32,0,32,32,32);
+ gradient.addColorStop(0,'#ffe2b9');gradient.addColorStop(.16,'#e6bf8799');gradient.addColorStop(1,'#c0955500');gc.fillStyle=gradient;gc.fillRect(0,0,64,64);
+ const glowTexture=new THREE.CanvasTexture(glowCanvas);glowTexture.colorSpace=THREE.SRGBColorSpace;
+ const filmGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));filmGlow.scale.setScalar(.13);filmGroup.add(filmGlow);
+ const headLamp=new THREE.PointLight('#ffddad',0,1.1,2);filmGroup.add(headLamp);
+ const seamLamps=['#75bdff','#ff998d'].map(color=>{const light=new THREE.PointLight(color,0,1.4,2);filmGroup.add(light);return light});
+ const seamGlows=['#75bdff','#ff998d'].map(color=>{const mesh=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,color,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));mesh.scale.setScalar(.1);filmGroup.add(mesh);return mesh});
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
  let active:HTMLElement|null=null,mode='hero',frame=0,needsDraw=true,geometryDirty=false,twistProgress=0,twistTarget=0,flipAngle=0,currentFlip=0,dragging=false,lastX=0,lastY=0,dragDistance=0,lastPaint=0;
  const ratios=new Map<HTMLElement,number>();
@@ -67,10 +104,34 @@ export function createPaper(reduced=false):PaperController{
  const displayedView:Record<string,{x:number;y:number}>={explore:{x:0,y:0},mobius:{x:0,y:0}};
  let traceClock=0,lastFrame=0,tracePaused=false,lightProgress=-1,lightStart=0,lightOffset=.28,lightMessage=-1,openingProgress=1;
  let pendingLight:{phase:number;offset:number}|undefined;
+ let filmSeconds:number|null=null;
  const lightStatus=document.querySelector<HTMLElement>('#light-status')!;
  function stamp(){if(!active)return;active.dataset.view=JSON.stringify(rotations[mode]||{x:0,y:0});active.dataset.traceState=tracePaused?'paused':'running';active.dataset.paperProgress=String(mode==='mobius'?twistTarget:0)}
  function nudgeView(x:number,y:number){const r=rotations[mode];if(!r)return;r.x+=x;r.y=THREE.MathUtils.clamp(r.y+y,-1.2,1.2);stamp();needsDraw=true;requestFrame()}
  function placeDots(){
+  if(mode==='finale'){
+   const score=finaleScore(filmSeconds??0),phase=score.journey;
+   filmGroup.visible=true;halo.visible=true;trail.visible=false;
+   dotA.position.fromArray(paperTrace(phase,0,1).center);dotR.position.copy(dotA.position);
+   dotA.visible=phase>0;dotR.visible=false;
+   filmGlow.visible=phase>0;filmGlow.position.copy(dotA.position);
+   headLamp.position.copy(dotA.position);headLamp.intensity=phase>0?.5:0;
+   filmRibbons.forEach(mesh=>mesh.geometry.setDrawRange(0,Math.floor(phase*FILM_SEGMENTS)*6));
+   const shape=paperShape(score.twist);
+   seamLights.forEach((mesh,k)=>{
+    mesh.visible=score.twist>.005&&score.twist<1;mesh.material.opacity=.95*(1-score.warmth);
+    const u=k?Math.PI*2-shape.gap/2:shape.gap/2;
+    for(let i=0;i<=24;i++){const v=(i/24-.5)*1.42,p=paperPoint(u,v,shape.twist),n=paperNormal(u,v,shape.twist);mesh.geometry.attributes.position.setXYZ(i,p[0]+n[0]*.018,p[1]+n[1]*.018,p[2]+n[2]*.018)}
+    mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.boundingSphere=geometry.boundingSphere;
+    const middle=paperPoint(u,0,shape.twist),normal=paperNormal(u,0,shape.twist);
+    seamGlows[k].position.set(middle[0]+normal[0]*.06,middle[1]+normal[1]*.06,middle[2]+normal[2]*.06);
+    seamGlows[k].visible=mesh.visible;seamGlows[k].material.opacity=mesh.material.opacity;
+    seamLamps[k].position.set(middle[0]+normal[0]*.2,middle[1]+normal[1]*.2,middle[2]+normal[2]*.2);seamLamps[k].intensity=mesh.visible?1.8*mesh.material.opacity:0;
+   });
+   halo.scale.setScalar(1+score.pulse*1.5);halo.material.opacity=score.pulseOpacity*.45;
+   return;
+  }
+  filmGroup.visible=false;halo.visible=false;
   const progress=mode==='mobius'?twistProgress:0;
   const journey=mode==='mobius'&&lightProgress>=0;
   const drift=mode==='hero'?traceClock*.02:traceClock*.013;
@@ -104,9 +165,9 @@ export function createPaper(reduced=false):PaperController{
  }
 
  function updateGeometry(){
-   const {twist,gap}=mode==='mobius'?paperShape(twistProgress):{twist:0,gap:0};
+   const {twist,gap}=mode==='finale'?paperShape(finaleScore(filmSeconds??0).twist):mode==='mobius'?paperShape(twistProgress):{twist:0,gap:0};
    paintLines(twist);
-   backMat.color.set(mode==='mobius'?'#eee3d1':'#a7b1b1');
+   backMat.color.set(mode==='mobius'||mode==='finale'?'#eee3d1':'#a7b1b1');
    for(let i=0;i<=N;i++){
      const u=gap/2+i/N*(Math.PI*2-gap),cu=Math.cos(u),su=Math.sin(u),phi=Math.PI/2*(1-twist)+twist*u/2,c=Math.cos(phi),s=Math.sin(phi);
      for(let j=0;j<=M;j++){
@@ -121,13 +182,14 @@ export function createPaper(reduced=false):PaperController{
    geometry.attributes.position.needsUpdate=true;geometry.attributes.normal.needsUpdate=true;
    edgeLines.forEach(line=>{line.geometry.attributes.position.needsUpdate=true;line.geometry.boundingSphere=geometry.boundingSphere});
    placeDots();
-   dotA.visible=dotR.visible=true;needsDraw=true;geometryDirty=false;
+   if(mode!=='finale')dotA.visible=dotR.visible=true;needsDraw=true;geometryDirty=false;
  }
  function resize(){if(!active)return;const r=active.getBoundingClientRect();if(r.width<1||r.height<1)return;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5,Math.sqrt(950000/(r.width*r.height))));renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();needsDraw=true;requestFrame()}
  const ro=new ResizeObserver(resize);
  function choose(){
    if(document.querySelector('#exhibition')?.hasAttribute('hidden')){active?.classList.remove('ready');active=null;return}
-   const best=[...ratios].filter(([el,n])=>n>0&&el.getBoundingClientRect().width>0).sort((a,b)=>b[1]-a[1])[0]?.[0];
+   const filmSlot=filmSeconds!==null&&document.querySelector<HTMLDialogElement>('#connection-film')?.open?slots.find(el=>el.dataset.stage==='finale'):undefined;
+   const best=filmSlot??[...ratios].filter(([el,n])=>el.dataset.stage!=='finale'&&n>0&&el.getBoundingClientRect().width>0).sort((a,b)=>b[1]-a[1])[0]?.[0];
    if(best&&best!==active){active?.classList.remove('ready');ro.disconnect();active=best;mode=best.dataset.stage!;twistProgress=twistTarget;mat.color.set(mode==='hero'?'#ffffff':'#eee3d1');best.append(renderer.domElement);ro.observe(best);updateGeometry();resize();stamp();lastFrame=0;}
    else if(!best){active?.classList.remove('ready');ro.disconnect();active=null;}
    requestFrame();
@@ -141,7 +203,7 @@ export function createPaper(reduced=false):PaperController{
    if(morphing){twistProgress=reduced?twistTarget:THREE.MathUtils.lerp(twistProgress,twistTarget,1-Math.exp(-delta/.16));if(Math.abs(twistProgress-twistTarget)<.00003)twistProgress=twistTarget;geometryDirty=true;needsDraw=true}
    if(geometryDirty)updateGeometry();
    if(pendingLight&&twistProgress===1){lightStart=pendingLight.phase;lightOffset=pendingLight.offset;lightProgress=reduced?1:0;lightMessage=-1;pendingLight=undefined;needsDraw=true}
-   if(!reduced&&!tracePaused)traceClock+=delta;
+   if(!reduced&&!tracePaused&&mode!=='finale')traceClock+=delta;
    if(mode==='mobius'&&lightProgress>=0&&lightProgress<1&&!tracePaused&&!reduced)lightProgress=Math.min(1,lightProgress+delta/24);
    const move=reduced?0:Math.sin(traceClock*.12)*.025;
    currentFlip=reduced?flipAngle:THREE.MathUtils.lerp(currentFlip,flipAngle,1-Math.exp(-delta/.35));
@@ -151,13 +213,23 @@ export function createPaper(reduced=false):PaperController{
    ambient.intensity=.9*(1-.95*opening);key.intensity=3*(1-.97*opening);fill.intensity=1.2*(1-.96*opening);
    rim.intensity=2.8+3.2*Math.sin(Math.PI*opening);warmEdge.intensity=.65*(1-opening);
    key.position.set(-3-4*opening,5,6-4*opening);
-   if(mode==='hero'){group.rotation.set(.92+.38*opening,-.44-.68*opening,-.52-.24*opening);group.position.set(0,.12-.15*opening,0);group.scale.setScalar(1.06-.1*opening)}
+   warmEdge.position.set(-4,-2,1);
+   if(mode==='finale'){
+    const shot=finaleScore(filmSeconds??0);
+    ambient.intensity=.12+.48*shot.reveal+.3*shot.warmth;key.intensity=.18+2.5*shot.reveal;fill.intensity=.05+.65*shot.reveal;
+    rim.intensity=3.8-1.2*shot.warmth;warmEdge.intensity=1.6+1.3*shot.warmth;
+    key.position.set(-4+shot.warmth*6,5,4);warmEdge.position.set(-4,1,2);
+    group.rotation.set(shot.pitch,shot.yaw,shot.roll);group.position.set(0,.2,0);
+    // Fit width on portrait screens, retaining the same camera path.
+    group.scale.setScalar(shot.scale*Math.min(.99,camera.aspect*.92));
+   }
+   else if(mode==='hero'){group.rotation.set(.92+.38*opening,-.44-.68*opening,-.52-.24*opening);group.position.set(0,.12-.15*opening,0);group.scale.setScalar(1.06-.1*opening)}
    else if(mode==='explore'){group.rotation.set(.88+displayedView.explore.y,-.35+displayedView.explore.x+currentFlip,-.35);group.position.set(0,.05,0);group.scale.setScalar(.95)}
    else{group.rotation.set(.68+displayedView.mobius.y,-.45+move+displayedView.mobius.x,-.52);group.position.set(0,.05,0);group.scale.setScalar(1.14)}
    placeDots();
-   dotA.visible=dotR.visible=mode!=='hero'||openingProgress>.72;
+   if(mode!=='finale')dotA.visible=dotR.visible=mode!=='hero'||openingProgress>.72;
    const moving=Math.abs(currentFlip-flipAngle)>.001;
-   const animating=!reduced&&!tracePaused;
+   const animating=!reduced&&!tracePaused&&mode!=='finale';
    const idleDots=animating&&(mode==='hero'||mode==='explore');
    // Two walkers keep the still cover alive; drawing is capped near 30 fps.
    const drawNow=needsDraw||moving||morphing||viewMoving||(animating&&mode==='mobius')||(idleDots&&now-lastPaint>=32);
@@ -166,6 +238,9 @@ export function createPaper(reduced=false):PaperController{
     if(!active.classList.contains('ready')){active.classList.add('ready');active.dispatchEvent(new Event('paper-ready'))}
    }
    if(animating&&(idleDots||moving||morphing||viewMoving||mode==='mobius'))frame=requestAnimationFrame(render);
+   // Keep a single draw loop while the film clock is running. Requesting a new
+   // frame only from GSAP updates would miss alternate display frames.
+   if(mode==='finale'&&document.querySelector<HTMLElement>('#connection-film')?.dataset.state==='playing')frame=requestAnimationFrame(render);
  }
  function requestFrame(){if(!frame&&active&&!document.hidden)frame=requestAnimationFrame(render)}
  slots.forEach(el=>{
@@ -189,6 +264,7 @@ export function createPaper(reduced=false):PaperController{
  renderer.domElement.addEventListener('webglcontextrestored',()=>{updateGeometry();active?.classList.add('ready');requestFrame()});
  updateGeometry();
  return {
+   setFinale(seconds){filmSeconds=seconds;choose();if(mode==='finale'){geometryDirty=true;needsDraw=true;requestFrame()}},
    setOpening(value){openingProgress=Math.max(0,Math.min(1,value));if(mode==='hero'){needsDraw=true;requestFrame()}},
    setReduced(value){reduced=value;if(value){twistProgress=twistTarget;if(lightProgress>=0)lightProgress=1}needsDraw=true;updateGeometry();requestFrame()},
    setTwist(value){if(twistTarget===value)return;twistTarget=value;if(value<1){pendingLight=undefined;lightProgress=-1;trail.visible=false}if(reduced||mode!=='mobius'){twistProgress=value;geometryDirty=true}if(mode==='mobius'){needsDraw=true;stamp();requestFrame()}},
@@ -198,6 +274,6 @@ export function createPaper(reduced=false):PaperController{
    setTracePaused(value){tracePaused=value;stamp();needsDraw=true;requestFrame()},
    sendLight(phase=0,offset=.28){pendingLight={phase,offset};needsDraw=true;requestFrame()},
    refresh(){choose();resize()},
-   destroy(){cancelAnimationFrame(frame);io.disconnect();ro.disconnect();document.removeEventListener('visibilitychange',visibility);geometry.dispose();trailGeometry.dispose();trailMaterial.dispose();edgeLines.forEach(l=>{l.geometry.dispose();l.material.dispose()});mat.dispose();backMat.dispose();surfaces.forEach(s=>s.texture.dispose());renderer.dispose()}
+   destroy(){cancelAnimationFrame(frame);io.disconnect();ro.disconnect();document.removeEventListener('visibilitychange',visibility);geometry.dispose();trailGeometry.dispose();trailMaterial.dispose();edgeLines.forEach(l=>{l.geometry.dispose();l.material.dispose()});filmRibbons.forEach(m=>{m.geometry.dispose();m.material.dispose()});seamLights.forEach(m=>{m.geometry.dispose();m.material.dispose()});seamGlows.forEach(m=>m.material.dispose());filmGlow.material.dispose();glowTexture.dispose();halo.geometry.dispose();halo.material.dispose();dotA.geometry.dispose();dotR.geometry.dispose();dotA.material.dispose();dotR.material.dispose();mat.dispose();backMat.dispose();surfaces.forEach(s=>s.texture.dispose());renderer.dispose()}
  };
 }
