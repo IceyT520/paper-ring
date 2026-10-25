@@ -109,7 +109,13 @@ export function initMirror(){
   sync();
  });
  drawStructure();drawWeather();scene.dataset.animating='false';scene.dataset.ready='true';scene.dataset.weather='paused';
- new IntersectionObserver(entries=>{visible=entries[0].isIntersecting&&entries[0].intersectionRatio>=.1;sync()},{threshold:.1}).observe(button);
+ new IntersectionObserver(entries=>{
+  // A callback can contain several queued transitions for the same target.
+  let latest:IntersectionObserverEntry|undefined;
+  for(const entry of entries)if(entry.target===button&&(!latest||entry.time>=latest.time))latest=entry;
+  if(!latest)return;
+  visible=latest.isIntersecting&&latest.intersectionRatio>=.1;sync();
+ },{threshold:.1}).observe(button);
  document.addEventListener('visibilitychange',sync);
  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
 }

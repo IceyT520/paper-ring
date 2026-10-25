@@ -5,6 +5,25 @@ import {devUrlNoGate,offlineUrlNoGate} from './paths.mjs';
 const url=(process.argv.includes('--offline')?offlineUrlNoGate:devUrlNoGate)+'#chapter-06';
 const browser=await launchBrowser(),report=[];
 try{
+ const batched=await browser.newPage({viewport:{width:1440,height:1100},reducedMotion:'no-preference'});
+ await batched.addInitScript(()=>{
+  const Observer=window.IntersectionObserver;
+  window.IntersectionObserver=class extends Observer{
+   constructor(callback,options){super((entries,observer)=>{
+    const batch=entries.flatMap(entry=>{
+     if(entry.target.id!=='connection-meet')return[entry];
+     if(entry.isIntersecting&&entry.intersectionRatio>=.1)window.__shelterVisibleDelivered=true;
+     return[{target:entry.target,time:entry.time-.01,isIntersecting:!entry.isIntersecting,intersectionRatio:entry.isIntersecting?0:1},entry];
+    });
+    callback(batch,observer);
+   },options)}
+  };
+ });
+ await batched.goto(url,{waitUntil:'networkidle'});
+ await batched.locator('#connection-meet').scrollIntoViewIfNeeded();
+ await batched.waitForFunction(()=>window.__shelterVisibleDelivered===true);
+ assert.equal(await batched.locator('#mirror-installation').getAttribute('data-weather'),'running','the newest visibility entry must win when transitions arrive in one batch');
+ await batched.close();console.log('PASS batched visibility uses the latest state');
  // Reduced motion must apply the result synchronously. A global 0.01ms CSS
  // duration still creates a transition that waits for the next painted frame.
  const immediate=await browser.newPage({viewport:{width:768,height:1000},reducedMotion:'reduce'});
@@ -60,12 +79,23 @@ try{
  assert.equal(await touchPage.locator('#mirror-installation').getAttribute('data-connected'),'false','scrolling is not an activation');
  await touchPage.close();
  const page=await browser.newPage({viewport:{width:1440,height:1100},reducedMotion:'no-preference'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{
+  window.__shelterVisibility=[];
+  const Observer=window.IntersectionObserver;
+  window.IntersectionObserver=class extends Observer{
+   constructor(callback,options){super((entries,observer)=>{
+    const relevant=entries.filter(e=>e.target.id==='connection-meet');
+    if(relevant.length)window.__shelterVisibility.push(relevant.map(e=>({time:e.time,ratio:e.intersectionRatio,intersects:e.isIntersecting,root:e.rootBounds?.toJSON(),bounds:e.boundingClientRect.toJSON()})));
+    callback(entries,observer);
+   },options)}
+  };
+ });
  await page.goto(url,{waitUntil:'networkidle'});
  const scene=page.locator('#mirror-installation'),button=page.locator('#connection-meet');await scene.scrollIntoViewIfNeeded();
  try{
   await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running',undefined,{timeout:8000});
  }catch(error){
-  console.error('Weather setup state',JSON.stringify(await page.evaluate(()=>({hidden:document.hidden,classes:document.body.className,media:matchMedia('(prefers-reduced-motion:reduce)').matches,weather:document.querySelector('#mirror-installation').dataset.weather,scroll:scrollY,viewport:[innerWidth,innerHeight],button:document.querySelector('#connection-meet').getBoundingClientRect().toJSON(),scene:document.querySelector('#mirror-installation').getBoundingClientRect().toJSON()}))));
+  console.error('Weather setup state',JSON.stringify(await page.evaluate(()=>({hidden:document.hidden,classes:document.body.className,media:matchMedia('(prefers-reduced-motion:reduce)').matches,weather:document.querySelector('#mirror-installation').dataset.weather,scroll:scrollY,viewport:[innerWidth,innerHeight],button:document.querySelector('#connection-meet').getBoundingClientRect().toJSON(),scene:document.querySelector('#mirror-installation').getBoundingClientRect().toJSON(),observations:window.__shelterVisibility}))));
   throw error;
  }
  await button.click();await page.waitForTimeout(650);

@@ -99,3 +99,31 @@
  .colophon .editorial-collection{margin-top:32px}
 }
 @media print{.narrative-bridge,.roof-recall{break-inside:avoid}}
+
+/* One font and palette per text role; scene-specific sizes remain above. */
+:root{--mono:ui-monospace,'Cascadia Code',Consolas,'Paper Sans','Noto Sans SC','Microsoft YaHei',monospace}
+#exhibition{--type-title:var(--paper);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:var(--gold)}
+#exhibition h1,#exhibition h2,#exhibition h3,#exhibition h4,
+#exhibition .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .dedication-end{
+ font-family:var(--serif);font-weight:400;color:var(--type-title)
+}
+#exhibition .source-block .source-copy{font-family:var(--sans);font-weight:400;color:var(--type-copy)}
+#exhibition .large-quote{font-family:var(--serif);font-weight:400;color:var(--type-title)}
+#exhibition .chapter-deck,#exhibition .interaction-caption,#exhibition .art-status,
+#exhibition .flow-study figcaption p,#exhibition .mobius-intro,#exhibition .touch-hint,
+#exhibition .practice-aside>p,#exhibition #twist-description,#exhibition #light-status,
+#exhibition .chart-description,#exhibition .narrative-bridge p{
+ font-family:var(--sans);font-weight:400;color:var(--type-secondary)
+}
+#exhibition .eyebrow,#exhibition .tiny-label,#exhibition .study-kicker,
+#exhibition .stage-coordinate,#exhibition .source-location{
+ font-family:var(--mono);font-weight:400;color:var(--type-note)
+}
+#exhibition .chapter-heading .eyebrow>span:last-child{color:inherit}
+#exhibition .eyebrow>span,#exhibition .source-location>span{font-family:inherit}
+#exhibition .model-equation,#exhibition .model-equations{font-family:var(--mono);font-weight:400;color:var(--type-copy)}
+#exhibition .text-button{font-family:var(--sans);font-weight:400;color:var(--type-action)}
+#exhibition .text-button:hover,#exhibition .text-button:focus-visible{color:var(--type-title)}
+#exhibition .diagram-label{font-family:var(--sans);font-weight:400}
+#exhibition .diagram-label:not(.blue-label):not(.red-label){fill:var(--type-secondary)}
+#source-reader .source-copy{font-family:var(--sans);font-weight:400}

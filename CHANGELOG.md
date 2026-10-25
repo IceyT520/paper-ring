@@ -4,6 +4,19 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.16.3] — 2026-10-25
+
+### Fixed
+- Unified font families, weights and base colors across titles, body paragraphs,
+  quotations, explanations, notes and equations. Red/blue semantic markers remain
+  consistent; the complete-text reading mode keeps its readable paper palette.
+- Added four-width typography consistency checks to deployment.
+- Use the newest visibility notification when several shelter transitions arrive
+  in one batch. A visible scene no longer stays paused because an older entry
+  was read first. Offscreen suspension and reduced motion remain covered.
+- Added a regression that reproduces an older and current visibility entry
+  arriving together, alongside the envelope/music and closing-title fixes below.
+
 ## [1.16.2] — 2026-10-24
 
 ### Fixed

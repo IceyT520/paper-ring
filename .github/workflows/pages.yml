@@ -47,6 +47,9 @@ jobs:
       - run: node scripts/qa-narrative.mjs --offline
         env:
           PAPER_BROWSER: chromium
+      - run: node scripts/qa-typography.mjs --offline
+        env:
+          PAPER_BROWSER: chromium
       - run: node scripts/qa-mirror.mjs --offline
         env:
           PAPER_BROWSER: chromium
