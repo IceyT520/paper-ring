@@ -4,6 +4,15 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.16.4] — 2026-10-25
+
+### Changed
+- Restored the dedication paragraphs to their original serif typeface as a
+  deliberate exception to body typography.
+- Softened white titles with a gold base palette, blue for the avoidant chapter,
+  red for the anxious chapter and warm ivory on the cover.
+- Updated typography checks to preserve the dedication and section palettes.
+
 ## [1.16.3] — 2026-10-25
 
 ### Fixed

@@ -102,12 +102,17 @@
 
 /* One font and palette per text role; scene-specific sizes remain above. */
 :root{--mono:ui-monospace,'Cascadia Code',Consolas,'Paper Sans','Noto Sans SC','Microsoft YaHei',monospace}
-#exhibition{--type-title:var(--paper);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:var(--gold)}
+#exhibition{--type-title:var(--gold);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:var(--gold)}
+#chapter-01{--type-title:#e2d7c6}
+#chapter-04{--type-title:var(--avd)}
+#chapter-05{--type-title:var(--anx)}
 #exhibition h1,#exhibition h2,#exhibition h3,#exhibition h4,
 #exhibition .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .dedication-end{
  font-family:var(--serif);font-weight:400;color:var(--type-title)
 }
 #exhibition .source-block .source-copy{font-family:var(--sans);font-weight:400;color:var(--type-copy)}
+/* The dedication is the author's lyrical coda, with its original serif voice. */
+#exhibition .dedication-copy .source-copy{font-family:var(--serif)}
 #exhibition .large-quote{font-family:var(--serif);font-weight:400;color:var(--type-title)}
 #exhibition .chapter-deck,#exhibition .interaction-caption,#exhibition .art-status,
 #exhibition .flow-study figcaption p,#exhibition .mobius-intro,#exhibition .touch-hint,
