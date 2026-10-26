@@ -102,14 +102,21 @@
 
 /* One font and palette per text role; scene-specific sizes remain above. */
 :root{--mono:ui-monospace,'Cascadia Code',Consolas,'Paper Sans','Noto Sans SC','Microsoft YaHei',monospace}
-#exhibition{--type-title:var(--gold);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:var(--gold)}
-#chapter-01{--type-title:#e2d7c6}
-#chapter-04{--type-title:var(--avd)}
-#chapter-05{--type-title:var(--anx)}
+#exhibition{--type-title:var(--paper);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:var(--gold)}
 #exhibition h1,#exhibition h2,#exhibition h3,#exhibition h4,
 #exhibition .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .dedication-end{
  font-family:var(--serif);font-weight:400;color:var(--type-title)
 }
+/* Paper white carries the reading; color appears only at narrative turns. */
+#exhibition :is(h1,h2,h3,h4) em{color:inherit}
+#exhibition #chapter-04>.chapter-heading h2 em{color:var(--avd)}
+#exhibition #chapter-05>.chapter-heading h2 em{color:var(--anx)}
+#exhibition #chapter-06>.chapter-heading h2 em,
+#exhibition .mobius-caption h3 span{
+ background:linear-gradient(110deg,#95c5ef 0%,var(--paper) 48%,#eab3ac 100%);background-clip:text;color:transparent
+}
+#exhibition #chapter-09>.chapter-heading h2 em,
+#exhibition #chapter-11>.chapter-heading h2 em{color:var(--gold)}
 #exhibition .source-block .source-copy{font-family:var(--sans);font-weight:400;color:var(--type-copy)}
 /* The dedication is the author's lyrical coda, with its original serif voice. */
 #exhibition .dedication-copy .source-copy{font-family:var(--serif)}

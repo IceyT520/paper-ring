@@ -26,7 +26,7 @@ try{
    assert(styles.length>0,role);
    for(const property of ['font','weight','color']){
     if(property==='color'&&['titles','quotations'].includes(role)){
-     assert(styles.every(s=>s.color===s.titleColor),`${width}px ${role}: title color must follow its section palette`);
+     assert(styles.every(s=>s.color===s.titleColor),`${width}px ${role}: titles and quotations share their paper-white base`);
      continue;
     }
     const distinct=new Set(styles.map(s=>s[property]));
@@ -36,16 +36,24 @@ try{
   const dedicationFont=await page.locator('.dedication-copy .source-copy').first().evaluate(el=>getComputedStyle(el).fontFamily);
   const serif=await page.locator('#chapter-11 h2').evaluate(el=>getComputedStyle(el).fontFamily);
   assert.equal(dedicationFont,serif,'the dedication keeps its original serif voice');
-  for(const [selector,token] of [['#chapter-04 h2','--avd'],['#chapter-05 h2','--anx'],['#chapter-10 h2','--gold']]){
+  for(const [selector,token] of [
+   ['#chapter-01 h1','--paper'],['#chapter-04 h2','--paper'],['#chapter-05 h2','--paper'],['#chapter-10 h2','--paper'],['.dedication-end','--paper'],
+   ['#chapter-04 h2 em','--avd'],['#chapter-05 h2 em','--anx'],['#chapter-09>.chapter-heading h2 em','--gold'],['#chapter-11 h2 em','--gold'],
+   ['#chapter-03 h2 em','--paper'],['#chapter-07>.chapter-heading h2 em','--paper'],['#chapter-08>.chapter-heading h2 em','--paper'],['#finale-title','--paper']
+  ]){
    const matches=await page.locator(selector).evaluate((el,token)=>{
     const probe=document.createElement('span');probe.style.color=`var(${token})`;el.append(probe);
     const matches=getComputedStyle(el).color===getComputedStyle(probe).color;probe.remove();return matches;
    },token);
    assert(matches,`${selector} follows the ${token} palette`);
   }
+  for(const selector of ['#chapter-06 h2 em','.mobius-caption h3 span']){
+   const gradient=await page.locator(selector).evaluate(el=>{const s=getComputedStyle(el);return s.backgroundImage.includes('linear-gradient')&&s.backgroundClip==='text'});
+   assert(gradient,`${selector}: the shared-surface reveal retains its blended accent`);
+  }
   assert.deepEqual(await page.locator('#mirror-installation [data-voice]').allTextContents(),['不能失去自己','不能没有你']);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-  console.log(`PASS ${width}: consistent text roles, serif dedication and gold/blue/red title palettes`);
+  console.log(`PASS ${width}: paper-white titles, selective story accents and original serif dedication`);
   await page.close();
  }
 }finally{await browser.close()}

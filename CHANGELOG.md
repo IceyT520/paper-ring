@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.17.1] — 2026-10-26
+
+### Changed
+- Restored warm paper white as the base for titles and quotations throughout the
+  exhibition and film; removed chapter-wide blue/red title inheritance.
+- Kept color on selected narrative phrases: blue/red fears, a blended shared
+  perspective, and warm gold for walking together and the screen lighting up.
+- Preserved type sizes, alignment, body colors and the dedication's serif voice;
+  updated four-width typography checks for the new accent hierarchy.
+
 ## [1.17.0] — 2026-10-25
 
 ### Added

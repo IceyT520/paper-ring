@@ -14,8 +14,8 @@ export function initFinale(options:{paper:()=>PaperController|undefined;reduced:
   ['01 / 两面','同一张纸<br><span class="finale-blue">你的世界</span>，<span class="finale-red">我的世界</span>','我们曾以为，彼此在无法抵达的两面。'],
   ['02 / 松开','松开<br>旧的连接','为另一种可能，留一道缝。'],
   ['03 / 转身','只转过半圈<br>世界开始不同','改变的，是我们看向彼此的角度。'],
-  ['04 / 相连','没有越过边缘<br>却抵达了另一面','让一道光，沿着我们共同的纸面前行。'],
-  ['05 / 同一面','走向你<br>也不必离开自己','从两面，到同一面。']
+  ['04 / 相连','没有越过边缘<br>却抵达了<span class="finale-shared">另一面</span>','让一道光，沿着我们共同的纸面前行。'],
+  ['05 / 同一面','走向你<br>也<span class="finale-warm">不必离开自己</span>','从两面，到同一面。']
  ];
  let tween:gsap.core.Tween|undefined,captionTween:gsap.core.Tween|undefined;
  let overflow='',padding='',lastChapter=-1,autoPaused=false,clock={seconds:0},readyTimer:ReturnType<typeof setTimeout>|undefined;
