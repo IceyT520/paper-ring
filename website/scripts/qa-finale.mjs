@@ -9,7 +9,12 @@ try{
  for(const width of [1440,390]){
   const page=await browser.newPage({viewport:{width,height:width>760?960:844},reducedMotion:'no-preference'});
   await page.addInitScript(()=>{
-   window.__filmFrames=[];
+   window.__filmFrames=[];window.__settledPaperUploads=0;
+   const upload=WebGL2RenderingContext.prototype.bufferSubData;
+   WebGL2RenderingContext.prototype.bufferSubData=function(...args){
+    if(this.canvas.parentElement?.id==='finale-stage'&&+document.querySelector('#connection-film').dataset.progress>13/22&&args[2]?.byteLength===5220)window.__settledPaperUploads++;
+    return upload.apply(this,args);
+   };
    const clear=WebGL2RenderingContext.prototype.clear;
    WebGL2RenderingContext.prototype.clear=function(...args){if(this.canvas.parentElement?.id==='finale-stage')window.__filmFrames.push(performance.now());return clear.apply(this,args)};
   });
@@ -52,6 +57,7 @@ try{
   const endedDraws=await page.evaluate(()=>window.__filmFrames.length);
   await page.waitForTimeout(300);
   assert.equal(await page.evaluate(()=>window.__filmFrames.length),endedDraws,'the final still does not keep rendering');
+  assert.equal(await page.evaluate(()=>window.__settledPaperUploads),0,'the closed, unchanging paper is not rebuilt or uploaded every frame');
   const fit=await page.locator('#connection-film').evaluate(el=>{
    const controls=[...el.querySelectorAll('button:not([hidden]),.finale-caption,.finale-stage')].filter(b=>!b.disabled).map(b=>b.getBoundingClientRect());
    return{fits:controls.every(r=>r.x>=0&&r.right<=innerWidth+1&&r.y>=0&&r.bottom<=innerHeight+1),canvases:document.querySelectorAll('canvas[data-paper-renderer]').length,overflow:el.scrollWidth>el.clientWidth+1};

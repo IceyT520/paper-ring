@@ -10,6 +10,8 @@ export function finaleScore(seconds:number){
   roll:-.62+.18*turn-.08*settle,
   scale:1.7-.3*unfold-.15*turn-.05*settle,
   reveal:smooth(0,2.8,t),
+  edgeReveal:smooth(.2,3.2,t),
+  joinMarks:smooth(12,13,t)*(1-smooth(16,18,t)),
   warmth:smooth(9.5,13.5,t),
   pulse:smooth(11.8,15.5,t),
   pulseOpacity:smooth(11.8,12.6,t)*(1-smooth(12.8,16,t)),

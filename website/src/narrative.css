@@ -102,7 +102,7 @@
 
 /* One font and palette per text role; scene-specific sizes remain above. */
 :root{--mono:ui-monospace,'Cascadia Code',Consolas,'Paper Sans','Noto Sans SC','Microsoft YaHei',monospace}
-#exhibition{--type-title:var(--paper);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:var(--gold)}
+#exhibition{--type-title:var(--paper);--type-copy:var(--body-copy);--type-secondary:#a8b1bb;--type-note:#8e9aa6;--type-action:#a9c5dd}
 #exhibition h1,#exhibition h2,#exhibition h3,#exhibition h4,
 #exhibition .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .dedication-end{
  font-family:var(--serif);font-weight:400;color:var(--type-title)
@@ -117,11 +117,20 @@
 #exhibition .mobius-caption h3 span{
  background:linear-gradient(110deg,#95c5ef 0%,var(--paper) 48%,#eab3ac 100%);background-clip:text;color:transparent
 }
-#exhibition #chapter-09>.chapter-heading h2 em,
-#exhibition #chapter-11>.chapter-heading h2 em{color:var(--gold)}
+#exhibition #chapter-09>.chapter-heading h2 em{color:var(--avd)}
+#exhibition #chapter-11>.chapter-heading h2 em{color:var(--anx)}
+#exhibition #chapter-02>.chapter-heading h2,#exhibition #chapter-05>.chapter-heading h2,
+#exhibition .study-delay h3,#exhibition .study-resonance h3{--type-title:var(--anx)}
+#exhibition #chapter-04>.chapter-heading h2,#exhibition #chapter-08>.chapter-heading h2,
+#exhibition .study-origin h3,#exhibition .study-weave h3,#exhibition .wall-quote{--type-title:var(--avd)}
+#exhibition .anxious .reading-subtitle{--type-title:var(--anx)}
 #exhibition .avoidant .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .title-avd{--type-title:var(--avd)}
 #exhibition .title-anx{--type-title:var(--anx)}
-#exhibition .title-warm,#exhibition .mobius-coda h3{--type-title:var(--gold)}
+#exhibition .title-warm{--type-title:var(--avd)}
+#exhibition .mobius-coda h3{--type-title:var(--avd)}
+#exhibition .mobius-coda h3 em{color:var(--anx)}
+#exhibition .copy-anx{color:var(--anx)}
+#exhibition .copy-avd{color:var(--avd)}
 #exhibition .source-block .source-copy{font-family:var(--sans);font-weight:400;color:var(--type-copy)}
 /* The dedication is the author's lyrical coda, with its original serif voice. */
 #exhibition .dedication-copy .source-copy{font-family:var(--serif)}

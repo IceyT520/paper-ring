@@ -50,6 +50,15 @@ export function createPaper(reduced=false):PaperController{
  }
  const mat=new THREE.MeshStandardMaterial({map:surfaces[0].texture,bumpMap:surfaces[0].texture,bumpScale:.025,side:THREE.FrontSide,roughness:.83,metalness:.02});
  const backMat=new THREE.MeshStandardMaterial({map:surfaces[1].texture,color:'#a7b1b1',side:THREE.BackSide,roughness:.85,metalness:.02});
+ // The film has neutral paper stock and two clear inks. Its textures are static;
+ // turning the paper never requires repainting/uploading a full canvas texture.
+ const filmTextures=[0,1].map(i=>{
+  const canvas=document.createElement('canvas');canvas.width=2048;canvas.height=256;
+  const c=canvas.getContext('2d')!;c.filter='saturate(0)';c.drawImage(textureCanvas,0,0);c.filter='none';
+  c.fillStyle=i?'#639dc5':'#cf7b78';const y=(.5-(i?-.28:.28)/1.42)*256;c.fillRect(0,y-1.7,2048,3.4);
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());return texture;
+ });
+ const filmMaterials=filmTextures.map((map,i)=>new THREE.MeshPhongMaterial({map,side:i?THREE.BackSide:THREE.FrontSide,shininess:7,specular:'#263440'}));
  // The strip is linear across its width; more subdivisions add no silhouette detail.
  const N=144,M=2,verts=(N+1)*(M+1),positions=new Float32Array(verts*3),normals=new Float32Array(verts*3),uv=new Float32Array(verts*2),indices:number[]=[];
  for(let i=0;i<=N;i++)for(let j=0;j<=M;j++){
@@ -57,7 +66,7 @@ export function createPaper(reduced=false):PaperController{
    if(i<N&&j<M){const a=n,b=n+M+1;indices.push(a,b,a+1,b,b+1,a+1)}
  }
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3).setUsage(THREE.DynamicDrawUsage));geometry.setAttribute('normal',new THREE.BufferAttribute(normals,3).setUsage(THREE.DynamicDrawUsage));geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));geometry.setIndex(indices);geometry.boundingSphere=new THREE.Sphere(new THREE.Vector3(),3.1);
- const paper=new THREE.Mesh(geometry,mat),back=new THREE.Mesh(geometry,backMat);group.add(paper,back);
+ const paper=new THREE.Mesh<THREE.BufferGeometry,THREE.Material>(geometry,mat),back=new THREE.Mesh<THREE.BufferGeometry,THREE.Material>(geometry,backMat);group.add(paper,back);
  const edgeLines=[-.71,.71].map(()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array((N+1)*3),3));const line=new THREE.Line(g,new THREE.LineBasicMaterial({color:'#e8e2d1',transparent:true,opacity:.45}));group.add(line);return line});
  const dotA=new THREE.Mesh(new THREE.SphereGeometry(.055,16,12),new THREE.MeshBasicMaterial({color:'#ffb2a4'}));
  const dotR=new THREE.Mesh(new THREE.SphereGeometry(.055,16,12),new THREE.MeshBasicMaterial({color:'#a7d8ff'}));group.add(dotA,dotR);
@@ -84,19 +93,27 @@ export function createPaper(reduced=false):PaperController{
   const m=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
   const mesh=new THREE.Mesh(g,m);filmGroup.add(mesh);return mesh;
  }
- const filmRibbons=[lightRibbon(.012,.95),lightRibbon(.055,.16)];
+ const filmRibbons=[lightRibbon(.009,.88),lightRibbon(.027,.08)];
+ // Three small registration strokes cross the actual closed seam on both faces.
+ // They appear only at closure, so the connection has a precise visual beat.
+ const stitchPoints:number[]=[],stitchColors:number[]=[];
+ for(const channel of [0,1])for(const offset of [-.43,0,.43])for(let i=0;i<12;i++)for(const j of [i,i+1]){
+  const phase=(j/12-.5)*.023,s=paperTrace(phase,channel,1,offset);
+  stitchPoints.push(...s.point.map((x,k)=>x+s.normal[k]*s.side*.022));
+  stitchColors.push(...new THREE.Color(channel?'#8dc8ec':'#eaa7a0').toArray());
+ }
+ const stitchGeometry=new THREE.BufferGeometry();stitchGeometry.setAttribute('position',new THREE.Float32BufferAttribute(stitchPoints,3));stitchGeometry.setAttribute('color',new THREE.Float32BufferAttribute(stitchColors,3));
+ const stitches=new THREE.LineSegments(stitchGeometry,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0,depthWrite:false,toneMapped:false}));filmGroup.add(stitches);
  const seamLights=[0,1].map(i=>{
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(25*3),3).setUsage(THREE.DynamicDrawUsage));
   const m=new THREE.LineBasicMaterial({color:i?'#ffa28c':'#91d2ff',transparent:true,opacity:.85,toneMapped:false});
   const mesh=new THREE.Line(g,m);filmGroup.add(mesh);return mesh;
  });
- const halo=new THREE.Mesh(new THREE.RingGeometry(2.95,2.962,144),new THREE.MeshBasicMaterial({color:'#e7ba7c',transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));halo.position.z=-1.2;halo.visible=false;scene.add(halo);
+ const halo=new THREE.Mesh(new THREE.RingGeometry(2.95,2.958,144),new THREE.MeshBasicMaterial({color:'#97b8d1',transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));halo.position.z=-1.2;halo.visible=false;scene.add(halo);
  const glowCanvas=document.createElement('canvas');glowCanvas.width=glowCanvas.height=64;const gc=glowCanvas.getContext('2d')!,gradient=gc.createRadialGradient(32,32,0,32,32,32);
- gradient.addColorStop(0,'#ffe2b9');gradient.addColorStop(.16,'#e6bf8799');gradient.addColorStop(1,'#c0955500');gc.fillStyle=gradient;gc.fillRect(0,0,64,64);
+ gradient.addColorStop(0,'#f1f3f4');gradient.addColorStop(.16,'#b7d3e477');gradient.addColorStop(1,'#b7d3e400');gc.fillStyle=gradient;gc.fillRect(0,0,64,64);
  const glowTexture=new THREE.CanvasTexture(glowCanvas);glowTexture.colorSpace=THREE.SRGBColorSpace;
  const filmGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));filmGlow.scale.setScalar(.13);filmGroup.add(filmGlow);
- const headLamp=new THREE.PointLight('#ffddad',0,1.1,2);filmGroup.add(headLamp);
- const seamLamps=['#75bdff','#ff998d'].map(color=>{const light=new THREE.PointLight(color,0,1.4,2);filmGroup.add(light);return light});
  const seamGlows=['#75bdff','#ff998d'].map(color=>{const mesh=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,color,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));mesh.scale.setScalar(.1);filmGroup.add(mesh);return mesh});
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
  let active:HTMLElement|null=null,mode='hero',frame=0,needsDraw=true,geometryDirty=false,twistProgress=0,twistTarget=0,flipAngle=0,currentFlip=0,dragging=false,lastX=0,lastY=0,dragDistance=0,lastPaint=0;
@@ -105,31 +122,32 @@ export function createPaper(reduced=false):PaperController{
  const displayedView:Record<string,{x:number;y:number}>={explore:{x:0,y:0},mobius:{x:0,y:0}};
  let traceClock=0,lastFrame=0,tracePaused=false,lightProgress=-1,lightStart=0,lightOffset=.28,lightMessage=-1,openingProgress=1;
  let pendingLight:{phase:number;offset:number}|undefined;
- let filmSeconds:number|null=null;
+ let filmSeconds:number|null=null,filmShot=finaleScore(0);
  const lightStatus=document.querySelector<HTMLElement>('#light-status')!;
  function stamp(){if(!active)return;active.dataset.view=JSON.stringify(rotations[mode]||{x:0,y:0});active.dataset.traceState=tracePaused?'paused':'running';active.dataset.paperProgress=String(mode==='mobius'?twistTarget:0)}
  function nudgeView(x:number,y:number){const r=rotations[mode];if(!r)return;r.x+=x;r.y=THREE.MathUtils.clamp(r.y+y,-1.2,1.2);stamp();needsDraw=true;requestFrame()}
  function placeDots(){
   if(mode==='finale'){
-   const score=finaleScore(filmSeconds??0),phase=score.journey;
+   const score=filmShot,phase=score.journey;
    filmGroup.visible=true;halo.visible=true;trail.visible=false;
    dotA.position.fromArray(paperTrace(phase,0,1).center);dotR.position.copy(dotA.position);
    dotA.visible=phase>0;dotR.visible=false;
    filmGlow.visible=phase>0;filmGlow.position.copy(dotA.position);
-   headLamp.position.copy(dotA.position);headLamp.intensity=phase>0?.5:0;
+   stitches.material.opacity=score.joinMarks*.8;
    filmRibbons.forEach(mesh=>mesh.geometry.setDrawRange(0,Math.floor(phase*FILM_SEGMENTS)*6));
    const shape=paperShape(score.twist);
    seamLights.forEach((mesh,k)=>{
-    mesh.visible=score.twist>.005&&score.twist<1;mesh.material.opacity=.95*(1-score.warmth);
+    mesh.visible=score.twist>.005&&score.twist<1;mesh.material.opacity=.8*(1-score.warmth);
+    seamGlows[k].visible=mesh.visible;
+    if(!mesh.visible)return;
     const u=k?Math.PI*2-shape.gap/2:shape.gap/2;
     for(let i=0;i<=24;i++){const v=(i/24-.5)*1.42,p=paperPoint(u,v,shape.twist),n=paperNormal(u,v,shape.twist);mesh.geometry.attributes.position.setXYZ(i,p[0]+n[0]*.018,p[1]+n[1]*.018,p[2]+n[2]*.018)}
     mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.boundingSphere=geometry.boundingSphere;
     const middle=paperPoint(u,0,shape.twist),normal=paperNormal(u,0,shape.twist);
     seamGlows[k].position.set(middle[0]+normal[0]*.06,middle[1]+normal[1]*.06,middle[2]+normal[2]*.06);
-    seamGlows[k].visible=mesh.visible;seamGlows[k].material.opacity=mesh.material.opacity;
-    seamLamps[k].position.set(middle[0]+normal[0]*.2,middle[1]+normal[1]*.2,middle[2]+normal[2]*.2);seamLamps[k].intensity=mesh.visible?1.8*mesh.material.opacity:0;
+    seamGlows[k].material.opacity=mesh.material.opacity;
    });
-   halo.scale.setScalar(1+score.pulse*1.5);halo.material.opacity=score.pulseOpacity*.45;
+   halo.scale.setScalar(1+score.pulse*.55);halo.material.opacity=score.pulseOpacity*.22;
    return;
   }
   filmGroup.visible=false;halo.visible=false;
@@ -166,8 +184,8 @@ export function createPaper(reduced=false):PaperController{
  }
 
  function updateGeometry(){
-   const {twist,gap}=mode==='finale'?paperShape(finaleScore(filmSeconds??0).twist):mode==='mobius'?paperShape(twistProgress):{twist:0,gap:0};
-   paintLines(twist);
+   const {twist,gap}=mode==='finale'?paperShape(filmShot.twist):mode==='mobius'?paperShape(twistProgress):{twist:0,gap:0};
+   if(mode!=='finale')paintLines(twist);
    backMat.color.set(mode==='mobius'||mode==='finale'?'#eee3d1':'#a7b1b1');
    for(let i=0;i<=N;i++){
      const u=gap/2+i/N*(Math.PI*2-gap),cu=Math.cos(u),su=Math.sin(u),phi=Math.PI/2*(1-twist)+twist*u/2,c=Math.cos(phi),s=Math.sin(phi);
@@ -182,16 +200,18 @@ export function createPaper(reduced=false):PaperController{
    }
    geometry.attributes.position.needsUpdate=true;geometry.attributes.normal.needsUpdate=true;
    edgeLines.forEach(line=>{line.geometry.attributes.position.needsUpdate=true;line.geometry.boundingSphere=geometry.boundingSphere});
-   placeDots();
    if(mode!=='finale')dotA.visible=dotR.visible=true;needsDraw=true;geometryDirty=false;
  }
- function resize(){if(!active)return;const r=active.getBoundingClientRect();if(r.width<1||r.height<1)return;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5,Math.sqrt(950000/(r.width*r.height))));renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();needsDraw=true;requestFrame()}
+ function resize(){if(!active)return;const r=active.getBoundingClientRect();if(r.width<1||r.height<1)return;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5,Math.sqrt((mode==='finale'?780000:950000)/(r.width*r.height))));renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();needsDraw=true;requestFrame()}
  const ro=new ResizeObserver(resize);
  function choose(){
    if(document.querySelector('#exhibition')?.hasAttribute('hidden')){active?.classList.remove('ready');active=null;return}
    const filmSlot=filmSeconds!==null&&document.querySelector<HTMLDialogElement>('#connection-film')?.open?slots.find(el=>el.dataset.stage==='finale'):undefined;
    const best=filmSlot??[...ratios].filter(([el,n])=>el.dataset.stage!=='finale'&&n>0&&el.getBoundingClientRect().width>0).sort((a,b)=>b[1]-a[1])[0]?.[0];
-   if(best&&best!==active){active?.classList.remove('ready');ro.disconnect();active=best;mode=best.dataset.stage!;twistProgress=twistTarget;mat.color.set(mode==='hero'?'#ffffff':'#eee3d1');best.append(renderer.domElement);ro.observe(best);updateGeometry();resize();stamp();lastFrame=0;}
+   if(best&&best!==active){active?.classList.remove('ready');ro.disconnect();active=best;mode=best.dataset.stage!;twistProgress=twistTarget;mat.color.set(mode==='hero'?'#ffffff':'#eee3d1');paper.material=mode==='finale'?filmMaterials[0]:mat;back.material=mode==='finale'?filmMaterials[1]:backMat;best.append(renderer.domElement);ro.observe(best);updateGeometry();resize();stamp();lastFrame=0;
+    const film=mode==='finale';ambient.color.set(film?'#dce4eb':'#e9e4d6');key.color.set(film?'#f3f4f5':'#fff1d6');rim.color.set(film?'#7da9cc':'#8abef3');warmEdge.color.set(film?'#c58d92':'#f1a297');renderer.toneMappingExposure=film?1:1.12;
+    edgeLines.forEach((line,i)=>{line.material.color.set(film?(i?'#b97c7d':'#7cacc9'):'#e8e2d1');line.material.opacity=film?.7:.45;line.geometry.setDrawRange(0,N+1)});
+   }
    else if(!best){active?.classList.remove('ready');ro.disconnect();active=null;}
    requestFrame();
  }
@@ -216,10 +236,11 @@ export function createPaper(reduced=false):PaperController{
    key.position.set(-3-4*opening,5,6-4*opening);
    warmEdge.position.set(-4,-2,1);
    if(mode==='finale'){
-    const shot=finaleScore(filmSeconds??0);
-    ambient.intensity=.12+.48*shot.reveal+.3*shot.warmth;key.intensity=.18+2.5*shot.reveal;fill.intensity=.05+.65*shot.reveal;
-    rim.intensity=3.8-1.2*shot.warmth;warmEdge.intensity=1.6+1.3*shot.warmth;
-    key.position.set(-4+shot.warmth*6,5,4);warmEdge.position.set(-4,1,2);
+    const shot=filmShot;
+    ambient.intensity=.09+.25*shot.reveal;key.intensity=.3+2.25*shot.reveal;fill.intensity=.12+.25*shot.reveal;
+    rim.intensity=1.25;warmEdge.intensity=.28+.12*shot.warmth;
+    key.position.set(-4+shot.warmth*2,5,5);warmEdge.position.set(-4,1,2);
+    edgeLines.forEach(line=>line.geometry.setDrawRange(0,Math.floor((N+1)*shot.edgeReveal)));
     group.rotation.set(shot.pitch,shot.yaw,shot.roll);group.position.set(0,.2,0);
     group.scale.setScalar(fitPaperScale(positions,group.rotation,camera.aspect,shot.scale,.2));
    }
@@ -264,7 +285,7 @@ export function createPaper(reduced=false):PaperController{
  renderer.domElement.addEventListener('webglcontextrestored',()=>{updateGeometry();active?.classList.add('ready');requestFrame()});
  updateGeometry();
  return {
-   setFinale(seconds){filmSeconds=seconds;choose();if(mode==='finale'){geometryDirty=true;needsDraw=true;requestFrame()}},
+   setFinale(seconds){const switching=(filmSeconds===null)!==(seconds===null),previousTwist=filmShot.twist;filmSeconds=seconds;if(seconds!==null)filmShot=finaleScore(seconds);if(switching)choose();if(mode==='finale'){geometryDirty ||= previousTwist!==filmShot.twist;needsDraw=true;requestFrame()}},
    setOpening(value){openingProgress=Math.max(0,Math.min(1,value));if(mode==='hero'){needsDraw=true;requestFrame()}},
    setReduced(value){reduced=value;if(value){twistProgress=twistTarget;if(lightProgress>=0)lightProgress=1}needsDraw=true;updateGeometry();requestFrame()},
    setTwist(value){if(twistTarget===value)return;twistTarget=value;if(value<1){pendingLight=undefined;lightProgress=-1;trail.visible=false}if(reduced||mode!=='mobius'){twistProgress=value;geometryDirty=true}if(mode==='mobius'){needsDraw=true;stamp();requestFrame()}},
@@ -274,6 +295,6 @@ export function createPaper(reduced=false):PaperController{
    setTracePaused(value){tracePaused=value;stamp();needsDraw=true;requestFrame()},
    sendLight(phase=0,offset=.28){pendingLight={phase,offset};needsDraw=true;requestFrame()},
    refresh(){choose();resize()},
-   destroy(){cancelAnimationFrame(frame);io.disconnect();ro.disconnect();document.removeEventListener('visibilitychange',visibility);geometry.dispose();trailGeometry.dispose();trailMaterial.dispose();edgeLines.forEach(l=>{l.geometry.dispose();l.material.dispose()});filmRibbons.forEach(m=>{m.geometry.dispose();m.material.dispose()});seamLights.forEach(m=>{m.geometry.dispose();m.material.dispose()});seamGlows.forEach(m=>m.material.dispose());filmGlow.material.dispose();glowTexture.dispose();halo.geometry.dispose();halo.material.dispose();dotA.geometry.dispose();dotR.geometry.dispose();dotA.material.dispose();dotR.material.dispose();mat.dispose();backMat.dispose();surfaces.forEach(s=>s.texture.dispose());renderer.dispose()}
+   destroy(){cancelAnimationFrame(frame);io.disconnect();ro.disconnect();document.removeEventListener('visibilitychange',visibility);geometry.dispose();trailGeometry.dispose();trailMaterial.dispose();edgeLines.forEach(l=>{l.geometry.dispose();l.material.dispose()});filmRibbons.forEach(m=>{m.geometry.dispose();m.material.dispose()});seamLights.forEach(m=>{m.geometry.dispose();m.material.dispose()});seamGlows.forEach(m=>m.material.dispose());filmGlow.material.dispose();glowTexture.dispose();halo.geometry.dispose();halo.material.dispose();dotA.geometry.dispose();dotR.geometry.dispose();dotA.material.dispose();dotR.material.dispose();stitchGeometry.dispose();stitches.material.dispose();filmMaterials.forEach(m=>m.dispose());filmTextures.forEach(t=>t.dispose());mat.dispose();backMat.dispose();surfaces.forEach(s=>s.texture.dispose());renderer.dispose()}
  };
 }

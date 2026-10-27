@@ -11,22 +11,27 @@ export function initFinale(options:{paper:()=>PaperController|undefined;reduced:
  const stage=dialog.querySelector<HTMLElement>('#finale-stage')!;
  const chapter=dialog.querySelector<HTMLElement>('#finale-chapter')!,title=dialog.querySelector<HTMLElement>('#finale-title')!,description=dialog.querySelector<HTMLElement>('#finale-description')!;
  const time=dialog.querySelector<HTMLElement>('#finale-time')!;
+ const progressLine=dialog.querySelector<HTMLElement>('.finale-progress i')!;
+ const lightLayers=[...dialog.querySelectorAll<HTMLElement>('.finale-lightfield i')];
+ const horizon=dialog.querySelector<HTMLElement>('.finale-horizon')!;
  const captions=[
   ['01 / 两面','同一张纸<br><span class="finale-blue">你的世界</span>，<span class="finale-red">我的世界</span>','我们曾以为，彼此在无法抵达的两面。'],
-  ['02 / 松开','松开<br>旧的连接','为另一种可能，留一道缝。'],
-  ['03 / 转身','只转过半圈<br>世界开始不同','改变的，是我们看向彼此的角度。'],
+  ['02 / 松开','<span class="finale-blue">松开</span><br>旧的连接','为另一种可能，留一道缝。'],
+  ['03 / 转身','只转过<span class="finale-red">半圈</span><br>世界开始不同','改变的，是我们看向彼此的角度。'],
   ['04 / 相连','没有越过边缘<br>却抵达了<span class="finale-shared">另一面</span>','让一道光，沿着我们共同的纸面前行。'],
-  ['05 / 同一面','走向你<br>也<span class="finale-warm">不必离开自己</span>','从两面，到同一面。']
+  ['05 / 同一面','<span class="finale-red">走向你</span><br>也不必离开<span class="finale-blue">自己</span>','从两面，到同一面。']
  ];
  let tween:gsap.core.Tween|undefined,captionTween:gsap.core.Tween|undefined;
  let overflow='',padding='',lastChapter=-1,autoPaused=false,clock={seconds:0},readyTimer:ReturnType<typeof setTimeout>|undefined;
  function paint(){
   const score=finaleScore(clock.seconds);options.paper()?.setFinale(clock.seconds);
   dialog.dataset.progress=(clock.seconds/22).toFixed(5);
-  dialog.style.setProperty('--film-progress',String(clock.seconds/22));
-  dialog.style.setProperty('--film-warmth',String(score.warmth));
-  dialog.style.setProperty('--film-reveal',String(score.reveal));
-  dialog.style.setProperty('--film-end',String(score.finale));
+  // Animate only the composited leaf layers. Inherited custom properties on
+  // the dialog would recalculate every caption and control on every frame.
+  progressLine.style.transform=`scaleX(${clock.seconds/22})`;
+  lightLayers.forEach(el=>el.style.opacity=String(.25+score.reveal*.35));
+  horizon.style.opacity=String(score.joinMarks*.45);
+  horizon.style.transform=`scaleX(${.55+score.warmth*.45})`;
   fadeText(time,`${String(Math.floor(clock.seconds)).padStart(2,'0')} / 22`);
   if(score.chapter!==lastChapter){
    lastChapter=score.chapter;const text=captions[lastChapter];

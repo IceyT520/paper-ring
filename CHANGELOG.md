@@ -4,6 +4,20 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.19.0] — 2026-10-27
+
+### Changed
+- Increased red/blue emphasis in early chapter titles and quotations; made
+  “手机亮起” red and removed full-heading gold treatments.
+- Restaged the final film with neutral paper, clearer directional light,
+  tracing red/blue edges and fine seam-registration marks. Removed the broad
+  warm haze and softened the luminous trail.
+- Cache the film pose, stop rebuilding settled geometry, use static film
+  textures and lighter materials, and animate individual composited layers
+  instead of inherited dialog properties. Keep the original 22-second pace.
+- Added whole-film profiling and a regression against repeated uploads of the
+  already connected paper; retain framing, pause, replay and fallback checks.
+
 ## [1.18.0] — 2026-10-27
 
 ### Changed
