@@ -117,8 +117,12 @@ try{
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.animating==='false');
  assert.equal(await scene.getAttribute('data-connected'),'true');
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='paused');
- assert(await scene.evaluate(el=>el.getAnimations({subtree:true}).every(a=>a.playState==='paused')),'lamp animations pause offscreen too');
- const offscreen=await scene.innerHTML();await page.waitForTimeout(250);assert.equal(await scene.innerHTML(),offscreen,'offscreen weather stops all writes');
+ // Copy has finite fades now. Weather suspension concerns the two continuous
+ // lamp effects and the SVG artwork, not a caption finishing its short fade.
+ const lamps=await scene.evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a instanceof CSSAnimation&&a.animationName==='shelter-lamplight').map(a=>a.playState));
+ assert.deepEqual(lamps,['paused','paused'],'both continuous lamp animations pause offscreen');
+ const artwork=scene.locator('.shelter-art');
+ const offscreen=await artwork.innerHTML();await page.waitForTimeout(250);assert.equal(await artwork.innerHTML(),offscreen,'offscreen weather stops all artwork writes');
  await scene.scrollIntoViewIfNeeded();
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running');
  const resumed=await page.locator('#shelter-rain').getAttribute('d');await page.waitForTimeout(200);
@@ -126,12 +130,12 @@ try{
  await button.click();await page.evaluate(()=>document.body.classList.add('reduced-motion'));
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.animating==='false');
  assert.equal(await scene.getAttribute('data-connected'),'true');
- const quiet=await scene.innerHTML();await page.waitForTimeout(250);assert.equal(await scene.innerHTML(),quiet,'reduced motion is completely static');
+ const quiet=await artwork.innerHTML();await page.waitForTimeout(250);assert.equal(await artwork.innerHTML(),quiet,'reduced-motion artwork is completely static');
  await page.evaluate(()=>document.body.classList.remove('reduced-motion'));
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='running');
  await page.evaluate(()=>document.body.classList.add('reader-mode'));
  await page.waitForFunction(()=>document.querySelector('#mirror-installation').dataset.weather==='paused');
- const reading=await scene.innerHTML();await page.waitForTimeout(250);assert.equal(await scene.innerHTML(),reading,'reading mode pauses the hidden weather');
+ const reading=await artwork.innerHTML();await page.waitForTimeout(250);assert.equal(await artwork.innerHTML(),reading,'reading mode pauses the hidden weather');
  await page.evaluate(()=>document.body.classList.remove('reader-mode'));
  await scene.scrollIntoViewIfNeeded();
  await page.setViewportSize({width:390,height:844});assert.equal(await scene.getAttribute('data-connected'),'true');
