@@ -36,12 +36,27 @@ try{
  assert(reversal.after<=reversal.before+.02,'reversing reading mode continues from the current opacity without a flash');
  await page.waitForSelector('#exhibition:not([hidden])');
  await page.locator('.hero').scrollIntoViewIfNeeded();await page.waitForTimeout(600);
- await page.locator('#replay-opening').click();await page.waitForTimeout(80);
- const titleOpacity=await page.locator('.hero-title h1>span').first().evaluate(el=>+getComputedStyle(el).opacity);
- assert(titleOpacity>0&&titleOpacity<.99,'replay fades the existing title away before restarting');
+ // Record inside the browser's frames: a remote runner can finish the short
+ // exit between a click response and a later screenshot/opacity request.
+ const titleFade=await page.evaluate(async()=>{
+  const line=document.querySelector('.hero-title h1>span'),samples=[];
+  document.querySelector('#replay-opening').click();
+  await new Promise(resolve=>{
+   function sample(){
+    samples.push(+getComputedStyle(line).opacity);
+    if(document.documentElement.dataset.opening==='leaving')requestAnimationFrame(sample);else resolve();
+   }
+   requestAnimationFrame(sample);
+  });
+  return samples;
+ });
+ assert(titleFade.some(opacity=>opacity>0&&opacity<.99),`replay fades the existing title away before restarting: ${titleFade}`);
  await page.waitForSelector('html[data-opening=running]');
- await page.keyboard.press('Escape');
- assert(+await page.locator('.hero-title h1>span').first().evaluate(el=>getComputedStyle(el).opacity)<.8,'skip fades the actual title lines back in');
+ const skipOpacity=await page.evaluate(()=>{
+  document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  return +getComputedStyle(document.querySelector('.hero-title h1>span')).opacity;
+ });
+ assert(skipOpacity<.8,'skip fades the actual title lines back in');
  await page.waitForTimeout(450);
  assert(+await page.locator('.hero-title h1>span').first().evaluate(el=>getComputedStyle(el).opacity)>.99);
  console.log('PASS: text fades before replacement, latest click wins, menu fades, reader switch preserves all content');
