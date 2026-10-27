@@ -53,7 +53,7 @@ try{
   await page.waitForTimeout(300);
   assert.equal(await page.evaluate(()=>window.__filmFrames.length),endedDraws,'the final still does not keep rendering');
   const fit=await page.locator('#connection-film').evaluate(el=>{
-   const controls=[...el.querySelectorAll('button:not([hidden])')].filter(b=>!b.disabled).map(b=>b.getBoundingClientRect());
+   const controls=[...el.querySelectorAll('button:not([hidden]),.finale-caption,.finale-stage')].filter(b=>!b.disabled).map(b=>b.getBoundingClientRect());
    return{fits:controls.every(r=>r.x>=0&&r.right<=innerWidth+1&&r.y>=0&&r.bottom<=innerHeight+1),canvases:document.querySelectorAll('canvas[data-paper-renderer]').length,overflow:el.scrollWidth>el.clientWidth+1};
   });
   assert(fit.fits,'every playback control fits the viewport');assert(!fit.overflow);assert.equal(fit.canvases,1,'film reuses the existing renderer');

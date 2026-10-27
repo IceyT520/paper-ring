@@ -7,6 +7,9 @@ const reports=[];
 const url=devUrl;
 fs.mkdirSync('test-results',{recursive:true});
 async function check(name,fn){await fn();reports.push(name);console.log('PASS',name)}
+// Visible copy now fades before replacement. Await these finite Web Animations
+// without waiting for decorative CSS loops or changing the assertions below.
+async function settleCopy(page){await page.waitForFunction(()=>document.getAnimations().every(a=>a instanceof CSSAnimation||a instanceof CSSTransition||a.playState!=='running'))}
 function silentWav(seconds=.6,rate=8000){
  const n=Math.floor(seconds*rate),buf=Buffer.alloc(44+n);
  buf.write('RIFF',0);buf.writeUInt32LE(36+n,4);buf.write('WAVE',8);buf.write('fmt ',12);
@@ -64,30 +67,30 @@ try{
  await check('chapter dialog opens, traps focus, closes with Escape and navigates',async()=>{
   await page.locator('#menu-toggle').click();assert(await page.locator('#chapter-menu').isVisible());
   await page.keyboard.press('Tab');assert(await page.evaluate(()=>document.activeElement.closest('#chapter-menu')!==null));
-  await page.keyboard.press('Escape');assert(!await page.locator('#chapter-menu').isVisible());
+  await page.keyboard.press('Escape');await settleCopy(page);assert(!await page.locator('#chapter-menu').isVisible());
   await page.locator('#menu-toggle').click();await page.locator('#chapter-menu a[href="#chapter-06"]').click();
-  assert(!await page.locator('#chapter-menu').isVisible());assert.equal(new URL(page.url()).hash,'#chapter-06');
+  await settleCopy(page);assert(!await page.locator('#chapter-menu').isVisible());assert.equal(new URL(page.url()).hash,'#chapter-06');
  });
  await check('original statements stay; shared space, coin, peel and fear filter respond',async()=>{
   await page.locator('#connection-meet').click();
   assert.equal(await page.locator('#mirror-installation').getAttribute('data-connected'),'true');
   assert.deepEqual(await page.locator('#mirror-installation [data-voice]').allTextContents(),['不能失去自己','不能没有你']);
   await page.locator('#paper-coin').click();assert(await page.locator('#paper-coin').evaluate(e=>e.classList.contains('flipped')));
-  await page.locator('#peel-button').click();assert.equal(await page.locator('#peel-text').textContent(),'我很害怕，我需要你。');
-  await page.locator('#peel-button').click();assert.equal(await page.locator('#peel-text').textContent(),'求你拉住我，别推我走。');
+  await page.locator('#peel-button').click();await settleCopy(page);assert.equal(await page.locator('#peel-text').textContent(),'我很害怕，我需要你。');
+  await page.locator('#peel-button').click();await settleCopy(page);assert.equal(await page.locator('#peel-text').textContent(),'求你拉住我，别推我走。');
   await page.locator('#filter-toggle').click();assert.equal(await page.locator('#filter-toggle').getAttribute('aria-pressed'),'true');
  });
  await check('pursuit/reset and all three pairs of subtitles',async()=>{
-  await page.locator('#pursue').click();await page.locator('#pursue').click();assert.equal(await page.locator('#pursuit-count').textContent(),'第 2 次追问');
-  await page.locator('#pursue-reset').click();assert.equal(await page.locator('#pursuit-count').textContent(),'尚未追问');
-  await page.locator('[data-subtitle="2"]').click();assert.equal(await page.locator('#subtitle-avd').textContent(),'你在摧毁我的边界');
+  await page.locator('#pursue').click();await page.locator('#pursue').click();await settleCopy(page);assert.equal(await page.locator('#pursuit-count').textContent(),'第 2 次追问');
+  await page.locator('#pursue-reset').click();await settleCopy(page);assert.equal(await page.locator('#pursuit-count').textContent(),'尚未追问');
+  await page.locator('[data-subtitle="2"]').click();await settleCopy(page);assert.equal(await page.locator('#subtitle-avd').textContent(),'你在摧毁我的边界');
  });
  await check('six-step loop unveils, counts a full cycle, pauses and resets',async()=>{
   await page.locator('#unveil-distance').click();assert(await page.locator('#distance-shield').evaluate(e=>e.classList.contains('unveiled')));
-  for(let i=0;i<6;i++)await page.locator('#loop-next').click();assert.equal(await page.locator('#loop-count').textContent(),'01');
+  for(let i=0;i<6;i++)await page.locator('#loop-next').click();await settleCopy(page);assert.equal(await page.locator('#loop-count').textContent(),'01');
   await page.locator('#loop-play').click();await page.locator('#loop-play').click();
-  const value=await page.locator('#loop-description').textContent();await page.waitForTimeout(1900);assert.equal(await page.locator('#loop-description').textContent(),value);
-  await page.locator('#loop-reset').click();assert.equal(await page.locator('#loop-count').textContent(),'00');
+  await settleCopy(page);const value=await page.locator('#loop-description').textContent();await page.waitForTimeout(1900);assert.equal(await page.locator('#loop-description').textContent(),value);
+  await page.locator('#loop-reset').click();await settleCopy(page);assert.equal(await page.locator('#loop-count').textContent(),'00');
  });
  await check('simulation opens at the critical distance, then grows or settles',async()=>{
   assert.equal(await page.locator('#critical-value').textContent(),'9.00');
@@ -99,17 +102,17 @@ try{
   assert(Number(await page.locator('#time-chart').getAttribute('data-max'))>1,'the growth preset still leaves [0,1]');
   await page.locator('[data-preset="critical"]').click();
   await page.locator('[data-model="bounded"]').click();assert(Number(await page.locator('#time-chart').getAttribute('data-max'))<=1);
-  await page.locator('#sim-reset').click();assert.equal(await page.locator('#value-D').textContent(),'9.00');
+  await page.locator('#sim-reset').click();await settleCopy(page);assert.equal(await page.locator('#value-D').textContent(),'9.00');
  });
  await check('communication exercise and copyable original sentence',async()=>{
   await page.locator('#practice-reframe').click();assert(await page.locator('#practice-feedback').isVisible());
   await page.locator('[data-copy]').click();assert((await page.evaluate(()=>navigator.clipboard.readText())).includes('明天我们再好好聊'));
  });
  await check('source-location links preserve exact reading position in both directions',async()=>{
-  await page.locator('#p036 [data-locate]').click();assert(await page.locator('#source-reader').isVisible());
+  await page.locator('#p036 [data-locate]').click();await settleCopy(page);assert(await page.locator('#source-reader').isVisible());
   assert(await page.locator('#exhibition').isHidden());
   let y=await page.locator('#reader-p036').evaluate(el=>el.getBoundingClientRect().top);assert(y>=60&&y<250,`reader position ${y}`);
-  await page.locator('#reader-p036 [data-locate]').click();assert(await page.locator('#source-reader').isHidden());
+  await page.locator('#reader-p036 [data-locate]').click();await settleCopy(page);assert(await page.locator('#source-reader').isHidden());
   y=await page.locator('#p036').evaluate(el=>el.getBoundingClientRect().top);assert(y>=60&&y<250,`exhibition position ${y}`);
  });
  await check('reading never creates a bookmark; legacy bookmark is discarded',async()=>{
@@ -129,7 +132,7 @@ try{
    assert(layout.scroll<=width+1,JSON.stringify(layout));
    await page.locator('#menu-toggle').click();await page.locator('#chapter-menu a[href="#chapter-08"]').click();
    const box=await page.locator('#simulator').boundingBox();assert(box.width<=width);
-   await page.locator('[data-preset="critical"]').click();assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
+   await page.locator('[data-preset="critical"]').click();await settleCopy(page);assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
   });
   if(width===390){await page.screenshot({path:'test-results/mobile-sandbox.png'});await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.screenshot({path:'test-results/mobile-final.png'})}
   await context.close();
@@ -141,7 +144,7 @@ try{
  await check('WebGL unavailable: static paper fallback and working interactions',async()=>{
   const context=await browser.newContext();await context.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(String(type).includes('webgl'))return null;return get.call(this,type,...args)}});
   const page=await context.newPage();await page.goto(devUrlNoGate,{waitUntil:'networkidle'});await page.waitForTimeout(1500);
-  assert(await page.locator('#hero-stage .ring-fallback').isVisible());await page.locator('#peel-button').click();assert((await page.locator('#peel-text').textContent()).includes('我很害怕'));await context.close();
+  assert(await page.locator('#hero-stage .ring-fallback').isVisible());await page.locator('#peel-button').click();await settleCopy(page);assert((await page.locator('#peel-text').textContent()).includes('我很害怕'));await context.close();
  });
  fs.writeFileSync('test-results/browser-report.json',JSON.stringify({passed:reports.length,checks:reports},null,2));
  console.log(`All ${reports.length} browser checks passed.`);

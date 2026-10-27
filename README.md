@@ -75,7 +75,7 @@ docs/preview/              README 用的预览图
 cd website
 pnpm install
 pnpm dev            # 本地开发（http://127.0.0.1:4173）
-pnpm test           # 15 个单元测试
+pnpm test           # 16 个单元测试
 pnpm check:content  # 逐字核对原文 / 校订 / 双模式 / 单文件成品
 pnpm release        # 重建页面、打包单文件、校验（发布前跑这一条）
 pnpm build          # 生产构建到 dist/（可部署静态托管）

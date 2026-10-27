@@ -56,7 +56,7 @@ try{
   await page.goto(url+'#chapter-09',{waitUntil:'load'});
   assert.equal(await page.locator('#buffer-scene,#buffer-offer').count(),0,'the return-time animation is removed');
   const before=await page.locator('#practice-phrase').textContent();
-  await page.locator('#practice-reframe').click();assert.notEqual(await page.locator('#practice-phrase').textContent(),before);
+  await page.locator('#practice-reframe').click();await page.waitForFunction(before=>document.querySelector('#practice-phrase').textContent!==before,before);
   assert(await page.locator('[data-twist-step="2"]').isVisible());
   await page.locator('[data-twist-step="2"]').click();
   assert(await page.locator('#send-light').isVisible());

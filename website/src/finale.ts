@@ -1,6 +1,7 @@
 import {gsap} from 'gsap';
 import type {PaperController} from './paper';
 import {finaleScore} from './finale-score';
+import {fadeText,fadeDialog} from './text-motion';
 
 export function initFinale(options:{paper:()=>PaperController|undefined;reduced:()=>boolean;beforeOpen:()=>void}){
  const dialog=document.querySelector<HTMLDialogElement>('#connection-film')!;
@@ -26,7 +27,7 @@ export function initFinale(options:{paper:()=>PaperController|undefined;reduced:
   dialog.style.setProperty('--film-warmth',String(score.warmth));
   dialog.style.setProperty('--film-reveal',String(score.reveal));
   dialog.style.setProperty('--film-end',String(score.finale));
-  time.textContent=`${String(Math.floor(clock.seconds)).padStart(2,'0')} / 22`;
+  fadeText(time,`${String(Math.floor(clock.seconds)).padStart(2,'0')} / 22`);
   if(score.chapter!==lastChapter){
    lastChapter=score.chapter;const text=captions[lastChapter];
    const show=()=>{chapter.textContent=text[0];title.innerHTML=text[1];description.textContent=text[2]};
@@ -37,20 +38,21 @@ export function initFinale(options:{paper:()=>PaperController|undefined;reduced:
  }
  function setPaused(value:boolean){
   tween?.paused(value);captionTween?.paused(value);
-  dialog.dataset.state=value?'paused':'playing';pause.textContent=value?'继续放映':'暂停放映';pause.setAttribute('aria-pressed',String(value));
+  dialog.dataset.state=value?'paused':'playing';fadeText(pause,value?'继续放映':'暂停放映');pause.setAttribute('aria-pressed',String(value));
  }
  function play(){
   clearTimeout(readyTimer);stage.removeEventListener('paper-ready',play);
-  if(!dialog.open)return;
+  if(!dialog.open||dialog.dataset.state==='closing')return;
   tween?.kill();captionTween?.kill();clock={seconds:0};lastChapter=-1;autoPaused=false;
   const still=options.reduced()||document.documentElement.classList.contains('no-webgl');
-  pause.disabled=still;replay.disabled=still;pause.setAttribute('aria-pressed','false');pause.textContent='暂停放映';
+  pause.disabled=still;replay.disabled=still;pause.setAttribute('aria-pressed','false');fadeText(pause,'暂停放映');
   dialog.dataset.state=still?'still':'playing';
   if(still){clock.seconds=22;paint();return}
   paint();
-  tween=gsap.to(clock,{seconds:22,duration:22,ease:'none',onUpdate:paint,onComplete:()=>{dialog.dataset.state='ended';pause.disabled=true;pause.textContent='放映结束'}});
+  tween=gsap.to(clock,{seconds:22,duration:22,ease:'none',onUpdate:paint,onComplete:()=>{dialog.dataset.state='ended';pause.disabled=true;fadeText(pause,'放映结束')}});
  }
- function close(){if(dialog.open)dialog.close()}
+ function close(){if(dialog.open){autoPaused=false;tween?.pause();captionTween?.pause();dialog.dataset.state='closing';fadeDialog(dialog,false)}}
+ dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  dialog.addEventListener('close',()=>{
   clearTimeout(readyTimer);stage.removeEventListener('paper-ready',play);tween?.kill();captionTween?.kill();tween=captionTween=undefined;
   document.body.style.overflow=overflow;document.body.style.paddingRight=padding;
@@ -60,14 +62,14 @@ export function initFinale(options:{paper:()=>PaperController|undefined;reduced:
   if(dialog.open)return;options.beforeOpen();overflow=document.body.style.overflow;padding=document.body.style.paddingRight;
   const gutter=innerWidth-document.documentElement.clientWidth;
   if(gutter>0)document.body.style.paddingRight=`${gutter}px`;
-  document.body.style.overflow='hidden';dialog.dataset.state='loading';dialog.showModal();dialog.focus({preventScroll:true});
+  document.body.style.overflow='hidden';dialog.dataset.state='loading';fadeDialog(dialog,true);dialog.focus({preventScroll:true});
   clock={seconds:0};lastChapter=-1;paint();options.paper()?.refresh();
   if(stage.classList.contains('ready')||document.documentElement.classList.contains('no-webgl'))play();
   else{stage.addEventListener('paper-ready',play,{once:true});readyTimer=setTimeout(play,1800)}
  });
  dialog.querySelector('#finale-close')!.addEventListener('click',close);
  replay.addEventListener('click',play);
- pause.addEventListener('click',()=>{autoPaused=false;setPaused(dialog.dataset.state!=='paused')});
+ pause.addEventListener('click',()=>{if(dialog.dataset.closing)return;autoPaused=false;setPaused(dialog.dataset.state!=='paused')});
  dialog.addEventListener('keydown',e=>{
   if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End'].includes(e.key))e.preventDefault();
   if(e.code==='Space'&&e.target===dialog){e.preventDefault();if(!pause.disabled)pause.click()}

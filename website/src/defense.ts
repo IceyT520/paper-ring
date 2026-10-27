@@ -1,3 +1,4 @@
+import {fadeText,fadeVisibility} from './text-motion';
 /** A single owner for the paper's pose. Scrolling never writes its transforms. */
 export function initDefense(){
  const scene=document.querySelector<HTMLElement>('.defense-scene')!;
@@ -18,21 +19,21 @@ export function initDefense(){
   scene.style.setProperty('--approach',amount.toFixed(3));
   scene.classList.toggle('feeling-close',amount>.65);
   const message=inside?'暖光照亮的，是没有说出口的需要。墙还在，你看见了它保护着什么。':amount>.65?'纸墙收拢，暖光只剩一道缝。想靠近的需要，仍然藏在里面。':'想靠近，也会先保护自己。';
-  if(message!==announced){announced=message;response.textContent=message}
+  if(message!==announced){announced=message;fadeText(response,message)}
  }
  function queue(){if(!frame)frame=requestAnimationFrame(paint)}
  function setView(next:boolean){
   inside=next;held=false;proximity=0;scene.classList.toggle('inside-view',inside);
-  view.textContent=inside?'内侧 · 没有说出口的需要':'外侧 · 看得见的退缩';
+  fadeText(view,inside?'内侧 · 没有说出口的需要':'外侧 · 看得见的退缩');
   perspective.setAttribute('aria-pressed',String(inside));
-  perspective.innerHTML=inside?'回到墙外 <span>↶</span>':'绕到墙后 <span>↗</span>';
-  approach.hidden=inside;target.disabled=inside;
+  fadeText(perspective,inside?'回到墙外 <span>↶</span>':'绕到墙后 <span>↗</span>',true);
+  fadeVisibility(approach,!inside);target.disabled=inside;
   scene.querySelector<HTMLElement>('.defense-instruction')!.classList.toggle('is-inside',inside);
-  syncPress();paint();
+  if(!inside)syncPress();paint();
  }
  function syncPress(){
   approach.setAttribute('aria-pressed',String(held));target.setAttribute('aria-pressed',String(held));
-  approach.innerHTML=held?'退回一点 <span>↓</span>':'靠近一点 <span>↑</span>';
+  fadeText(approach,held?'退回一点 <span>↓</span>':'靠近一点 <span>↑</span>',true);
   target.setAttribute('aria-label',held?'退回一点，让纸墙恢复原位':'靠近纸墙，观察防御收拢');
  }
  function toggleApproach(){if(inside)return;held=!held;proximity=0;syncPress();paint()}

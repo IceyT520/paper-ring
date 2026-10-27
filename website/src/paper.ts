@@ -1,5 +1,6 @@
+import {fadeText} from './text-motion';
 import * as THREE from 'three';
-import {paperShape,paperTrace,paperPoint,paperNormal} from './paper-geometry';
+import {paperShape,paperTrace,paperPoint,paperNormal,fitPaperScale} from './paper-geometry';
 import {finaleScore} from './finale-score';
 export interface PaperController{setOpening(value:number):void;setFinale(seconds:number|null):void;setReduced(value:boolean):void;setTwist(value:number):void;flip():void;resetView():void;nudgeView(x:number,y:number):void;setTracePaused(value:boolean):void;sendLight(phase?:number,offset?:number):void;refresh():void;destroy():void}
 export function createPaper(reduced=false):PaperController{
@@ -7,8 +8,8 @@ export function createPaper(reduced=false):PaperController{
  let renderer:THREE.WebGLRenderer;
  try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'})}catch{
    document.documentElement.classList.add('no-webgl');
-   const flip=document.querySelector<HTMLButtonElement>('#flip-ring');if(flip){flip.disabled=true;flip.textContent='纸环静态示意'}
-   const replay=document.querySelector<HTMLButtonElement>('#replay-twist');if(replay){replay.disabled=true;replay.textContent='连接方式示意'}
+   const flip=document.querySelector<HTMLButtonElement>('#flip-ring');if(flip){flip.disabled=true;fadeText(flip,'纸环静态示意')}
+   const replay=document.querySelector<HTMLButtonElement>('#replay-twist');if(replay){replay.disabled=true;fadeText(replay,'连接方式示意')}
    return{setOpening(){},setFinale(){},setReduced(){},setTwist(){},flip(){},resetView(){},nudgeView(){},setTracePaused(){},sendLight(){},refresh(){},destroy(){}};
  }
  renderer.setClearColor(0,0);
@@ -145,7 +146,7 @@ export function createPaper(reduced=false):PaperController{
   if(journey){
    for(let i=0;i<24;i++){const p=paperTrace(lightStart+Math.max(0,lightProgress-i*.0035),0,1,lightOffset).center;trailPositions.set(p,i*3)}trailGeometry.attributes.position.needsUpdate=true;
    const message=lightProgress>=1?2:lightProgress>=.5?1:0;
-   if(message!==lightMessage){lightMessage=message;lightStatus.textContent=['光从你的这一面出发，沿着纸面前行。','不曾越过纸边，已经走到了曾经的另一面。','走过两面，回到相遇的地方。原来，我们在同一张纸上。'][message];if(active)active.dataset.lightJourney=String(message)}
+   if(message!==lightMessage){lightMessage=message;fadeText(lightStatus,['光从你的这一面出发，沿着纸面前行。','不曾越过纸边，已经走到了曾经的另一面。','走过两面，回到相遇的地方。原来，我们在同一张纸上。'][message]);if(active)active.dataset.lightJourney=String(message)}
   }
  }
  /** Keep both dots on the paper while the seam closes: the closed Möbius maps
@@ -220,12 +221,11 @@ export function createPaper(reduced=false):PaperController{
     rim.intensity=3.8-1.2*shot.warmth;warmEdge.intensity=1.6+1.3*shot.warmth;
     key.position.set(-4+shot.warmth*6,5,4);warmEdge.position.set(-4,1,2);
     group.rotation.set(shot.pitch,shot.yaw,shot.roll);group.position.set(0,.2,0);
-    // Fit width on portrait screens, retaining the same camera path.
-    group.scale.setScalar(shot.scale*Math.min(.99,camera.aspect*.92));
+    group.scale.setScalar(fitPaperScale(positions,group.rotation,camera.aspect,shot.scale,.2));
    }
    else if(mode==='hero'){group.rotation.set(.92+.38*opening,-.44-.68*opening,-.52-.24*opening);group.position.set(0,.12-.15*opening,0);group.scale.setScalar(1.06-.1*opening)}
    else if(mode==='explore'){group.rotation.set(.88+displayedView.explore.y,-.35+displayedView.explore.x+currentFlip,-.35);group.position.set(0,.05,0);group.scale.setScalar(.95)}
-   else{group.rotation.set(.68+displayedView.mobius.y,-.45+move+displayedView.mobius.x,-.52);group.position.set(0,.05,0);group.scale.setScalar(1.14)}
+   else{group.rotation.set(.68+displayedView.mobius.y,-.45+move+displayedView.mobius.x,-.52);group.position.set(0,.05,0);group.scale.setScalar(fitPaperScale(positions,group.rotation,camera.aspect,1.14,.05))}
    placeDots();
    if(mode!=='finale')dotA.visible=dotR.visible=mode!=='hero'||openingProgress>.72;
    const moving=Math.abs(currentFlip-flipAngle)>.001;
@@ -270,7 +270,7 @@ export function createPaper(reduced=false):PaperController{
    setTwist(value){if(twistTarget===value)return;twistTarget=value;if(value<1){pendingLight=undefined;lightProgress=-1;trail.visible=false}if(reduced||mode!=='mobius'){twistProgress=value;geometryDirty=true}if(mode==='mobius'){needsDraw=true;stamp();requestFrame()}},
    flip(){flipAngle+=Math.PI;needsDraw=true;requestFrame()},
    nudgeView,
-   resetView(){if(rotations[mode])rotations[mode]={x:0,y:0};pendingLight=undefined;if(mode==='mobius'&&lightProgress>=0){lightProgress=-1;trail.visible=false;lightStatus.textContent='视角已复位。再放下一束光，重新出发。'}stamp();needsDraw=true;requestFrame()},
+   resetView(){if(rotations[mode])rotations[mode]={x:0,y:0};pendingLight=undefined;if(mode==='mobius'&&lightProgress>=0){lightProgress=-1;trail.visible=false;fadeText(lightStatus,'视角已复位。再放下一束光，重新出发。')}stamp();needsDraw=true;requestFrame()},
    setTracePaused(value){tracePaused=value;stamp();needsDraw=true;requestFrame()},
    sendLight(phase=0,offset=.28){pendingLight={phase,offset};needsDraw=true;requestFrame()},
    refresh(){choose();resize()},

@@ -1,4 +1,5 @@
 import {gsap} from 'gsap';
+import {fadeVisibility} from './text-motion';
 
 /** Each playback owns its scroll lock and restores the existing cover on completion.
  *  `defer` leaves the first playback to the caller (the envelope gate). */
@@ -7,7 +8,7 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void,o
  const stage=hero.querySelector<HTMLElement>('#hero-stage')!;
  const skip=document.querySelector<HTMLButtonElement>('#skip-opening')!;
  const replay=document.querySelector<HTMLButtonElement>('#replay-opening')!;
- const footer=hero.querySelector<HTMLElement>('.hero-bottom')!;
+ const copySelector='.hero-title h1>span,.hero-title>.eyebrow,.hero-title>p,.hero-topline,.hero-caption,#hero-stage .stage-coordinate,.hero-bottom';
  let active=false,playing=false,hasRun=false,context:gsap.Context|undefined,timeline:gsap.core.Timeline|undefined,deadline:ReturnType<typeof setTimeout>|undefined;
  let footerExit:gsap.core.Tween|undefined;
  const paper={value:1},locked=new Map<HTMLElement,boolean>();
@@ -29,9 +30,12 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void,o
  }
  function finish(){
   const restoreFocus=document.activeElement===skip;
+  const interrupted=active&&(!timeline||timeline.progress()<.99);
+  const finalCopy=[...hero.querySelectorAll<HTMLElement>(copySelector)].map(el=>({el,opacity:getComputedStyle(el).opacity}));
   active=false;playing=false;clearTimeout(deadline);footerExit?.revert();footerExit=undefined;context?.revert();context=undefined;timeline=undefined;
   paper.value=1;paintPaper(1);delete root.dataset.opening;delete root.dataset.openingStarted;
-  skip.hidden=true;replay.hidden=false;replay.disabled=reduced;
+  fadeVisibility(skip,false);fadeVisibility(replay,true);replay.disabled=reduced;
+  if(interrupted)finalCopy.forEach(({el,opacity})=>el.animate([{opacity},{opacity:1}],{duration:300,easing:'ease-out'}));
   locked.forEach((inert,el)=>el.inert=inert);locked.clear();
   window.removeEventListener('wheel',blockScroll);window.removeEventListener('touchmove',blockScroll);
   window.removeEventListener('scroll',holdCover);window.removeEventListener('pagehide',finish);
@@ -91,7 +95,7 @@ export function initOpening(reduced:boolean,paintPaper:(progress:number)=>void,o
  if(stage.classList.contains('ready')||root.classList.contains('no-webgl'))start();
  if(fadeFooter)skip.focus({preventScroll:true});
  }
- if(fadeFooter)footerExit=gsap.to(footer,{opacity:0,duration:.28,ease:'power2.in',onComplete:prepare});
+ if(fadeFooter)footerExit=gsap.to(hero.querySelectorAll(copySelector),{opacity:0,duration:.28,ease:'power2.in',onComplete:prepare});
  else prepare();
  }
  replay.hidden=false;setReduced(reduced);

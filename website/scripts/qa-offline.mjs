@@ -19,12 +19,12 @@ try{
  await page.locator('#wall-perspective').click();assert(await page.locator('.defense-object').evaluate(el=>new DOMMatrixReadOnly(getComputedStyle(el).transform).m11<0),'offline paper must physically turn to its reverse side');
  await page.locator('#wall-perspective').click();
  await page.locator('#send-signal').click();assert(await page.locator('.letter-flight').evaluate(el=>el.classList.contains('arrived')));
- await page.locator('#call-need').click();await page.locator('#answer-need').click();assert.equal(await page.locator('.disc-word').textContent(),'我听见了');
+ await page.locator('#call-need').click();await page.locator('#answer-need').click();await page.waitForFunction(()=>document.querySelector('.disc-word').textContent==='我听见了');
  await page.locator('[data-promise="0"]').click();assert.equal(await page.locator('.promise-stitch.sewn').count(),1);
  await page.locator('#send-light').click();await page.waitForTimeout(250);assert.equal(await page.locator('#mobius-stage').getAttribute('data-light-journey'),'2');
  await page.locator('#menu-toggle').click();await page.locator('#chapter-menu a[href="#chapter-08"]').click();
- await page.locator('[data-preset="critical"]').click();assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
- await page.locator('#p046 [data-locate]').click();assert(await page.locator('#reader-p046').isVisible());
+ await page.locator('[data-preset="critical"]').click();await page.waitForSelector('[data-equilibrium="line"]');assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
+ await page.locator('#p046 [data-locate]').click();await page.locator('#reader-p046').waitFor({state:'visible'});
  const y=await page.locator('#reader-p046').evaluate(el=>el.getBoundingClientRect().top);assert(y>=60&&y<250);
  const pdf=await page.locator('a[download]').first().getAttribute('href');assert(pdf.includes(encodeURIComponent('纸环的两面.pdf')));
  assert.deepEqual(errors,[]);

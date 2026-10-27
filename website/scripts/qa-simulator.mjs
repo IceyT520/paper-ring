@@ -9,6 +9,7 @@ const browser=await launchBrowser();
 fs.mkdirSync('test-results',{recursive:true});
 
 async function checkLabels(page){
+ await page.waitForFunction(()=>['#time-chart','#phase-chart','#chart-description','#model-description','#value-D'].every(s=>!document.querySelector(s).getAnimations().length));
  const labels=await page.evaluate(()=>Array.from(document.querySelectorAll('#time-chart text,#phase-chart text'),el=>{
   const box=el.getBBox(),svg=el.ownerSVGElement,view=svg.viewBox.baseVal;
   return {text:el.textContent,x:box.x,right:box.x+box.width,y:box.y,bottom:box.y+box.height,
@@ -52,15 +53,18 @@ try{
     input.value=String(value);input.dispatchEvent(new Event('input',{bubbles:true}));
    }
   });
+  await checkLabels(page);
   assert(Number(await page.locator('#time-chart').getAttribute('data-max'))>10000);
   assert.match(await page.locator('#chart-description').textContent(),/超过 10,000/);
   await checkLabels(page);
   await page.locator('[data-model="bounded"]').click();
+  await checkLabels(page);
   assert(Number(await page.locator('#time-chart').getAttribute('data-max'))<=1);
   assert.match(await page.locator('#model-description').textContent(),/扩展假设/);
   await checkLabels(page);
   await page.locator('#sim-reset').click();
   await page.locator('[data-model="linear"]').click();
+  await checkLabels(page);
   assert.equal(await page.locator('#value-D').textContent(),'9.00');
   assert.equal(await page.locator('[data-equilibrium="line"]').count(),1);
   if(width===1440){

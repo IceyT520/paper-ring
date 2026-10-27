@@ -4,6 +4,22 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.18.0] — 2026-10-27
+
+### Changed
+- Added selective red, blue, gold and blended accents to narrative phrases,
+  model headings and the three practices while preserving the paper-white base.
+- Fit the complete paper geometry to its viewport throughout the Möbius film
+  and inline installation. Separate film captions and controls from the stage,
+  including a side-by-side composition on short landscape screens.
+- Unified opacity transitions for reading groups, interactive copy, numbers,
+  charts, dialogs, reader mode and expandable content. Rapid changes settle on
+  the latest choice; reduced motion retains brief opacity-only transitions.
+- Fade the existing opening copy before replay and restore unfinished title
+  lines smoothly when skipping. Preserve original music levels and pacing.
+- Added independent projection coverage and browser regressions for text fades,
+  rapid choices, menu/reader transitions and opening replay/skip.
+
 ## [1.17.1] — 2026-10-26
 
 ### Changed

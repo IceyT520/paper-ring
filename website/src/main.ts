@@ -1,3 +1,4 @@
+import {fadeText,fadeVisibility,fadeDialog,fadeView,initTextMotion} from './text-motion';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {initSimulator} from './simulator';
@@ -29,31 +30,38 @@ let context:gsap.Context|undefined,toastTimer:ReturnType<typeof setTimeout>;
 const chapterEls=all<HTMLElement>('#exhibition > .chapter');
 const menu=$<HTMLDialogElement>('#chapter-menu');
 try{localStorage.removeItem('paper-bookmark')}catch{/* Discard the retired bookmark when storage is available. */}
-function toast(text:string){$('#toast').textContent=text;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),2800)}
+function toast(text:string){fadeText($('#toast'),text);$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),2800)}
 function scrollToElement(el:HTMLElement,behavior:ScrollBehavior=reduced?'instant':'smooth'){
  const top=el.getBoundingClientRect().top+scrollY-110;window.scrollTo({top:Math.max(0,top),behavior});
 }
-function closeMenu(){menu.close();}
-$('#menu-toggle').addEventListener('click',()=>{if(menu.open)closeMenu();else{menu.showModal();$('#menu-toggle').setAttribute('aria-expanded','true');document.body.style.overflow='hidden'}});
+function closeMenu(){fadeDialog(menu,false);}
+$('#menu-toggle').addEventListener('click',()=>{if(menu.open)closeMenu();else{fadeDialog(menu,true);$('#menu-toggle').setAttribute('aria-expanded','true');document.body.style.overflow='hidden'}});
+menu.addEventListener('cancel',e=>{e.preventDefault();closeMenu()});
 $('#menu-close').addEventListener('click',closeMenu);
 menu.addEventListener('close',()=>{$('#menu-toggle').setAttribute('aria-expanded','false');document.body.style.overflow=''});
 all<HTMLAnchorElement>('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
  const id=a.hash.slice(1),target=document.getElementById(id);if(!target)return;
  e.preventDefault();if(menu.open)closeMenu();
- if(readerMode&&!target.closest('#source-reader'))setReader(false,currentSource,false);
- if(target instanceof HTMLDetailsElement)target.open=true;
- scrollToElement(target);history.replaceState(null,'',`#${id}`);
+ const navigate=()=>{if(target instanceof HTMLDetailsElement)target.open=true;scrollToElement(target);history.replaceState(null,'',`#${id}`)};
+ if(readerMode&&!target.closest('#source-reader')){setReader(false,currentSource,false,navigate);return}
+ navigate();
 }));
 
-function setReader(next:boolean,id=currentSource,move=true){
+let readerChanging=false;
+function setReader(next:boolean,id=currentSource,move=true,after=()=>{}){
+ if(readerChanging)return;readerChanging=true;
  opening.finish();
+ const from=$(readerMode?'#source-reader':'#exhibition'),to=$(next?'#source-reader':'#exhibition');
+ fadeView(from,to,()=>{
  readerMode=next;$('#exhibition').hidden=next;$('#source-reader').hidden=!next;document.body.classList.toggle('reader-mode',next);
- $('#reader-toggle').innerHTML=next?'回到展览 <span aria-hidden="true">↗</span>':'阅读全文 <span aria-hidden="true">↗</span>';
+ fadeText($('#reader-toggle'),next?'回到展览 <span aria-hidden="true">↗</span>':'阅读全文 <span aria-hidden="true">↗</span>',true);
  $('#reader-toggle').setAttribute('aria-pressed',String(next));
  const target=document.getElementById(`${next?'reader-':''}${id}`);
  ScrollTrigger.refresh();paper?.refresh();
  if(move&&target){scrollToElement(target,'instant');target.classList.remove('located');requestAnimationFrame(()=>target.classList.add('located'))}
  ScrollTrigger.update();updateProgress();
+ readerChanging=false;after();
+ });
 }
 $('#reader-toggle').addEventListener('click',()=>setReader(!readerMode));
 $('#return-exhibition').addEventListener('click',()=>setReader(false));
@@ -106,12 +114,12 @@ function paintTwist(value:number){
  $('#mobius-section').dataset.connection=value>=.999?'connected':'open';
  const index=value<.2?0:value<.8?1:2;
  if(index===twistIndex)return;twistIndex=index;
- $('#twist-caption').textContent=twistCopy[index][0];$('#twist-description').textContent=twistCopy[index][1];
+ fadeText($('#twist-caption'),twistCopy[index][0]);fadeText($('#twist-description'),twistCopy[index][1]);
  all<HTMLButtonElement>('[data-twist-step]').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
 }
 function stopTwist(){
  twistTween?.kill();twistTween=undefined;
- const pause=$<HTMLButtonElement>('#pause-twist');pause.disabled=true;pause.setAttribute('aria-pressed','false');pause.textContent='暂停形变';
+ const pause=$<HTMLButtonElement>('#pause-twist');pause.disabled=true;pause.setAttribute('aria-pressed','false');fadeText(pause,'暂停形变');
 }
 function animateTwist(value:number,duration:number,onComplete?:()=>void){
  stopTwist();
@@ -127,13 +135,10 @@ function setupMotion(){
  context?.revert();document.body.classList.toggle('reduced-motion',reduced);
  $('#motion-toggle').setAttribute('aria-pressed',String(reduced));
  $('#motion-toggle').setAttribute('aria-label',reduced?'开启动态效果':'减少动态效果');
- $('.motion-label').textContent=reduced?'静态':'动态';paper?.setReduced(reduced);
+ fadeText($('.motion-label'),reduced?'静态':'动态');paper?.setReduced(reduced);
  paintTwist(paintedTwist<0?(reduced?1:0):paintedTwist);
  if(reduced){ScrollTrigger.refresh();paper?.refresh();return}
  context=gsap.context(()=>{
-   all<HTMLElement>('.chapter-heading h2,.large-quote').filter(el=>!el.closest('#chapter-10')).forEach(el=>{
-     gsap.from(el,{y:35,opacity:.25,duration:1.25,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 94%',toggleActions:'play none none reverse'}});
-   });
    gsap.from('.letter-sheet',{rotationX:-9,y:65,transformPerspective:1000,ease:'none',scrollTrigger:{trigger:'.abstract-section',start:'top 90%',end:'top 25%',scrub:1}});
    gsap.to('.waiting-wire',{scaleY:1.9,ease:'none',scrollTrigger:{trigger:'#chapter-02',start:'top top',end:'60% center',scrub:1}});
    all<HTMLElement>('.bubble-cloud span').forEach((el,i)=>gsap.fromTo(el,{y:35,opacity:.04},{y:-30,opacity:innerWidth<760?.11:.4,ease:'none',scrollTrigger:{trigger:el,start:'top bottom',end:'bottom 15%',scrub:1}}));
@@ -144,7 +149,6 @@ function setupMotion(){
    const replyScene=gsap.timeline({scrollTrigger:{trigger:'#chapter-11 .waiting-scene',start:'top 75%',toggleActions:'play none none reverse'}});
    replyScene.from('.screen-glow',{opacity:0,duration:2,ease:'sine.inOut'},0)
     .from('.message-reply',{opacity:0,y:12,duration:1.2,ease:'power2.out'},.9);
-   all<HTMLElement>('.dedication-copy .source-block').forEach(el=>gsap.from(el,{opacity:.2,y:15,duration:1,scrollTrigger:{trigger:el,start:'top 92%',toggleActions:'play none none reverse'}}));
  });
  ScrollTrigger.refresh();
 }
@@ -154,65 +158,65 @@ $('#funding-note').addEventListener('click',e=>{const b=e.currentTarget as HTMLB
 $('#flip-ring').addEventListener('click',()=>{if(paper)paper.flip();else toast('纸环示意暂以静态呈现，正文可继续阅读。')});
 
 const peelLines=['为什么不回消息？','我很害怕，我需要你。','求你拉住我，别推我走。'];let peelIndex=0;
-$('#peel-button').addEventListener('click',()=>{peelIndex=(peelIndex+1)%3;$('#peel-text').textContent=peelLines[peelIndex];$('#peel-number').textContent=`0${peelIndex+1} / 03`;$('#peel-button').innerHTML=(peelIndex===2?'再听一次':'听见更深一层')+' <span aria-hidden="true">↗</span>';if(!reduced)gsap.fromTo('#peel-text',{opacity:0,y:10},{opacity:1,y:0,duration:.65})});
+$('#peel-button').addEventListener('click',()=>{peelIndex=(peelIndex+1)%3;fadeText($('#peel-text'),peelLines[peelIndex]);fadeText($('#peel-number'),`0${peelIndex+1} / 03`);fadeText($('#peel-button'),(peelIndex===2?'再听一次':'听见更深一层')+' <span aria-hidden="true">↗</span>',true)});
 initMirror();
 $('#paper-coin').addEventListener('click',()=>$('#paper-coin').classList.toggle('flipped'));
-$('#filter-toggle').addEventListener('click',()=>{const on=$('.filter-demo').classList.toggle('unfiltered');$('#filter-toggle').setAttribute('aria-pressed',String(on));$('#filter-toggle').innerHTML=(on?'重新看见恐惧的解释':'揭开恐惧的滤镜')+' <span aria-hidden="true">↗</span>'});
+$('#filter-toggle').addEventListener('click',()=>{const on=$('.filter-demo').classList.toggle('unfiltered');$('#filter-toggle').setAttribute('aria-pressed',String(on));fadeText($('#filter-toggle'),(on?'重新看见恐惧的解释':'揭开恐惧的滤镜')+' <span aria-hidden="true">↗</span>',true)});
 let pursuit=0;
-$('#pursue').addEventListener('click',()=>{pursuit++;$('#pursuit-count').textContent=`第 ${pursuit} 次追问`;$('#retreat-box').style.transform=`scaleX(${Math.max(.52,1-pursuit*.065)})`;$('#retreat-box').style.boxShadow=`inset ${Math.min(60,12+pursuit*4)}px 0 30px #0009`;if(!reduced){const wave=document.createElement('i');wave.className='pulse-wave';$('#pulse-road').append(wave);setTimeout(()=>wave.remove(),1600)}});
-$('#pursue-reset').addEventListener('click',()=>{pursuit=0;$('#pursuit-count').textContent='尚未追问';$('#retreat-box').style.transform='';$('#retreat-box').style.boxShadow='';$('#pulse-road').replaceChildren()});
+$('#pursue').addEventListener('click',()=>{pursuit++;fadeText($('#pursuit-count'),`第 ${pursuit} 次追问`);$('#retreat-box').style.transform=`scaleX(${Math.max(.52,1-pursuit*.065)})`;$('#retreat-box').style.boxShadow=`inset ${Math.min(60,12+pursuit*4)}px 0 30px #0009`;if(!reduced){const wave=document.createElement('i');wave.className='pulse-wave';$('#pulse-road').append(wave);setTimeout(()=>wave.remove(),1600)}});
+$('#pursue-reset').addEventListener('click',()=>{pursuit=0;fadeText($('#pursuit-count'),'尚未追问');$('#retreat-box').style.transform='';$('#retreat-box').style.boxShadow='';$('#pulse-road').replaceChildren()});
 const subtitles=[['我在努力靠近你','你在挤压我的空间'],['我需要确认你没有离开','你在剥夺我的自由'],['我想进入你的世界','你在摧毁我的边界']];
-all<HTMLButtonElement>('[data-subtitle]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.subtitle);$('#subtitle-anx').textContent=subtitles[i][0];$('#subtitle-avd').textContent=subtitles[i][1];$('.subtitle-action').textContent=['靠近','确认','进入'][i];all<HTMLButtonElement>('[data-subtitle]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
+all<HTMLButtonElement>('[data-subtitle]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.subtitle);fadeText($('#subtitle-anx'),subtitles[i][0]);fadeText($('#subtitle-avd'),subtitles[i][1]);fadeText($('.subtitle-action'),['靠近','确认','进入'][i]);all<HTMLButtonElement>('[data-subtitle]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
 const loopDescriptions=['因距离而不安，想要确认对方还在。','增加联系频率，表达更多需求。','对方感到压力，开始想要逃离。','减少联系，以疏离保护自己的空间。','沉默被理解为即将失去，不安加剧。','更加急切地追问，又成为对方退缩的新理由。'];
 let loopStep=-1,loopRounds=0,loopTimer:ReturnType<typeof setInterval>|undefined;
 function unveilDistance(){$('#distance-shield').classList.add('unveiled');$('#unveil-distance').setAttribute('aria-expanded','true')}
 $('#unveil-distance').addEventListener('click',unveilDistance);
 $('#loop-play').addEventListener('click',unveilDistance);
 $('#loop-next').addEventListener('click',unveilDistance);
-function stopLoop(){if(loopTimer)clearInterval(loopTimer);loopTimer=undefined;$('#loop-play').innerHTML='播放一轮 <span aria-hidden="true">↗</span>'}
-function nextLoop(){loopStep=(loopStep+1)%6;if(loopStep===5)loopRounds++;$('#loop-count').textContent=String(loopRounds).padStart(2,'0');$('#loop-description').textContent=loopDescriptions[loopStep];all<HTMLElement>('[data-loop-node]').forEach((el,i)=>{el.classList.toggle('active',i===loopStep);el.classList.toggle('visited',i<=loopStep)});if(loopStep===5)stopLoop()}
+function stopLoop(){if(loopTimer)clearInterval(loopTimer);loopTimer=undefined;fadeText($('#loop-play'),'播放一轮 <span aria-hidden="true">↗</span>',true)}
+function nextLoop(){loopStep=(loopStep+1)%6;if(loopStep===5)loopRounds++;fadeText($('#loop-count'),String(loopRounds).padStart(2,'0'));fadeText($('#loop-description'),loopDescriptions[loopStep]);all<HTMLElement>('[data-loop-node]').forEach((el,i)=>{el.classList.toggle('active',i===loopStep);el.classList.toggle('visited',i<=loopStep)});if(loopStep===5)stopLoop()}
 $('#loop-next').addEventListener('click',()=>{stopLoop();nextLoop()});
-$('#loop-play').addEventListener('click',()=>{if(loopTimer){stopLoop();return}if(loopStep===5)loopStep=-1;nextLoop();if(loopStep!==5){loopTimer=setInterval(nextLoop,reduced?1800:1200);$('#loop-play').innerHTML='暂停 <span aria-hidden="true">Ⅱ</span>'}});
-$('#loop-reset').addEventListener('click',()=>{stopLoop();loopStep=-1;loopRounds=0;$('#loop-count').textContent='00';$('#loop-description').textContent='焦虑因距离而起。一轮循环，如何开始？';all('[data-loop-node]').forEach(el=>el.classList.remove('active','visited'))});
+$('#loop-play').addEventListener('click',()=>{if(loopTimer){stopLoop();return}if(loopStep===5)loopStep=-1;nextLoop();if(loopStep!==5){loopTimer=setInterval(nextLoop,reduced?1800:1200);fadeText($('#loop-play'),'暂停 <span aria-hidden="true">Ⅱ</span>',true)}});
+$('#loop-reset').addEventListener('click',()=>{stopLoop();loopStep=-1;loopRounds=0;fadeText($('#loop-count'),'00');fadeText($('#loop-description'),'焦虑因距离而起。一轮循环，如何开始？');all('[data-loop-node]').forEach(el=>el.classList.remove('active','visited'))});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopLoop()});
 new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)stopLoop()}).observe($('#distance-6'));
 
-$('#practice-reframe').addEventListener('click',()=>{$('#practice-phrase').textContent='我知道你忙，但我今天特别想你，听到你的声音我会好很多。';$('#practice-feedback').hidden=false;$('#practice-reframe').hidden=true;if(!reduced)gsap.from('#practice-phrase',{opacity:0,y:10,duration:.7})});
+$('#practice-reframe').addEventListener('click',()=>{fadeText($('#practice-phrase'),'我知道你忙，但我今天特别想你，听到你的声音我会好很多。');fadeVisibility($('#practice-feedback'),true);fadeVisibility($('#practice-reframe'),false)});
 all<HTMLButtonElement>('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{
  const text=b.dataset.copy!;try{await navigator.clipboard.writeText(text);toast('这句话已复制，愿它成为温和的开始。')}catch{const area=document.createElement('textarea');area.value=text;area.style.cssText='position:fixed;left:-9999px';document.body.append(area);area.select();const ok=document.execCommand('copy');area.remove();toast(ok?'这句话已复制。':'请选中上方文字，手动复制。')}
 }));
 $('#replay-twist').addEventListener('click',()=>{
  if(reduced){paintTwist(1);toast('静态模式展示重新连接后的纸环。');return}
  stopTwist();paintTwist(0);animateTwist(1,9);
- $('#replay-twist').innerHTML='重播这次连接 <span aria-hidden="true">↗</span>';
+ fadeText($('#replay-twist'),'重播这次连接 <span aria-hidden="true">↗</span>',true);
 });
 all<HTMLButtonElement>('[data-twist-step]').forEach((button,index)=>button.addEventListener('click',()=>{
  animateTwist([.08,.52,1][index],1.6);
 }));
 function offerLight(phase?:number,offset?:number){
  stopTwist();
- tracePaused=false;paper?.setTracePaused(false);$('#trace-pause').setAttribute('aria-pressed','false');$('#trace-pause').textContent='暂停光点';
+ tracePaused=false;paper?.setTracePaused(false);$('#trace-pause').setAttribute('aria-pressed','false');fadeText($('#trace-pause'),'暂停光点');
  if(phase===undefined)paper?.resetView();
- if(paintedTwist<1&&!reduced){$('#light-status').textContent='纸带正在重新相接，让光有一条连续的路。';animateTwist(1,3.2,()=>paper?.sendLight(phase,offset))}
+ if(paintedTwist<1&&!reduced){fadeText($('#light-status'),'纸带正在重新相接，让光有一条连续的路。');animateTwist(1,3.2,()=>paper?.sendLight(phase,offset))}
  else{paintTwist(1);paper?.sendLight(phase,offset)}
 }
 $('#send-light').addEventListener('click',()=>offerLight());
 $('#mobius-stage').addEventListener('paper-touch',((event:CustomEvent<{phase:number;offset:number}>)=>{
- if(paintedTwist<1){$('#light-status').textContent='先播放这次连接，再轻触纸面，让光出发。';return}
+ if(paintedTwist<1){fadeText($('#light-status'),'先播放这次连接，再轻触纸面，让光出发。');return}
  offerLight(event.detail.phase,event.detail.offset);
 }) as EventListener);
 $('#pause-twist').addEventListener('click',()=>{
  if(!twistTween)return;
  const paused=!twistTween.paused();twistTween.paused(paused);
- $('#pause-twist').setAttribute('aria-pressed',String(paused));$('#pause-twist').textContent=paused?'继续形变':'暂停形变';
+ $('#pause-twist').setAttribute('aria-pressed',String(paused));fadeText($('#pause-twist'),paused?'继续形变':'暂停形变');
 });
 $('#trace-pause').addEventListener('click',()=>{
- tracePaused=!tracePaused;paper?.setTracePaused(tracePaused);$('#trace-pause').setAttribute('aria-pressed',String(tracePaused));$('#trace-pause').textContent=tracePaused?'继续光点':'暂停光点';
+ tracePaused=!tracePaused;paper?.setTracePaused(tracePaused);$('#trace-pause').setAttribute('aria-pressed',String(tracePaused));fadeText($('#trace-pause'),tracePaused?'继续光点':'暂停光点');
 });
 $('#reset-paper-view').addEventListener('click',()=>paper?.resetView());
 
 const finale=initFinale({paper:()=>paper,reduced:()=>reduced,beforeOpen:stopTwist});
-initSimulator();initJourney();setupMotion();measureChapters();updateProgress();
+initSimulator();initJourney();setupMotion();initTextMotion();measureChapters();updateProgress();
 initOpticalTitles(()=>{measureChapters();ScrollTrigger.refresh();paper?.refresh()});
 // The entire article and every non-3D interaction work before the optional renderer arrives.
 async function loadPaper(){try{const {createPaper}=await import('./paper');paper=createPaper(reduced);paper.setOpening(opening.progress());ScrollTrigger.refresh();paintTwist(paintedTwist<0?(reduced?1:0):paintedTwist);paper.refresh()}catch{document.documentElement.classList.add('no-webgl');paintTwist(1)}

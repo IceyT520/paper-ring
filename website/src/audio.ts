@@ -36,7 +36,7 @@ export function initAudio(options:{waitForGate?:boolean}={}){
  function store(value:string){try{localStorage.setItem('paper-sound',value)}catch{/* private mode */}}
  function state(next:'playing'|'paused'|'unavailable'){root.dataset.audio=next}
  function sync(){
-  button!.hidden=failed||!loaded;
+  fadeVisibility(button!,!failed&&loaded);
   button!.setAttribute('aria-pressed',String(enabled));
   button!.setAttribute('aria-label',enabled?'关闭背景音乐':'开启背景音乐');
   button!.classList.toggle('sound-off',!enabled);
@@ -103,3 +103,4 @@ export function initAudio(options:{waitForGate?:boolean}={}){
  // Direct reading waits for a gesture; sealed entry waits specifically for the envelope.
  bindGesture();
 }
+import {fadeVisibility} from './text-motion';

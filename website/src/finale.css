@@ -29,3 +29,20 @@
 }
 @media(max-height:600px) and (min-width:761px){.finale-header{top:12px}.finale-stage{inset:2% 24% 10% -8%}.finale-caption{left:60%;right:4%;bottom:30%}#finale-title{font-size:30px}.finale-footer{bottom:12px}}
 @media print{.connection-film,.finale-entry{display:none!important}}
+
+/* Header, paper, captions and controls occupy separate measured rows. */
+.connection-film[open]{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:clamp(12px,2vh,24px);padding:clamp(16px,3vh,32px) clamp(20px,4vw,72px)}
+.connection-film::backdrop{background:transparent}
+.finale-header,.finale-footer{position:relative;inset:auto;width:100%}
+.finale-header{grid-row:1}
+.finale-stage{position:relative;inset:auto;grid-row:2;min-height:0;width:100%;height:100%}
+.finale-caption{position:relative;inset:auto;grid-row:3;width:100%;padding-bottom:6px}
+.finale-footer{grid-row:4;padding-top:12px}
+#finale-title{font-size:clamp(28px,3.4vw,49px)}
+#finale-chapter{margin-bottom:10px}#finale-description{margin-top:12px}
+@media(max-width:760px){.connection-film[open]{padding:16px 20px;gap:12px}.finale-header>span{max-width:160px}.finale-footer{gap:20px}#finale-title{font-size:clamp(25px,7.5vw,34px)}}
+@media(max-height:560px) and (min-width:620px){
+ .connection-film[open]{grid-template-columns:minmax(0,1fr) minmax(240px,36%);grid-template-rows:auto minmax(0,1fr) auto;padding:10px 24px;gap:10px 22px}
+ .finale-header{grid-column:1/-1;grid-row:1}.finale-stage{grid-column:1;grid-row:2}.finale-caption{grid-column:2;grid-row:2;align-self:center}.finale-footer{grid-column:1/-1;grid-row:3}
+ #finale-title{font-size:26px}#finale-description{font-size:10px}
+}

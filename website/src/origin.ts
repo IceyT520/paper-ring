@@ -1,3 +1,4 @@
+import {fadeText} from './text-motion';
 /** The same paper rests flat, then takes two different protective postures. */
 export function initOrigin(){
  const scene=document.querySelector<HTMLElement>('.origin-scene')!;
@@ -7,8 +8,8 @@ export function initOrigin(){
  const quiet=()=>document.body.classList.contains('reduced-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;
  function setView(value:boolean){
   unfolded=value;scene.dataset.state=value?'unfolded':'protected';button.setAttribute('aria-pressed',String(value));
-  action.textContent=value?'再看两种保护':'轻触，放下防御';
-  response.textContent=value?'把防御轻轻放下，纸褶下面，都写着“想被爱”。':'一个把需要收进纸褶，一个把需要向外展开。';
+  fadeText(action,value?'再看两种保护':'轻触，放下防御');
+  fadeText(response,value?'把防御轻轻放下，纸褶下面，都写着“想被爱”。':'一个把需要收进纸褶，一个把需要向外展开。');
  }
  button.addEventListener('click',()=>{entered=true;scene.classList.remove('origin-preparing');setView(!unfolded)});
  // One entrance only; coming back preserves the reader's chosen view.

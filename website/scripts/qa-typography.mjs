@@ -39,7 +39,8 @@ try{
   for(const [selector,token] of [
    ['#chapter-01 h1','--paper'],['#chapter-04 h2','--paper'],['#chapter-05 h2','--paper'],['#chapter-10 h2','--paper'],['.dedication-end','--paper'],
    ['#chapter-04 h2 em','--avd'],['#chapter-05 h2 em','--anx'],['#chapter-09>.chapter-heading h2 em','--gold'],['#chapter-11 h2 em','--gold'],
-   ['#chapter-03 h2 em','--paper'],['#chapter-07>.chapter-heading h2 em','--paper'],['#chapter-08>.chapter-heading h2 em','--paper'],['#finale-title','--paper']
+   ['#chapter-07>.chapter-heading h2 em','--anx'],['#chapter-08>.chapter-heading h2 em','--avd'],['#finale-title','--paper'],
+   ['.title-anx','--anx'],['.title-avd','--avd'],['.title-warm','--gold']
   ]){
    const matches=await page.locator(selector).evaluate((el,token)=>{
     const probe=document.createElement('span');probe.style.color=`var(${token})`;el.append(probe);
@@ -47,7 +48,7 @@ try{
    },token);
    assert(matches,`${selector} follows the ${token} palette`);
   }
-  for(const selector of ['#chapter-06 h2 em','.mobius-caption h3 span']){
+  for(const selector of ['#chapter-03 h2 em','#chapter-06 h2 em','.mobius-caption h3 span']){
    const gradient=await page.locator(selector).evaluate(el=>{const s=getComputedStyle(el);return s.backgroundImage.includes('linear-gradient')&&s.backgroundClip==='text'});
    assert(gradient,`${selector}: the shared-surface reveal retains its blended accent`);
   }

@@ -109,14 +109,19 @@
 }
 /* Paper white carries the reading; color appears only at narrative turns. */
 #exhibition :is(h1,h2,h3,h4) em{color:inherit}
-#exhibition #chapter-04>.chapter-heading h2 em{color:var(--avd)}
-#exhibition #chapter-05>.chapter-heading h2 em{color:var(--anx)}
+#exhibition #chapter-04>.chapter-heading h2 em,
+#exhibition #chapter-08>.chapter-heading h2 em,#exhibition .sim-controls h3 em{color:var(--avd)}
+#exhibition #chapter-05>.chapter-heading h2 em,#exhibition #chapter-07>.chapter-heading h2 em{color:var(--anx)}
+#exhibition #chapter-03>.chapter-heading h2 em,
 #exhibition #chapter-06>.chapter-heading h2 em,
 #exhibition .mobius-caption h3 span{
  background:linear-gradient(110deg,#95c5ef 0%,var(--paper) 48%,#eab3ac 100%);background-clip:text;color:transparent
 }
 #exhibition #chapter-09>.chapter-heading h2 em,
 #exhibition #chapter-11>.chapter-heading h2 em{color:var(--gold)}
+#exhibition .avoidant .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .title-avd{--type-title:var(--avd)}
+#exhibition .title-anx{--type-title:var(--anx)}
+#exhibition .title-warm,#exhibition .mobius-coda h3{--type-title:var(--gold)}
 #exhibition .source-block .source-copy{font-family:var(--sans);font-weight:400;color:var(--type-copy)}
 /* The dedication is the author's lyrical coda, with its original serif voice. */
 #exhibition .dedication-copy .source-copy{font-family:var(--serif)}
@@ -139,3 +144,17 @@
 #exhibition .diagram-label{font-family:var(--sans);font-weight:400}
 #exhibition .diagram-label:not(.blue-label):not(.red-label){fill:var(--type-secondary)}
 #source-reader .source-copy{font-family:var(--sans);font-weight:400}
+
+/* The paper is contained by the installation, including its mobile frame. */
+@media(min-width:761px){#mobius-section .paper-stage{left:40%;right:0;width:60%;top:0;height:74%}}
+@media(max-width:760px){#mobius-section .paper-stage{left:0;right:0;width:100%}}
+.defense-instruction{opacity:1;transition:opacity .3s ease,visibility .3s}
+.defense-instruction.is-inside{opacity:0;visibility:hidden}
+.shield-sheet{transition:opacity .8s,transform .8s,visibility 0s .8s}
+.fear-interpretation,.possibilities{transition:opacity .4s ease,filter .4s ease}
+dialog::backdrop{transition:opacity .2s ease}
+dialog[data-closing]::backdrop{opacity:0}
+dialog[data-closing]{pointer-events:none}
+@starting-style{dialog[open]::backdrop{opacity:0}}
+.text-awaiting{opacity:0}
+@media print{.text-awaiting{opacity:1!important}}

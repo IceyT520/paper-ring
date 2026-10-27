@@ -1,3 +1,4 @@
+import {fadeText} from './text-motion';
 import {shelterGeometry,wingPaths,roofAt,smooth} from './connection-geometry';
 
 /** Unfolding is finite. Weather continues only while this installation is visible;
@@ -79,7 +80,7 @@ export function initMirror(){
   transitioning=false;progress=1;warmth=1;drawStructure();
   scene.dataset.connected='true';scene.dataset.animating='false';button.setAttribute('aria-busy','false');
   button.setAttribute('aria-label','再看一次：保留各自的空间，共同撑起一片挡雨的屋檐');
-  action.textContent='再次轻触，重看一次';$('#shelter-status').textContent='各自自在，也能一起避雨';
+  fadeText(action,'再次轻触，重看一次');fadeText($('#shelter-status'),'各自自在，也能一起避雨');
  }
  function tick(now:number){
   frame=0;
@@ -105,7 +106,7 @@ export function initMirror(){
  button.disabled=false;button.addEventListener('click',()=>{
   if(transitioning)return;
   replay=progress===1;elapsed=0;transitioning=true;scene.dataset.animating='true';button.setAttribute('aria-busy','true');
-  action.textContent='把中间，变成可以安心停留的地方';
+  fadeText(action,'把中间，变成可以安心停留的地方');
   sync();
  });
  drawStructure();drawWeather();scene.dataset.animating='false';scene.dataset.ready='true';scene.dataset.weather='paused';

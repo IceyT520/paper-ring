@@ -53,6 +53,9 @@ jobs:
       - run: node scripts/qa-finale.mjs --offline
         env:
           PAPER_BROWSER: chromium
+      - run: node scripts/qa-text-motion.mjs --offline
+        env:
+          PAPER_BROWSER: chromium
       - run: node scripts/qa-mirror.mjs --offline
         env:
           PAPER_BROWSER: chromium
