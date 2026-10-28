@@ -54,7 +54,7 @@ export function fadeView(from:HTMLElement,to:HTMLElement,change:()=>void){
 export function initTextMotion(){
  enabled=true;
  // Observe reading groups, never each glyph, and never hide content before JS.
- const selector='.chapter-heading,.source-block,.large-quote,.flow-study figcaption,.practice-aside,.margin-title,.narrative-bridge,.mobius-caption,.mobius-touch,.mobius-steps,.mobius-coda,.dedication-end,.colophon-intro,.colophon-links,.ordinary-things,.abstract-margin,#exhibition footer,#source-reader>header';
+ const selector='.chapter-heading,.source-block,.reading-subtitle,.model-bridge,.reference-intro,.large-quote,.flow-study figcaption,.practice-aside,.margin-title,.narrative-bridge,.mobius-caption,.mobius-touch,.mobius-steps,.mobius-coda,.dedication-end,.colophon-intro,.colophon-links,.ordinary-things,.abstract-margin,#exhibition footer,#source-reader>header';
  const observer=new IntersectionObserver(entries=>{
   for(const entry of entries){
    const el=entry.target as HTMLElement;

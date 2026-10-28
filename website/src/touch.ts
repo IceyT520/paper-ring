@@ -2,7 +2,7 @@ import {fadeText,fadeVisibility,fadeRemove} from './text-motion';
 import {initDefense} from './defense';
 import {initOrigin} from './origin';
 /** Update only composited light layers, never inherited styles on the article. */
-const lights=[[.26,.19],[.19,.22],[.31,.2],[.43,.11],[.16,.4],[.31,.31],[.32,.27],[.28,.22],[.3,.28],[.19,.26],[.15,.23],[.16,.17]];
+const lights=[[.26,.19],[.19,.22],[.31,.2],[.43,.11],[.16,.4],[.31,.31],[.32,.27],[.28,.22],[.3,.28],[.12,.13],[.10,.15],[.07,.07]];
 const blueGlow=document.querySelector<HTMLElement>('.atmosphere-blue')!,redGlow=document.querySelector<HTMLElement>('.atmosphere-red')!;
 let lastLight='';
 export function updateAtmosphere(chapter:number,progress:number){

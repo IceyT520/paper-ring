@@ -4,6 +4,30 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.20.0] — 2026-10-28
+
+### Changed
+- Add four reading turns to the anxiety chapter and a sticky desktop subsection
+  navigation for the six distance scenes, with an accessible current marker.
+- Explain the difference between real-world distance and the model's inverse
+  coupling assumption; show the actual alpha/D coefficient as parameters change.
+- Give the inline connection action clearer visual priority, place the optional
+  film later in keyboard order, and clarify the subsequent light journey.
+- Quiet the conclusion's ambient color and small paper motif, retain the large
+  closing titles and serif dedication, and add research-topic notes to references.
+- Match the film's static fallback to its neutral paper palette and correct the
+  offline release command's misleading build/staging instructions.
+
+### Fixed
+- Preserve the paragraph intersecting the reading line when switching between
+  exhibition and complete text; a nearby paragraph's top no longer steals position.
+- Add browser regression coverage for subsection navigation, reading-mode return,
+  and distance/parameter/model changes in the coupling explanation.
+
+Full article, corrections, approved shelter, geometry, 9/24/22-second playback,
+and fixed music volume are preserved. No mobile redesign or audio re-encoding.
+See [v1.20.0 handoff](docs/优化记录-v1.20.0.md).
+
 ## [1.19.0] — 2026-10-27
 
 ### Changed

@@ -52,6 +52,8 @@ export function initSimulator(){
    const state=regime(p);
    const status=mode==='linear'?(state==='critical'?'临界 · 存在一条非零平衡线，落点取决于初始状态。':state==='growth'?'放大区 · 相互作用超过自我衰减，变量随时间增长。':'衰减区 · A 与 R 最终趋近于零。'):(p.D<criticalDistance(p)?'有界扩展 · 交叉作用随强度饱和，趋向非零平台。':'有界扩展 · 两个变量趋近于零。');
    fadeText(document.querySelector('#sim-status')!,status);
+   fadeText(document.querySelector('#coupling-value')!,fmt(p.alpha/p.D));
+   fadeText(document.querySelector('#coupling-description')!,mode==='linear'?'这一系数还要乘以回避强度 R，才是焦虑方受到的推动。保持 α 和 R 不变时，距离 D 增大，这一项减小。':'有界扩展中，这一系数还要乘以 R 与 (1−A)。距离的分母作用仍在，同时加入焦虑强度接近 1 时的饱和限制。');
    fadeText(document.querySelector('#chart-description')!,`t=${last.t.toFixed(2)} 时，A=${fmt(last.A)}，R=${fmt(last.R)}。${result.truncated?'数值超过 10,000，演示在此提前结束；数据未裁剪。':mode==='linear'&&yMax>1?'纵轴自动扩展：原文线性方程可超出 [0,1]。':'数值描述情绪变量，不代表关系评分。'}`);
    fadeText(document.querySelector('#model-description')!,mode==='linear'?'原文线性模型。曲线忠实计算，不将数值截断到 0–1。':'扩展假设：交叉作用分别乘以 (1−A)、(1−R)，令强度在 [0,1] 内饱和。');
    fadeText(document.querySelector('#model-equations')!,mode==='linear'?'dA/dt = αR/D − βA<br>dR/dt = γA − δR':'dA/dt = α(R/D)(1−A) − βA<br>dR/dt = γA(1−R) − δR',true);

@@ -32,7 +32,8 @@ const menu=$<HTMLDialogElement>('#chapter-menu');
 try{localStorage.removeItem('paper-bookmark')}catch{/* Discard the retired bookmark when storage is available. */}
 function toast(text:string){fadeText($('#toast'),text);$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),2800)}
 function scrollToElement(el:HTMLElement,behavior:ScrollBehavior=reduced?'instant':'smooth'){
- const top=el.getBoundingClientRect().top+scrollY-110;window.scrollTo({top:Math.max(0,top),behavior});
+ const offset=innerWidth>1100&&el.matches('.distance-section')?$('.site-header').offsetHeight+$('.distance-nav').offsetHeight+20:110;
+ const top=el.getBoundingClientRect().top+scrollY-offset;window.scrollTo({top:Math.max(0,top),behavior});
 }
 function closeMenu(){fadeDialog(menu,false);}
 $('#menu-toggle').addEventListener('click',()=>{if(menu.open)closeMenu();else{fadeDialog(menu,true);$('#menu-toggle').setAttribute('aria-expanded','true');document.body.style.overflow='hidden'}});
@@ -68,18 +69,27 @@ $('#return-exhibition').addEventListener('click',()=>setReader(false));
 all<HTMLButtonElement>('[data-open-reader]').forEach(b=>b.addEventListener('click',()=>setReader(true,'p001')));
 all<HTMLButtonElement>('[data-locate]').forEach(b=>b.addEventListener('click',()=>{currentSource=b.dataset.locate!;setReader(!readerMode,currentSource)}));
 
-const sourceObserver=new IntersectionObserver(entries=>{
- const shown=entries.filter(e=>e.isIntersecting&&!e.target.closest('[hidden]')).sort((a,b)=>Math.abs(a.boundingClientRect.top-innerHeight*.3)-Math.abs(b.boundingClientRect.top-innerHeight*.3));
+const sourceObserver=new IntersectionObserver(()=>{
+ // The reading line can sit inside a long paragraph. Comparing only paragraph
+ // tops incorrectly picks the next block after a mode switch changes line wraps.
+ const line=innerHeight*.3;
+ const shown=all<HTMLElement>(readerMode?'#source-reader .source-block':'#exhibition .source-block')
+  .map(el=>({el,rect:el.getBoundingClientRect()}))
+  .filter(({rect})=>rect.height>0&&rect.bottom>innerHeight*.16&&rect.top<innerHeight*.55)
+  .sort((a,b)=>Math.max(a.rect.top-line,line-a.rect.bottom,0)-Math.max(b.rect.top-line,line-b.rect.bottom,0));
  if(!shown.length)return;
- currentSource=(shown[0].target as HTMLElement).dataset.sourceId!;
+ currentSource=shown[0].el.dataset.sourceId!;
 },{rootMargin:'-16% 0px -45% 0px',threshold:0});
 all('.source-block').forEach(el=>sourceObserver.observe(el));
 
 const railLinks=all<HTMLAnchorElement>('[data-rail]'),progressBar=$('.reading-progress span'),header=$('.site-header');
+const distanceLinks=all<HTMLAnchorElement>('.distance-nav a'),distanceSections=all<HTMLElement>('[data-distance]');
+let distanceBounds:{el:HTMLElement;top:number;bottom:number}[]=[],markedDistance='';
 let markedChapter='',chapterBounds:{el:HTMLElement;top:number;bottom:number}[]=[],pageHeight=1;
 function measureChapters(){
  pageHeight=Math.max(1,document.documentElement.scrollHeight-innerHeight);
  chapterBounds=chapterEls.map(el=>{const r=el.getBoundingClientRect();return{el,top:r.top+scrollY,bottom:r.bottom+scrollY}});
+ distanceBounds=distanceSections.map(el=>{const r=el.getBoundingClientRect();return{el,top:r.top+scrollY,bottom:r.bottom+scrollY}});
 }
 function updateProgress(){
  progressBar.style.transform=`scaleX(${Math.min(1,scrollY/pageHeight)})`;
@@ -92,6 +102,8 @@ function updateProgress(){
    header.classList.remove('on-paper');
    updateAtmosphere(Number(currentChapter),Math.max(0,Math.min(1,(at-active.top)/(active.bottom-active.top))));
  }
+ const distance=currentChapter==='07'?(distanceBounds.find(item=>item.top<=at&&item.bottom>at)?.el.id||'distance-1'):'';
+ if(distance!==markedDistance){markedDistance=distance;distanceLinks.forEach(a=>{if(a.hash===`#${distance}`)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}
 }
 let scrollTick=false;
 addEventListener('scroll',()=>{if(!scrollTick){scrollTick=true;requestAnimationFrame(()=>{updateProgress();scrollTick=false})}},{passive:true});
