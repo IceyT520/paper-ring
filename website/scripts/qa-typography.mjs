@@ -37,10 +37,10 @@ try{
   const serif=await page.locator('#chapter-11 h2').evaluate(el=>getComputedStyle(el).fontFamily);
   assert.equal(dedicationFont,serif,'the dedication keeps its original serif voice');
   for(const [selector,token] of [
-   ['#chapter-01 h1','--paper'],['#chapter-04 h2','--avd'],['#chapter-05 h2','--anx'],['#chapter-10 h2','--paper'],['.dedication-end','--paper'],
+   ['#chapter-01 h1','--paper'],['#chapter-04 h2','--paper'],['#chapter-05 h2','--paper'],['#chapter-10 h2','--paper'],['.dedication-end','--paper'],
    ['#chapter-04 h2 em','--avd'],['#chapter-05 h2 em','--anx'],['#chapter-09>.chapter-heading h2 em','--avd'],['#chapter-11 h2 em','--anx'],
    ['#chapter-07>.chapter-heading h2 em','--anx'],['#chapter-08>.chapter-heading h2 em','--avd'],['#finale-title','--paper'],
-   ['.title-anx','--anx'],['.title-avd','--avd'],['.title-warm','--avd']
+   ['.title-anx','--paper'],['.title-avd','--paper'],['.title-warm','--paper']
   ]){
    const matches=await page.locator(selector).evaluate((el,token)=>{
     const probe=document.createElement('span');probe.style.color=`var(${token})`;el.append(probe);
@@ -57,7 +57,7 @@ try{
    const p=document.createElement('span');p.style.color='var(--gold)';el.append(p);const gold=getComputedStyle(p).color;p.remove();return getComputedStyle(el).color!==gold;
   })),'gold never colors an entire heading');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-  console.log(`PASS ${width}: red/blue story titles, no full-heading gold and original serif dedication`);
+  console.log(`PASS ${width}: paper-white title bases, red/blue accents and original serif dedication`);
   await page.close();
  }
 }finally{await browser.close()}

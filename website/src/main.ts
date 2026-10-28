@@ -32,7 +32,7 @@ const menu=$<HTMLDialogElement>('#chapter-menu');
 try{localStorage.removeItem('paper-bookmark')}catch{/* Discard the retired bookmark when storage is available. */}
 function toast(text:string){fadeText($('#toast'),text);$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),2800)}
 function scrollToElement(el:HTMLElement,behavior:ScrollBehavior=reduced?'instant':'smooth'){
- const offset=innerWidth>1100&&el.matches('.distance-section')?$('.site-header').offsetHeight+$('.distance-nav').offsetHeight+20:110;
+ const offset=110;
  const top=el.getBoundingClientRect().top+scrollY-offset;window.scrollTo({top:Math.max(0,top),behavior});
 }
 function closeMenu(){fadeDialog(menu,false);}
@@ -83,7 +83,7 @@ const sourceObserver=new IntersectionObserver(()=>{
 all('.source-block').forEach(el=>sourceObserver.observe(el));
 
 const railLinks=all<HTMLAnchorElement>('[data-rail]'),progressBar=$('.reading-progress span'),header=$('.site-header');
-const distanceLinks=all<HTMLAnchorElement>('.distance-nav a'),distanceSections=all<HTMLElement>('[data-distance]');
+const distanceLinks=all<HTMLAnchorElement>('.distance-nav a,.header-distance-nav a'),distanceSections=all<HTMLElement>('[data-distance]');
 let distanceBounds:{el:HTMLElement;top:number;bottom:number}[]=[],markedDistance='';
 let markedChapter='',chapterBounds:{el:HTMLElement;top:number;bottom:number}[]=[],pageHeight=1;
 function measureChapters(){
@@ -93,7 +93,7 @@ function measureChapters(){
 }
 function updateProgress(){
  progressBar.style.transform=`scaleX(${Math.min(1,scrollY/pageHeight)})`;
- if(readerMode){header.classList.add('on-paper');return}
+ if(readerMode){header.classList.add('on-paper');header.classList.remove('has-distance-nav');return}
  const at=scrollY+innerHeight*.4;
  const active=chapterBounds.find(item=>item.top<=at&&item.bottom>at);
  if(active){
@@ -103,6 +103,7 @@ function updateProgress(){
    updateAtmosphere(Number(currentChapter),Math.max(0,Math.min(1,(at-active.top)/(active.bottom-active.top))));
  }
  const distance=currentChapter==='07'?(distanceBounds.find(item=>item.top<=at&&item.bottom>at)?.el.id||'distance-1'):'';
+ header.classList.toggle('has-distance-nav',currentChapter==='07');
  if(distance!==markedDistance){markedDistance=distance;distanceLinks.forEach(a=>{if(a.hash===`#${distance}`)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}
 }
 let scrollTick=false;

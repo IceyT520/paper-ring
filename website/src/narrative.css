@@ -70,15 +70,27 @@
 .reference-context{padding-left:14px;border-left:1px solid #72b7ef40}
 .reference-intro{max-width:280px}
 .connection-hint{display:none}
+.header-context{display:grid;place-items:center;min-width:0;margin:0 24px;flex:1}
+.header-context>*{grid-area:1/1}
+.header-distance-nav{display:flex;align-items:center;justify-content:center;gap:clamp(16px,2vw,30px);font:11px/1.8 var(--sans);letter-spacing:.08em;visibility:hidden;opacity:0;pointer-events:none}
+.header-distance-nav a{position:relative;display:flex;align-items:center;min-height:44px;white-space:nowrap;color:#9ea7b4;transition:color .25s}
+.header-distance-nav a:after{content:'';position:absolute;bottom:2px;left:50%;width:14px;height:1px;transform:translateX(-50%) scaleX(0);background:var(--paper);transition:transform .25s}
+.header-distance-nav a[aria-current="location"],.header-distance-nav a:hover{color:var(--paper)}
+.header-distance-nav a[aria-current="location"]:after{transform:translateX(-50%) scaleX(1)}
+.header-context>*{transition:opacity .25s,visibility .25s}
+@media(min-width:1101px){
+ .has-distance-nav .header-distance-nav{visibility:visible;opacity:1;pointer-events:auto}
+ .has-distance-nav .header-caption{visibility:hidden;opacity:0}
+}
+@media(max-width:1100px){.header-context{display:none}}
 /* Reading aids belong to the desktop column; mobile keeps its existing layout. */
 @media(min-width:1101px){
  #exhibition .anxious .reading-subtitle{font-size:26px;line-height:1.65;margin:64px 0 28px;padding-top:24px;border-top:1px solid #ee8a8029}
  #exhibition .anxious .prose>.reading-subtitle:first-child{margin-top:0;padding-top:0;border:0}
  #exhibition .rescue-sheet .reading-subtitle{margin-top:0}
- .distance-nav{position:sticky;top:90px;z-index:12;flex-wrap:nowrap;gap:32px;padding:14px 0;background:#10151cf5;border-bottom:1px solid #adbbca29}
- .distance-nav a{font-size:12px;line-height:24px;padding:4px 0;transition:color .25s}
- .distance-nav a[aria-current="location"]{color:var(--paper);box-shadow:0 1px 0 var(--anx)}
- #exhibition .distance-visual{top:168px}
+ .distance-nav{gap:32px;border:0;padding:0 0 12px}
+ .distance-nav a{font-size:11px;line-height:24px;padding:4px 0;color:var(--type-note);transition:color .25s}
+ .distance-nav a[aria-current="location"],.distance-nav a:hover{color:var(--paper)}
  .mobius-caption #replay-twist{font-size:13px;padding:13px 18px;border:1px solid #72b7ef80;background:linear-gradient(110deg,#72b7ef18,#72b7ef04);color:var(--paper)}
  .mobius-caption #replay-twist:hover{background:#72b7ef24;border-color:var(--avd)}
  .mobius-caption .connection-hint{display:block;font:12px/1.9 var(--sans);color:var(--type-secondary);max-width:305px;margin:14px 0 0}
@@ -153,15 +165,6 @@
 }
 #exhibition #chapter-09>.chapter-heading h2 em{color:var(--avd)}
 #exhibition #chapter-11>.chapter-heading h2 em{color:var(--anx)}
-#exhibition #chapter-02>.chapter-heading h2,#exhibition #chapter-05>.chapter-heading h2,
-#exhibition .study-delay h3,#exhibition .study-resonance h3{--type-title:var(--anx)}
-#exhibition #chapter-04>.chapter-heading h2,#exhibition #chapter-08>.chapter-heading h2,
-#exhibition .study-origin h3,#exhibition .study-weave h3,#exhibition .wall-quote{--type-title:var(--avd)}
-#exhibition .anxious .reading-subtitle{--type-title:var(--anx)}
-#exhibition .avoidant .reading-subtitle,#exhibition .model-source .reading-subtitle,#exhibition .title-avd{--type-title:var(--avd)}
-#exhibition .title-anx{--type-title:var(--anx)}
-#exhibition .title-warm{--type-title:var(--avd)}
-#exhibition .mobius-coda h3{--type-title:var(--avd)}
 #exhibition .mobius-coda h3 em{color:var(--anx)}
 #exhibition .copy-anx{color:var(--anx)}
 #exhibition .copy-avd{color:var(--avd)}

@@ -4,6 +4,17 @@ All notable changes to this project are recorded here. Versions follow
 [semantic versioning](https://semver.org/); the published single-file build is
 `纸环的两面.html` at the repository root.
 
+## [1.20.1] — 2026-10-28
+
+### Changed
+- Integrate the desktop distance subsection links into the existing header.
+  The original caption returns outside chapter seven and in full-text mode;
+  the chapter overview stays in the reading flow without a second sticky bar.
+- Restore paper-white bases for all heading levels, with red and blue confined
+  to short narrative accents. Keep the established phone-title accent and the
+  shared-surface gradients.
+- Update navigation and typography checks for the unified header and palette.
+
 ## [1.20.0] — 2026-10-28
 
 ### Changed
